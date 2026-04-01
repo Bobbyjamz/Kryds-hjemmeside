@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Barlow } from "next/font/google";
 import "./globals.css";
-import CustomCursor from "@/components/CustomCursor";
 
 const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
@@ -34,7 +33,6 @@ export default function RootLayout({
   return (
     <html lang="da" className={`${barlowCondensed.variable} ${barlow.variable}`}>
       <body>
-        <CustomCursor />
         {children}
       </body>
     </html>

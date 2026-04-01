@@ -42,7 +42,7 @@ export default function Contact() {
   };
 
   const inputClass =
-    "w-full bg-[rgba(12,12,10,.5)] border border-[rgba(242,238,230,.1)] text-cream font-sans text-[14px] font-light px-[15px] py-3 rounded-[2px] outline-none transition-colors focus:border-yellow appearance-none placeholder:text-[rgba(242,238,230,.2)]";
+    "w-full bg-[rgba(12,12,10,.5)] border border-[rgba(242,238,230,.1)] text-cream font-sans text-[16px] font-light px-[15px] py-3 rounded-[2px] outline-none transition-colors focus:border-yellow appearance-none placeholder:text-[rgba(242,238,230,.2)]";
 
   return (
     <section id="contract" className="bg-black2 py-[100px] px-[52px] max-[900px]:py-[70px] max-[900px]:px-5" ref={ref}>
@@ -95,9 +95,9 @@ export default function Contact() {
             Kontakt os direkte
           </h3>
           <p className="text-[15px] leading-[1.72] text-muted mb-[6px]">
-            <a href="mailto:info@kryds.dk" className="text-muted hover:text-cream transition-colors">info@kryds.dk</a>
+            <a href="mailto:Kontakt@KrydsByg.com" className="text-muted hover:text-cream transition-colors">Kontakt@KrydsByg.com</a>
           </p>
-          <p className="text-[15px] leading-[1.72] text-muted mb-[6px]">+45 70 27 00 00</p>
+          <p className="text-[15px] leading-[1.72] text-muted mb-[6px]">+45 42 77 88 66</p>
           <p className="text-[15px] leading-[1.72] text-muted">København, Danmark</p>
         </div>
 
@@ -162,6 +162,7 @@ export default function Contact() {
                     <option>Byggepladsbehjælp</option>
                     <option>Nedrivning &amp; rydning</option>
                     <option>Flise &amp; anlægsarbejde</option>
+                    <option>Events &amp; sceneopbygning</option>
                     <option>Kombineret / andet</option>
                   </select>
                 </div>

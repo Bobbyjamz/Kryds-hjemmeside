@@ -3,7 +3,7 @@ export default function Hero() {
     <section className="min-h-screen flex flex-col justify-end px-[52px] pb-[88px] relative overflow-hidden max-[900px]:px-5 max-[900px]:pb-16">
       <div className="hero-lines" />
       <div
-        className="hero-bigx animate-spin-slow"
+        className="hero-bigx animate-spin-slow max-[900px]:opacity-40"
         style={{ width: "min(52vw,660px)", height: "min(52vw,660px)" }}
       />
       <div className="hero-ring" style={{ width: 680, height: 680, right: "calc(6% - 340px + 5vw)" }} />
@@ -19,7 +19,7 @@ export default function Hero() {
         <div className="hero-eyebrow flex items-center gap-[14px] font-condensed font-semibold text-[12px] tracking-[.22em] uppercase text-yellow mb-[22px] opacity-0 animate-fadeup" style={{ animationDelay: ".2s" }}>
           Renovering · Maling · Havearbejde · Montering · Byggeplads · København
         </div>
-        <h1 className="font-condensed font-black text-[clamp(76px,11vw,148px)] leading-[.9] tracking-[-.01em] uppercase max-w-[820px] opacity-0 animate-fadeup" style={{ animationDelay: ".35s" }}>
+        <h1 className="font-condensed font-black text-[clamp(52px,11vw,148px)] leading-[.9] tracking-[-.01em] uppercase max-w-[820px] opacity-0 animate-fadeup" style={{ animationDelay: ".35s" }}>
           Stærke<br />
           <span className="text-outline">hænder</span><br />
           <span className="text-yellow">til byggeriet</span>

@@ -14,11 +14,11 @@ export async function POST(req: NextRequest) {
   try {
     await resend.emails.send({
       from: process.env.RESEND_FROM || "onboarding@resend.dev",
-      to: [process.env.RESEND_TO || "info@kryds.dk"],
+      to: ["Kontakt@KrydsByg.com"],
       replyTo: email,
       subject: `Ny forespørgsel: ${opgavetype} — ${virksomhed}`,
       html: `
-        <h2>Ny forespørgsel fra kryds.dk</h2>
+        <h2>Ny forespørgsel fra KrydsByg.com</h2>
         <p><strong>Virksomhed:</strong> ${virksomhed}</p>
         <p><strong>Kontaktperson:</strong> ${kontaktperson || "–"}</p>
         <p><strong>Email:</strong> ${email}</p>

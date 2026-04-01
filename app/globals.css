@@ -22,23 +22,10 @@ body {
   font-family: var(--font-barlow), 'Barlow', sans-serif;
   font-weight: 300;
   overflow-x: hidden;
-  cursor: none;
 }
 
 [id] { scroll-margin-top: 66px; }
 
-/* CURSOR */
-#cur {
-  position: fixed; width: 10px; height: 10px; background: var(--yellow);
-  border-radius: 50%; pointer-events: none; z-index: 9999;
-  transform: translate(-50%, -50%); transition: width .2s, height .2s, opacity .2s;
-}
-#ring {
-  position: fixed; width: 36px; height: 36px;
-  border: 1px solid rgba(245, 196, 0, .4);
-  border-radius: 50%; pointer-events: none; z-index: 9998;
-  transform: translate(-50%, -50%);
-}
 
 /* HERO LINES — pseudo-element animation */
 .hero-lines { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
@@ -177,4 +164,13 @@ body {
 /* MOBILE */
 @media (max-width: 900px) {
   .steps-grid::after { display: none; }
+}
+
+/* Touch optimizations */
+button, a {
+  touch-action: manipulation;
+}
+
+@media (max-width: 480px) {
+  .hero-eyebrow { font-size: 10px; }
 }

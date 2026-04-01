@@ -47,4 +47,10 @@ export const services = [
     desc: "Har du et projekt der spænder over flere fagområder? Vi sætter det rette hold sammen — med de rette kompetencer til hver enkelt del af opgaven.",
     tags: ["Helhedsprojekt", "Sammensat hold", "Fleksibelt"],
   },
+  {
+    num: "09",
+    title: "Events & sceneopbygning",
+    desc: "Erfarne folk til opsætning og nedtagning af scener, telte, borde, stole og eventudstyr. Vi hjælper med at få dit event på benene — hurtigt og sikkert.",
+    tags: ["Scener", "Telte", "Eventopsætning", "Nedtagning"],
+  },
 ];

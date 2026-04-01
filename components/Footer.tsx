@@ -15,7 +15,7 @@ export default function Footer() {
             <h5 className="font-condensed font-bold text-[11px] tracking-[.18em] uppercase text-yellow mb-4">
               Ydelser
             </h5>
-            {["Renovering", "Maling & spartling", "Havearbejde", "Montering", "Byggepladsbehjælp", "Nedrivning & rydning", "Flise & anlæg"].map((s) => (
+            {["Renovering", "Maling & spartling", "Havearbejde", "Montering", "Byggepladsbehjælp", "Nedrivning & rydning", "Flise & anlæg", "Events & scener"].map((s) => (
               <a key={s} href="#" className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
                 {s}
               </a>
@@ -44,8 +44,11 @@ export default function Footer() {
         </div>
       </div>
       <div className="flex justify-between items-center">
-        <p className="text-[12px] text-[rgba(242,238,230,.2)]">© 2025 Kryds ApS — CVR: 40 00 00 00</p>
-        <p className="text-[12px] text-[rgba(242,238,230,.2)]">København, Danmark</p>
+        <p className="text-[12px] text-[rgba(242,238,230,.2)]">© 2025 Kryds ApS — CVR: 46369947</p>
+        <p className="text-[12px] text-[rgba(242,238,230,.2)]">
+          <a href="mailto:Info@KrydsByg.com" className="text-[rgba(242,238,230,.2)] hover:text-muted transition-colors no-underline">Info@KrydsByg.com</a>
+          {" · "}København, Danmark
+        </p>
       </div>
     </footer>
   );
