@@ -76,24 +76,6 @@ export default function Gallery() {
           </div>
         </div>
 
-        {/* CTA — Find hurtig bemanding */}
-        <a
-          href="#contract"
-          className="group relative overflow-hidden flex flex-col items-center justify-center text-center bg-[#1A1A18] border border-[rgba(245,196,0,.12)] transition-all duration-500 hover:bg-[#222220] hover:border-[rgba(245,196,0,.3)]"
-          style={{ aspectRatio: "4/3", minHeight: 220 }}
-        >
-          <div className="relative z-10 px-6">
-            <h3 className="font-condensed font-black text-[clamp(24px,3vw,32px)] uppercase leading-[1] tracking-[-.01em] text-cream mb-3">
-              Find hurtig<br /><span className="text-yellow">bemanding</span>
-            </h3>
-            <p className="text-[13px] leading-[1.6] text-[rgba(242,238,230,.45)] max-w-[260px] mb-5">
-              Ét opkald. Vi sammensætter det rette hold — uanset branche.
-            </p>
-            <span className="inline-block font-condensed font-extrabold text-[12px] tracking-[.14em] uppercase bg-yellow text-black px-5 py-[10px] rounded-[2px] transition-all duration-300 group-hover:bg-yellow2 group-hover:-translate-y-[1px]">
-              Book nu
-            </span>
-          </div>
-        </a>
       </div>
     </section>
   );

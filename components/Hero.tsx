@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <section className="min-h-screen flex flex-col justify-end px-[52px] pb-[88px] relative overflow-hidden max-[900px]:px-5 max-[900px]:pb-16">
+    <section className="min-h-screen flex flex-col justify-end px-[52px] pt-[80px] pb-[88px] relative overflow-hidden max-[900px]:px-5 max-[900px]:pt-[70px] max-[900px]:pb-16">
       <div className="hero-lines" />
       <div
         className="hero-bigx animate-spin-slow max-[900px]:opacity-40"
