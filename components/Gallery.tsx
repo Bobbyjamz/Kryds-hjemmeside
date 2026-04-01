@@ -47,29 +47,47 @@ export default function Gallery() {
           </div>
         ))}
 
-        {/* Branded Kryds CTA-kort */}
+        {/* Kombinerede opgaver — X med brancher */}
+        <div
+          className="group relative overflow-hidden flex flex-col items-center justify-center text-center bg-[#1A1A18] border border-[rgba(245,196,0,.12)] transition-all duration-500 hover:bg-[#222220] hover:border-[rgba(245,196,0,.3)]"
+          style={{ aspectRatio: "4/3", minHeight: 220 }}
+        >
+          {/* Large X background */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.06] group-hover:opacity-[0.14] transition-opacity duration-500">
+            <svg width="240" height="240" viewBox="0 0 90 90" className="transition-transform duration-700 group-hover:rotate-45">
+              <line x1="8" y1="8" x2="82" y2="82" stroke="#F5C400" strokeWidth="14" strokeLinecap="square" />
+              <line x1="82" y1="8" x2="8" y2="82" stroke="#F2EEE6" strokeWidth="14" strokeLinecap="square" />
+            </svg>
+          </div>
+          <div className="relative z-10 px-6">
+            <span className="font-condensed font-bold text-[10px] tracking-[.22em] uppercase text-yellow block mb-3">
+              Kombinerede opgaver
+            </span>
+            <h3 className="font-condensed font-black text-[clamp(22px,2.8vw,30px)] uppercase leading-[1.05] tracking-[-.01em] text-cream mb-3">
+              Alle brancher<br /><span className="text-yellow">samlet i ét</span>
+            </h3>
+            <div className="flex flex-wrap justify-center gap-[5px] max-w-[280px]">
+              {["Renovering", "Maling", "Montering", "Events", "Nedrivning", "Fliser"].map((t) => (
+                <span key={t} className="bg-[rgba(245,196,0,.08)] border border-[rgba(245,196,0,.18)] text-yellow font-condensed font-bold text-[9px] tracking-[.1em] uppercase px-2 py-[3px] rounded-[1px]">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* CTA — Find hurtig bemanding */}
         <a
           href="#contract"
           className="group relative overflow-hidden flex flex-col items-center justify-center text-center bg-[#1A1A18] border border-[rgba(245,196,0,.12)] transition-all duration-500 hover:bg-[#222220] hover:border-[rgba(245,196,0,.3)]"
           style={{ aspectRatio: "4/3", minHeight: 220 }}
         >
-          {/* Animated X background */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] group-hover:opacity-[0.1] transition-opacity duration-500">
-            <svg width="200" height="200" viewBox="0 0 90 90" className="transition-transform duration-700 group-hover:rotate-90">
-              <line x1="8" y1="8" x2="82" y2="82" stroke="#F5C400" strokeWidth="14" strokeLinecap="square" />
-              <line x1="82" y1="8" x2="8" y2="82" stroke="#F5C400" strokeWidth="14" strokeLinecap="square" />
-            </svg>
-          </div>
-          {/* Content */}
           <div className="relative z-10 px-6">
-            <span className="font-condensed font-bold text-[10px] tracking-[.22em] uppercase text-yellow block mb-3">
-              Kombinerede opgaver
-            </span>
             <h3 className="font-condensed font-black text-[clamp(24px,3vw,32px)] uppercase leading-[1] tracking-[-.01em] text-cream mb-3">
               Find hurtig<br /><span className="text-yellow">bemanding</span>
             </h3>
             <p className="text-[13px] leading-[1.6] text-[rgba(242,238,230,.45)] max-w-[260px] mb-5">
-              Ét opkald. Vi sammensætter det rette hold til dit projekt — uanset branche.
+              Ét opkald. Vi sammensætter det rette hold — uanset branche.
             </p>
             <span className="inline-block font-condensed font-extrabold text-[12px] tracking-[.14em] uppercase bg-yellow text-black px-5 py-[10px] rounded-[2px] transition-all duration-300 group-hover:bg-yellow2 group-hover:-translate-y-[1px]">
               Book nu
