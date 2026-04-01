@@ -12,7 +12,6 @@ const galleryItems = [
   { label: "Nedrivning & rydning", img: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80", alt: "Arbejder river mur ned med værktøj" },
   { label: "Flise & anlægsarbejde", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80", alt: "Flisemontør lægger gulvfliser" },
   { label: "Events & sceneopbygning", img: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80", alt: "Musikscene og koncertopsætning" },
-  { label: "Kombinerede opgaver", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80", alt: "Byggehold arbejder sammen på projekt" },
 ];
 
 export default function Gallery() {
@@ -39,17 +38,7 @@ export default function Gallery() {
               fill
               sizes="(max-width: 480px) 100vw, (max-width: 900px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
             />
-            {/* Fallback placeholder (visible when image is missing) */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray2 -z-10">
-              <div className="gallery-placeholder-x" />
-              <p className="font-condensed font-semibold text-[12px] tracking-[.16em] uppercase text-muted opacity-80">
-                {item.label}
-              </p>
-            </div>
             {/* Hover overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-[rgba(12,12,10,.75)] via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <span className="absolute bottom-4 left-4 font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-yellow opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -57,6 +46,36 @@ export default function Gallery() {
             </span>
           </div>
         ))}
+
+        {/* Branded Kryds CTA-kort */}
+        <a
+          href="#contract"
+          className="group relative overflow-hidden flex flex-col items-center justify-center text-center bg-[#1A1A18] border border-[rgba(245,196,0,.12)] transition-all duration-500 hover:bg-[#222220] hover:border-[rgba(245,196,0,.3)]"
+          style={{ aspectRatio: "4/3", minHeight: 220 }}
+        >
+          {/* Animated X background */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.04] group-hover:opacity-[0.1] transition-opacity duration-500">
+            <svg width="200" height="200" viewBox="0 0 90 90" className="transition-transform duration-700 group-hover:rotate-90">
+              <line x1="8" y1="8" x2="82" y2="82" stroke="#F5C400" strokeWidth="14" strokeLinecap="square" />
+              <line x1="82" y1="8" x2="8" y2="82" stroke="#F5C400" strokeWidth="14" strokeLinecap="square" />
+            </svg>
+          </div>
+          {/* Content */}
+          <div className="relative z-10 px-6">
+            <span className="font-condensed font-bold text-[10px] tracking-[.22em] uppercase text-yellow block mb-3">
+              Kombinerede opgaver
+            </span>
+            <h3 className="font-condensed font-black text-[clamp(24px,3vw,32px)] uppercase leading-[1] tracking-[-.01em] text-cream mb-3">
+              Find hurtig<br /><span className="text-yellow">bemanding</span>
+            </h3>
+            <p className="text-[13px] leading-[1.6] text-[rgba(242,238,230,.45)] max-w-[260px] mb-5">
+              Ét opkald. Vi sammensætter det rette hold til dit projekt — uanset branche.
+            </p>
+            <span className="inline-block font-condensed font-extrabold text-[12px] tracking-[.14em] uppercase bg-yellow text-black px-5 py-[10px] rounded-[2px] transition-all duration-300 group-hover:bg-yellow2 group-hover:-translate-y-[1px]">
+              Book nu
+            </span>
+          </div>
+        </a>
       </div>
     </section>
   );
