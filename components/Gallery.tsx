@@ -11,8 +11,8 @@ const galleryItems = [
   { label: "Byggepladsbehjælp", img: "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=800&q=80", alt: "Bygningsarbejdere bærer materialer på byggeplads" },
   { label: "Nedrivning & rydning", img: "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80", alt: "Arbejder river mur ned med værktøj" },
   { label: "Flise & anlægsarbejde", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80", alt: "Flisemontør lægger gulvfliser" },
-  { label: "Kombinerede opgaver", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80", alt: "Byggehold arbejder sammen på projekt" },
   { label: "Events & sceneopbygning", img: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80", alt: "Musikscene og koncertopsætning" },
+  { label: "Kombinerede opgaver", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80", alt: "Byggehold arbejder sammen på projekt" },
 ];
 
 export default function Gallery() {
