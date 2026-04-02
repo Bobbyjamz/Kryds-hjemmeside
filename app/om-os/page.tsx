@@ -15,12 +15,14 @@ const team = [
     name: "Krystian Seweryn Balasz",
     role: "Stifter",
     photo: "/krystian.jpg",
+    facePosition: "center 18%",
     bio: "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds ud fra en simpel overbevisning: at de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige og hårdtarbejdende folk, der er klar til at rykke ud med kort varsel.",
   },
   {
     name: "Karl Kristian Ravn",
     role: "Partner & Driftsansvarlig",
     photo: "/karl.jpg",
+    facePosition: "center 42%",
     bio: "Karl sikrer at maskinrummet kører. Som driftsansvarlig har han ansvaret for den daglige koordinering, kvalitetssikring og kundekontakt. Han sørger for at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen mellem kunde og personale altid er i top. Karl tror på at struktur og omsorg for mennesker ikke behøver at udelukke hinanden.",
   },
 ];
@@ -92,13 +94,14 @@ export default function OmOsPage() {
                 key={person.name}
                 className="bg-gray p-10 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center transition-all duration-300 hover:border-[rgba(245,196,0,.2)]"
               >
-                <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-[rgba(245,196,0,.3)] mx-auto mb-5 relative">
+                <div className="w-[140px] h-[140px] rounded-full overflow-hidden border-2 border-[rgba(245,196,0,.3)] mx-auto mb-5 relative">
                   <Image
                     src={person.photo}
                     alt={person.name}
                     fill
-                    sizes="120px"
-                    className="object-cover object-top"
+                    sizes="140px"
+                    className="object-cover"
+                    style={{ objectPosition: person.facePosition }}
                   />
                 </div>
                 <h3 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.02em] text-cream mb-1">
