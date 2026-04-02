@@ -31,9 +31,9 @@ export const services = [
   },
   {
     num: "06",
-    title: "Nedrivning & rydning",
-    desc: "Fysiske folk til nedrivning, rydning og bortskaffelse. Vi leverer hold der kan tage de hårde jobs — og som møder til tiden.",
-    tags: ["Nedrivning", "Bortskaffelse", "Rydning", "Containerfyld"],
+    title: "Flyttearbejde",
+    desc: "Erfarne folk til alle former for flytninger og tunge løft. Vi stiller hold klar til kontorflytninger, boligflytninger og industritransport — hurtigt og skånsomt.",
+    tags: ["Kontorflytning", "Boligflytning", "Tungt løft", "Transport"],
   },
   {
     num: "07",

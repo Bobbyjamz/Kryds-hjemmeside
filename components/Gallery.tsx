@@ -6,10 +6,10 @@ import Image from "next/image";
 const galleryItems = [
   { label: "Renovering", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80", alt: "Håndværker renoverer lejlighed indendørs" },
   { label: "Maling & spartling", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=800&q=80", alt: "Maler arbejder på væg med rulle" },
-  { label: "Havearbejde", img: "https://images.unsplash.com/photo-1592150621744-aca64f48394a?w=800&q=80", alt: "Gartner der arbejder og hjælper i haven" },
+  { label: "Havearbejde", img: "/gallery/havearbejde.jpg", alt: "Gartner med trillebør arbejder i haven" },
   { label: "Montering", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80", alt: "Håndværker monterer med værktøj" },
   { label: "Byggepladsbehjælp", img: "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=800&q=80", alt: "Bygningsarbejdere bærer materialer på byggeplads" },
-  { label: "Nedrivning & rydning", img: "https://images.unsplash.com/photo-1590496793929-36417d3117de?w=800&q=80", alt: "Nedrivning og rydning af bygning" },
+  { label: "Flyttearbejde", img: "/gallery/flyttearbejde.webp", alt: "Flyttefolk bærer kasser fra varevogn" },
   { label: "Flise & anlægsarbejde", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80", alt: "Flisemontør lægger gulvfliser" },
   { label: "Events & sceneopbygning", img: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80", alt: "Musikscene og koncertopsætning" },
 ];
@@ -67,7 +67,7 @@ export default function Gallery() {
               Alle brancher<br /><span className="text-yellow">samlet i ét</span>
             </h3>
             <div className="flex flex-wrap justify-center gap-[5px] max-w-[280px]">
-              {["Renovering", "Maling", "Montering", "Events", "Nedrivning", "Fliser"].map((t) => (
+              {["Renovering", "Maling", "Montering", "Events", "Flytning", "Fliser"].map((t) => (
                 <span key={t} className="bg-[rgba(245,196,0,.08)] border border-[rgba(245,196,0,.18)] text-yellow font-condensed font-bold text-[9px] tracking-[.1em] uppercase px-2 py-[3px] rounded-[1px]">
                   {t}
                 </span>

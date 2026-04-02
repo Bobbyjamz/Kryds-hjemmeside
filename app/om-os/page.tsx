@@ -15,14 +15,14 @@ const team = [
     name: "Krystian Seweryn Balasz",
     role: "Stifter",
     photo: "/krystian.jpg",
-    facePosition: "center 18%",
+    facePosition: "center 22%",
     bio: "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds ud fra en simpel overbevisning: at de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige og hårdtarbejdende folk, der er klar til at rykke ud med kort varsel.",
   },
   {
     name: "Karl Kristian Ravn",
     role: "Partner & Driftsansvarlig",
     photo: "/karl.jpg",
-    facePosition: "center 42%",
+    facePosition: "center 50%",
     bio: "Karl sikrer at maskinrummet kører. Som driftsansvarlig har han ansvaret for den daglige koordinering, kvalitetssikring og kundekontakt. Han sørger for at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen mellem kunde og personale altid er i top. Karl tror på at struktur og omsorg for mennesker ikke behøver at udelukke hinanden.",
   },
 ];
@@ -101,7 +101,7 @@ export default function OmOsPage() {
                     fill
                     sizes="140px"
                     className="object-cover"
-                    style={{ objectPosition: person.facePosition }}
+                    style={{ objectPosition: person.facePosition, transform: "scale(1.35)", transformOrigin: person.facePosition }}
                   />
                 </div>
                 <h3 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.02em] text-cream mb-1">

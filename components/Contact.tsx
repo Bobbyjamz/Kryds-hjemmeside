@@ -160,7 +160,7 @@ export default function Contact() {
                     <option>Havearbejde</option>
                     <option>Montering</option>
                     <option>Byggepladsbehjælp</option>
-                    <option>Nedrivning &amp; rydning</option>
+                    <option>Flyttearbejde</option>
                     <option>Flise &amp; anlægsarbejde</option>
                     <option>Events &amp; sceneopbygning</option>
                     <option>Kombineret / andet</option>

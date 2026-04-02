@@ -15,7 +15,7 @@ export default function Footer() {
             <h5 className="font-condensed font-bold text-[11px] tracking-[.18em] uppercase text-yellow mb-4">
               Ydelser
             </h5>
-            {["Renovering", "Maling & spartling", "Havearbejde", "Montering", "Byggepladsbehjælp", "Nedrivning & rydning", "Flise & anlæg", "Events & scener"].map((s) => (
+            {["Renovering", "Maling & spartling", "Havearbejde", "Montering", "Byggepladsbehjælp", "Flyttearbejde", "Flise & anlæg", "Events & scener"].map((s) => (
               <a key={s} href="#" className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
                 {s}
               </a>

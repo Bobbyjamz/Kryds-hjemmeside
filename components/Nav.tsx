@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import Logo from "./Logo";
 
 export default function Nav() {
@@ -24,41 +25,41 @@ export default function Nav() {
         <Logo />
         <ul className="flex gap-[38px] list-none items-center">
           <li className="max-[900px]:hidden">
-            <a href="#services" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+            <Link href="/#services" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Ydelser
-            </a>
+            </Link>
           </li>
           <li className="max-[900px]:hidden">
-            <a href="#how" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+            <Link href="/#how" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Processen
-            </a>
+            </Link>
           </li>
           <li className="max-[900px]:hidden">
-            <a href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+            <Link href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Om os
-            </a>
+            </Link>
           </li>
           <li className="max-[900px]:hidden">
-            <a href="/priser" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+            <Link href="/priser" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Priser
-            </a>
+            </Link>
           </li>
           <li className="max-[900px]:hidden">
-            <a
-              href="#contract"
+            <Link
+              href="/#contract"
               className="font-condensed font-extrabold text-[13px] tracking-[.1em] uppercase bg-yellow text-black px-6 py-[10px] rounded-[2px] no-underline transition-colors hover:bg-yellow2"
             >
               Book nu
-            </a>
+            </Link>
           </li>
           {/* Hamburger button — only on mobile */}
           <li className="hidden max-[900px]:flex items-center gap-4">
-            <a
-              href="#contract"
+            <Link
+              href="/#contract"
               className="font-condensed font-extrabold text-[13px] tracking-[.1em] uppercase bg-yellow text-black px-5 py-[9px] rounded-[2px] no-underline transition-colors hover:bg-yellow2"
             >
               Book nu
-            </a>
+            </Link>
             <button
               aria-label="Åbn menu"
               onClick={() => setMenuOpen((v) => !v)}
@@ -88,8 +89,8 @@ export default function Nav() {
           style={{ paddingTop: scrolled ? 54 : 66 }}
         >
           {[
-            { href: "#services", label: "Ydelser" },
-            { href: "#how", label: "Processen" },
+            { href: "/#services", label: "Ydelser" },
+            { href: "/#how", label: "Processen" },
             { href: "/om-os", label: "Om os" },
             { href: "/priser", label: "Priser" },
             { href: "#contract", label: "Book nu" },

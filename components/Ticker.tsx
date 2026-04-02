@@ -4,7 +4,7 @@ const items = [
   "Havearbejde",
   "Montering",
   "Byggepladsbehjælp",
-  "Nedrivning & rydning",
+  "Flyttearbejde",
   "Flisearbejde",
   "Kryds — Sæt et kryds i kalenderen",
 ];
