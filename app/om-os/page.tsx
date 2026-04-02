@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -13,25 +14,16 @@ const team = [
   {
     name: "Krystian Seweryn Balasz",
     role: "Stifter",
-    bio: "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds ud fra en simpel overbevisning: at de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra alt fra renovering til store byggepladser har han bygget et netværk af dygtige og hårdtarbejdende folk, der er klar til at rykke ud med kort varsel.",
+    photo: "/krystian.jpg",
+    bio: "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds ud fra en simpel overbevisning: at de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige og hårdtarbejdende folk, der er klar til at rykke ud med kort varsel.",
   },
   {
     name: "Karl Kristian Ravn",
     role: "Partner & Driftsansvarlig",
+    photo: "/karl.jpg",
     bio: "Karl sikrer at maskinrummet kører. Som driftsansvarlig har han ansvaret for den daglige koordinering, kvalitetssikring og kundekontakt. Han sørger for at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen mellem kunde og personale altid er i top. Karl tror på at struktur og omsorg for mennesker ikke behøver at udelukke hinanden.",
   },
 ];
-
-function PersonIcon() {
-  return (
-    <div className="w-[100px] h-[100px] rounded-full bg-[rgba(245,196,0,.08)] border-2 border-[rgba(245,196,0,.2)] flex items-center justify-center mx-auto mb-5">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    </div>
-  );
-}
 
 export default function OmOsPage() {
   return (
@@ -100,7 +92,15 @@ export default function OmOsPage() {
                 key={person.name}
                 className="bg-gray p-10 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center transition-all duration-300 hover:border-[rgba(245,196,0,.2)]"
               >
-                <PersonIcon />
+                <div className="w-[120px] h-[120px] rounded-full overflow-hidden border-2 border-[rgba(245,196,0,.3)] mx-auto mb-5 relative">
+                  <Image
+                    src={person.photo}
+                    alt={person.name}
+                    fill
+                    sizes="120px"
+                    className="object-cover object-top"
+                  />
+                </div>
                 <h3 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.02em] text-cream mb-1">
                   {person.name}
                 </h3>

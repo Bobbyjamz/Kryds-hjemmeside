@@ -277,7 +277,7 @@ export default function PriserPage() {
               href="/#contract"
               className="inline-block font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase bg-yellow text-black px-10 py-[14px] rounded-[2px] no-underline transition-all hover:bg-yellow2 hover:-translate-y-[1px]"
             >
-              Send forespørgsel for tilbud
+              Send forespørgsel om tilbud
             </Link>
             <p className="text-[13px] text-muted mt-3">Vi vender tilbage inden for 2 timer med et uforpligtende tilbud.</p>
           </div>
