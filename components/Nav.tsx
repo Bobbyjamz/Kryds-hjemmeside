@@ -34,7 +34,7 @@ export default function Nav() {
             </a>
           </li>
           <li className="max-[900px]:hidden">
-            <a href="#why" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+            <a href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Om os
             </a>
           </li>
@@ -90,7 +90,7 @@ export default function Nav() {
           {[
             { href: "#services", label: "Ydelser" },
             { href: "#how", label: "Processen" },
-            { href: "#why", label: "Om os" },
+            { href: "/om-os", label: "Om os" },
             { href: "/priser", label: "Priser" },
             { href: "#contract", label: "Book nu" },
           ].map(({ href, label }) => (
