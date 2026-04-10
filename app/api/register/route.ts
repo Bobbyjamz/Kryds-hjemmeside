@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
           : `<p style="margin:4px 0;font-size:14px;color:#888880;">Ingen referencer</p>`;
 
       try {
-        await resend.emails.send({
+        const { data: emailData, error: emailError } = await resend.emails.send({
           from: fromAddress,
           to: [toAddress],
           replyTo: employee.email || undefined,
@@ -183,9 +183,16 @@ export async function POST(req: NextRequest) {
   </table>
 </body></html>`,
         });
+        if (emailError) {
+          console.error("[register] Resend error:", emailError);
+        } else {
+          console.log("[register] Email sendt til", toAddress, "id:", emailData?.id);
+        }
       } catch (emailErr) {
-        console.error("[register] Email fejlede:", emailErr);
+        console.error("[register] Email exception:", emailErr);
       }
+    } else {
+      console.warn("[register] RESEND_API_KEY mangler — springer email over");
     }
 
     return NextResponse.json({ ok: true, id: employee.id }, { status: 201 });
