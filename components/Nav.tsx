@@ -25,16 +25,6 @@ export default function Nav() {
         <Logo />
         <ul className="flex gap-[38px] list-none items-center">
           <li className="max-[900px]:hidden">
-            <Link href="/#services" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
-              Ydelser
-            </Link>
-          </li>
-          <li className="max-[900px]:hidden">
-            <Link href="/#how" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
-              Processen
-            </Link>
-          </li>
-          <li className="max-[900px]:hidden">
             <Link href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Om os
             </Link>
@@ -52,11 +42,6 @@ export default function Nav() {
           <li className="max-[900px]:hidden">
             <Link href="/medarbejder/login" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Medarbejder
-            </Link>
-          </li>
-          <li className="max-[900px]:hidden">
-            <Link href="/admin/login" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
-              Admin
             </Link>
           </li>
           <li className="max-[900px]:hidden">
@@ -100,30 +85,29 @@ export default function Nav() {
       {/* Mobile menu overlay */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-[490] bg-[rgba(12,12,10,.97)] flex flex-col justify-center items-start px-8 gap-8 hidden max-[900px]:flex"
+          className="fixed inset-0 z-[490] bg-[rgba(12,12,10,.97)] flex flex-col justify-center items-start px-8 gap-6 hidden max-[900px]:flex"
           style={{ paddingTop: scrolled ? 54 : 66 }}
         >
           {[
-            { href: "/#services", label: "Ydelser" },
-            { href: "/#how", label: "Processen" },
             { href: "/om-os", label: "Om os" },
             { href: "/priser", label: "Priser" },
             { href: "/tilmeld", label: "Tilmeld dig" },
-            { href: "/medarbejder/login", label: "Medarbejder" },
-            { href: "/admin/login", label: "Admin" },
-            { href: "#contract", label: "Book nu" },
+            { href: "/medarbejder/login", label: "Medarbejder login" },
+            { href: "/#contract", label: "Book nu" },
           ].map(({ href, label }) => (
             <a
               key={href}
               href={href}
               onClick={closeMenu}
-              className="font-condensed font-extrabold text-[40px] uppercase tracking-[-.01em] text-cream no-underline transition-colors hover:text-yellow leading-none"
+              className="font-condensed font-extrabold text-[28px] uppercase tracking-[-.01em] text-cream no-underline transition-colors hover:text-yellow leading-none"
             >
               {label}
             </a>
           ))}
-          <div className="mt-4 border-t border-[rgba(242,238,230,0.07)] pt-6 w-full">
-            <p className="text-[14px] text-muted mb-1">+45 42 77 88 66</p>
+          <div className="mt-6 border-t border-[rgba(242,238,230,0.07)] pt-5 w-full">
+            <a href="tel:+4542778866" className="text-[15px] text-muted no-underline hover:text-cream transition-colors block mb-1">
+              +45 42 77 88 66
+            </a>
             <a href="mailto:Kontakt@KrydsByg.com" className="text-[14px] text-muted no-underline hover:text-cream transition-colors">
               Kontakt@KrydsByg.com
             </a>

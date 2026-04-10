@@ -26,7 +26,7 @@ export default function MedarbejderLoginPage() {
       setLoading(false);
       return;
     }
-    router.push("/medarbejder");
+    router.push(data.redirect || "/medarbejder");
     router.refresh();
   };
 

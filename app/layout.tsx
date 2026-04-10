@@ -38,6 +38,8 @@ export const metadata: Metadata = {
     "montering",
     "byggeleder",
     "koordinator",
+    "vikarbureau København",
+    "byggevikar",
   ],
   icons: {
     icon: [
@@ -76,6 +78,44 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Kryds ApS",
+  "alternateName": "KrydsByg",
+  "description": "Kryds leverer erfarne byggefolk til renovering, maling, havearbejde, montering og byggepladsbemanding i København.",
+  "url": "https://krydsbyg.com",
+  "telephone": "+4542778866",
+  "email": "Kontakt@KrydsByg.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "København",
+    "addressCountry": "DK"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 55.6761,
+    "longitude": 12.5683
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "07:00",
+      "closes": "17:00"
+    }
+  ],
+  "priceRange": "$$",
+  "currenciesAccepted": "DKK",
+  "areaServed": {
+    "@type": "City",
+    "name": "København"
+  },
+  "sameAs": [
+    "https://krydsbyg.com"
+  ]
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -83,6 +123,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="da" className={`${barlowCondensed.variable} ${barlow.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         {children}
       </body>

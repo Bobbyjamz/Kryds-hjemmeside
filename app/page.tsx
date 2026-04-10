@@ -18,7 +18,7 @@ export default function Home() {
       <Ticker />
       <StatsBar />
       <Services />
-      <HowItWorks />
+      <div className="max-[900px]:hidden"><HowItWorks /></div>
       <WhyKryds />
       <Gallery />
       <Founder />

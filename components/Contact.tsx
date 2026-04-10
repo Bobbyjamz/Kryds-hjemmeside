@@ -224,7 +224,7 @@ export default function Contact() {
                       Version {CUSTOMER_CONTRACT_VERSION}
                     </span>
                   </div>
-                  <div className="max-h-[240px] overflow-y-auto bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-4">
+                  <div className="max-h-[240px] max-[900px]:max-h-[160px] overflow-y-auto bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-4">
                     {contractPoints.map((p) => (
                       <div key={p.title} className="mb-3 last:mb-0">
                         <h5 className="font-condensed font-bold text-[12px] tracking-[.08em] uppercase text-yellow mb-1">
