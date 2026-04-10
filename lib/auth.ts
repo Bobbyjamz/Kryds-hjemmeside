@@ -42,9 +42,22 @@ export async function verifyToken<T extends SessionPayload>(token: string): Prom
   }
 }
 
+function getAdminHash(): string | null {
+  // Prefer base64-encoded hash (workaround for Next.js dotenv-expand stripping $)
+  const b64 = process.env.ADMIN_PASSWORD_HASH_B64;
+  if (b64) {
+    try {
+      return Buffer.from(b64, "base64").toString("utf8");
+    } catch {
+      return null;
+    }
+  }
+  return process.env.ADMIN_PASSWORD_HASH || null;
+}
+
 export async function verifyAdminPassword(username: string, password: string): Promise<boolean> {
   const expectedUser = process.env.ADMIN_USERNAME;
-  const expectedHash = process.env.ADMIN_PASSWORD_HASH;
+  const expectedHash = getAdminHash();
   if (!expectedUser || !expectedHash) return false;
   if (username !== expectedUser) return false;
   return bcrypt.compare(password, expectedHash);
