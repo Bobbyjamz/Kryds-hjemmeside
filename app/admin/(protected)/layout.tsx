@@ -11,7 +11,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
   return (
     <div className="bg-black text-cream min-h-screen flex">
       <aside className="w-[240px] bg-black2 border-r border-[rgba(242,238,230,0.07)] flex flex-col sticky top-0 h-screen">
-        <div className="p-6 border-b border-[rgba(242,238,230,0.07)] flex items-center gap-3">
+        <Link href="/" className="p-6 border-b border-[rgba(242,238,230,0.07)] flex items-center gap-3 hover:bg-[rgba(245,196,0,.03)] transition-colors" title="Tilbage til forsiden">
           <svg width="36" height="36" viewBox="0 0 90 90">
             <rect width="90" height="90" rx="12" fill="#0C0C0A" />
             <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="16" strokeLinecap="square" />
@@ -21,7 +21,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
             <p className="font-condensed font-black text-[15px] uppercase tracking-[.04em] text-cream leading-none">Kryds</p>
             <p className="font-condensed text-[10px] tracking-[.18em] uppercase text-muted leading-none mt-1">Admin</p>
           </div>
-        </div>
+        </Link>
         <nav className="flex-1 p-4">
           <ul className="flex flex-col gap-1">
             {[

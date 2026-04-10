@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getEmployeeSession } from "@/lib/auth";
 import { findEmployeeById } from "@/lib/db";
 
@@ -16,7 +17,7 @@ export default async function MedarbejderProtectedLayout({ children }: { childre
     <div className="bg-black text-cream min-h-screen">
       <header className="bg-black2 border-b border-[rgba(242,238,230,0.07)]">
         <div className="max-w-[1100px] mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3 no-underline hover:opacity-80 transition-opacity" title="Tilbage til forsiden">
             <svg width="32" height="32" viewBox="0 0 90 90">
               <rect width="90" height="90" rx="12" fill="#0C0C0A" />
               <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="16" strokeLinecap="square" />
@@ -26,7 +27,7 @@ export default async function MedarbejderProtectedLayout({ children }: { childre
               <p className="font-condensed font-black text-[15px] uppercase tracking-[.04em] text-cream leading-none">Kryds</p>
               <p className="font-condensed text-[10px] tracking-[.18em] uppercase text-muted leading-none mt-1">Medarbejder</p>
             </div>
-          </div>
+          </Link>
           <div className="flex items-center gap-4">
             <p className="text-[13px] text-muted max-[500px]:hidden">
               <span className="text-cream">{employee.name}</span>

@@ -14,7 +14,7 @@ export default function ContractBox({ employeeName, accepted, onAcceptChange }: 
     <div>
       <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
         <h3 className="font-condensed font-extrabold text-[20px] uppercase tracking-[.04em] text-cream">
-          Kontrakt — ansættelsesvilkår
+          Medarbejderkontrakt — ansættelsesvilkår
         </h3>
         <span className="font-condensed text-[11px] tracking-[.18em] uppercase text-muted">
           Version {CONTRACT_VERSION}
@@ -30,14 +30,32 @@ export default function ContractBox({ employeeName, accepted, onAcceptChange }: 
           </div>
         ))}
       </div>
-      <label className="flex items-start gap-3 cursor-pointer select-none bg-[rgba(245,196,0,.05)] border border-[rgba(245,196,0,.25)] rounded-[2px] p-4 hover:bg-[rgba(245,196,0,.08)] transition-colors">
+      <label
+        className={`flex items-start gap-4 bg-[rgba(245,196,0,.05)] border rounded-[2px] p-4 cursor-pointer transition-colors ${
+          accepted ? "border-yellow" : "border-[rgba(245,196,0,.25)] hover:border-[rgba(245,196,0,.5)]"
+        }`}
+      >
         <input
           type="checkbox"
           checked={accepted}
           onChange={(e) => onAcceptChange(e.target.checked)}
-          className="mt-[2px] w-[18px] h-[18px] accent-yellow cursor-pointer flex-shrink-0"
+          className="sr-only"
         />
-        <span className="text-[14px] leading-[1.55] text-cream">{ACCEPT_LABEL}</span>
+        <span
+          className={`flex-shrink-0 w-6 h-6 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${
+            accepted ? "bg-yellow border-yellow" : "bg-transparent border-[rgba(242,238,230,.35)]"
+          }`}
+          aria-hidden="true"
+        >
+          {accepted && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
+        </span>
+        <span className="text-[14px] leading-[1.55] text-cream select-none">
+          {ACCEPT_LABEL}
+        </span>
       </label>
     </div>
   );

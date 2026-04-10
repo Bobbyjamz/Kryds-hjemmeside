@@ -2,15 +2,29 @@
 
 import { useState, FormEvent } from "react";
 import { useReveal } from "@/hooks/useReveal";
+import {
+  getCustomerContractPoints,
+  CUSTOMER_CONTRACT_VERSION,
+  CUSTOMER_ACCEPT_LABEL,
+} from "@/lib/contract";
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
 export default function Contact() {
   const ref = useReveal();
   const [formState, setFormState] = useState<FormState>("idle");
+  const [accepted, setAccepted] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const contractPoints = getCustomerContractPoints(customerName);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!accepted) {
+      setErrorMsg("Du skal acceptere kundevilkårene for at sende forespørgslen.");
+      return;
+    }
+    setErrorMsg(null);
     setFormState("submitting");
 
     const fd = new FormData(e.currentTarget);
@@ -23,6 +37,8 @@ export default function Contact() {
       antal: fd.get("antal"),
       startdato: fd.get("startdato"),
       beskrivelse: fd.get("beskrivelse"),
+      acceptedTerms: accepted,
+      contractVersion: CUSTOMER_CONTRACT_VERSION,
     };
 
     try {
@@ -126,7 +142,15 @@ export default function Contact() {
                     <label className="block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]">
                       Virksomhed / navn
                     </label>
-                    <input name="virksomhed" type="text" placeholder="Firma ApS eller dit navn" className={inputClass} required />
+                    <input
+                      name="virksomhed"
+                      type="text"
+                      placeholder="Firma ApS eller dit navn"
+                      className={inputClass}
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      required
+                    />
                   </div>
                   <div>
                     <label className="block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]">
@@ -190,13 +214,67 @@ export default function Contact() {
                     className={`${inputClass} resize-y min-h-[96px]`}
                   />
                 </div>
+                {/* Customer contract */}
+                <div className="mt-6 mb-4">
+                  <div className="flex items-baseline justify-between mb-3 flex-wrap gap-2">
+                    <h4 className="font-condensed font-extrabold text-[15px] uppercase tracking-[.08em] text-cream">
+                      Kundevilkår — leje af vikar
+                    </h4>
+                    <span className="font-condensed text-[10px] tracking-[.18em] uppercase text-muted">
+                      Version {CUSTOMER_CONTRACT_VERSION}
+                    </span>
+                  </div>
+                  <div className="max-h-[240px] overflow-y-auto bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-4">
+                    {contractPoints.map((p) => (
+                      <div key={p.title} className="mb-3 last:mb-0">
+                        <h5 className="font-condensed font-bold text-[12px] tracking-[.08em] uppercase text-yellow mb-1">
+                          {p.title}
+                        </h5>
+                        <p className="text-[13px] leading-[1.55] text-cream/90">{p.body}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <label
+                    className={`mt-3 flex items-start gap-3 bg-[rgba(245,196,0,.05)] border rounded-[2px] p-3 cursor-pointer transition-colors ${
+                      accepted ? "border-yellow" : "border-[rgba(245,196,0,.25)] hover:border-[rgba(245,196,0,.5)]"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={accepted}
+                      onChange={(e) => {
+                        setAccepted(e.target.checked);
+                        if (e.target.checked) setErrorMsg(null);
+                      }}
+                      className="sr-only"
+                    />
+                    <span
+                      className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${
+                        accepted ? "bg-yellow border-yellow" : "bg-transparent border-[rgba(242,238,230,.35)]"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {accepted && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-[13px] leading-[1.5] text-cream select-none">
+                      {CUSTOMER_ACCEPT_LABEL}
+                    </span>
+                  </label>
+                </div>
                 <button
                   type="submit"
-                  disabled={formState === "submitting"}
-                  className="w-full bg-yellow text-black font-condensed font-extrabold text-[16px] tracking-[.12em] uppercase py-[18px] border-none rounded-[2px] cursor-pointer mt-[6px] transition-colors hover:bg-yellow2 disabled:opacity-60"
+                  disabled={formState === "submitting" || !accepted}
+                  className="w-full bg-yellow text-black font-condensed font-extrabold text-[16px] tracking-[.12em] uppercase py-[18px] border-none rounded-[2px] cursor-pointer mt-[6px] transition-colors hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {formState === "submitting" ? "Sender..." : "Sæt et kryds i kalenderen →"}
                 </button>
+                {errorMsg && (
+                  <p className="text-red-400 text-[14px] mt-3 text-center">{errorMsg}</p>
+                )}
                 {formState === "error" && (
                   <p className="text-red-400 text-[14px] mt-3 text-center">
                     Noget gik galt. Prøv igen eller kontakt os direkte.

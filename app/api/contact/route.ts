@@ -20,10 +20,14 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { virksomhed, kontaktperson, email, telefon, opgavetype, antal, startdato, beskrivelse } = body;
+  const { virksomhed, kontaktperson, email, telefon, opgavetype, antal, startdato, beskrivelse, acceptedTerms, contractVersion } = body;
 
   if (!virksomhed || !email || !opgavetype) {
     return NextResponse.json({ error: "Manglende felter: virksomhed, email og opgavetype er påkrævet" }, { status: 400 });
+  }
+
+  if (acceptedTerms !== true) {
+    return NextResponse.json({ error: "Du skal acceptere kundevilkårene" }, { status: 400 });
   }
 
   // Basic email validation
@@ -44,6 +48,8 @@ export async function POST(req: NextRequest) {
   const safeAntal = escapeHtml(String(antal || "–"));
   const safeStartdato = escapeHtml(String(startdato || "–"));
   const safeBeskrivelse = escapeHtml(String(beskrivelse || "–")).replace(/\n/g, "<br>");
+  const safeContractVersion = escapeHtml(String(contractVersion || "–"));
+  const acceptTimestamp = new Date().toLocaleString("da-DK", { timeZone: "Europe/Copenhagen" });
 
   try {
     const { data, error } = await resend.emails.send({
@@ -111,6 +117,12 @@ export async function POST(req: NextRequest) {
                   <td style="padding:10px 0;">
                     <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#888880;">Beskrivelse af projektet</p>
                     <p style="margin:4px 0 0;font-size:15px;color:#F2EEE6;line-height:1.6;">${safeBeskrivelse}</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-top:1px solid rgba(245,196,0,0.2);">
+                    <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#F5C400;">✓ Kundevilkår accepteret</p>
+                    <p style="margin:4px 0 0;font-size:13px;color:#F2EEE6;">Version ${safeContractVersion} — ${escapeHtml(acceptTimestamp)}</p>
                   </td>
                 </tr>
               </table>

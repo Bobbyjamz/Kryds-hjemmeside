@@ -1,10 +1,12 @@
+import Link from "next/link";
+
 interface LogoProps {
   size?: number;
 }
 
 export default function Logo({ size = 38 }: LogoProps) {
   return (
-    <a href="#" className="flex items-center no-underline">
+    <Link href="/" className="flex items-center no-underline">
       <svg
         className="flex-shrink-0"
         width={size}
@@ -23,6 +25,6 @@ export default function Logo({ size = 38 }: LogoProps) {
           Byggeprojekter · København
         </span>
       </div>
-    </a>
+    </Link>
   );
 }

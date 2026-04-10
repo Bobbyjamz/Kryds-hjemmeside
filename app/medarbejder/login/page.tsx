@@ -37,15 +37,18 @@ export default function MedarbejderLoginPage() {
     <main className="bg-black min-h-screen flex items-center justify-center p-5">
       <div className="w-full max-w-[420px]">
         <div className="flex flex-col items-center mb-8">
-          <svg width="64" height="64" viewBox="0 0 90 90">
-            <rect width="90" height="90" rx="14" fill="#0C0C0A" />
-            <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="16" strokeLinecap="square" />
-            <line x1="76" y1="14" x2="14" y2="76" stroke="#F2EEE6" strokeWidth="16" strokeLinecap="square" />
-          </svg>
+          <Link href="/" className="hover:opacity-80 transition-opacity" title="Tilbage til forsiden">
+            <svg width="64" height="64" viewBox="0 0 90 90">
+              <rect width="90" height="90" rx="14" fill="#0C0C0A" />
+              <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="16" strokeLinecap="square" />
+              <line x1="76" y1="14" x2="14" y2="76" stroke="#F2EEE6" strokeWidth="16" strokeLinecap="square" />
+            </svg>
+          </Link>
           <h1 className="font-condensed font-black text-[28px] uppercase tracking-[.02em] text-cream mt-4">
             Medarbejder login
           </h1>
           <p className="text-[13px] text-muted mt-1">Log ind for at se åbne vagter</p>
+          <Link href="/" className="text-[11px] font-condensed uppercase tracking-[.15em] text-muted hover:text-yellow mt-3">← Tilbage til forsiden</Link>
         </div>
         <div className="bg-gray p-8 border border-[rgba(242,238,230,0.07)] rounded-[2px]">
           <form onSubmit={handleSubmit}>
