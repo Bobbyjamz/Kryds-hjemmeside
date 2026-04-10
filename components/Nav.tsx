@@ -45,6 +45,11 @@ export default function Nav() {
             </Link>
           </li>
           <li className="max-[900px]:hidden">
+            <Link href="/tilmeld" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+              Tilmeld dig
+            </Link>
+          </li>
+          <li className="max-[900px]:hidden">
             <Link
               href="/#contract"
               className="font-condensed font-extrabold text-[13px] tracking-[.1em] uppercase bg-yellow text-black px-6 py-[10px] rounded-[2px] no-underline transition-colors hover:bg-yellow2"
@@ -93,6 +98,7 @@ export default function Nav() {
             { href: "/#how", label: "Processen" },
             { href: "/om-os", label: "Om os" },
             { href: "/priser", label: "Priser" },
+            { href: "/tilmeld", label: "Tilmeld dig" },
             { href: "#contract", label: "Book nu" },
           ].map(({ href, label }) => (
             <a
