@@ -5,7 +5,6 @@ import StatsBar from "@/components/StatsBar";
 import Services from "@/components/Services";
 import HowItWorks from "@/components/HowItWorks";
 import WhyKryds from "@/components/WhyKryds";
-import Gallery from "@/components/Gallery";
 import Founder from "@/components/Founder";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -20,7 +19,6 @@ export default function Home() {
       <Services />
       <div className="max-[900px]:hidden"><HowItWorks /></div>
       <WhyKryds />
-      <Gallery />
       <Founder />
       <Contact />
       <Footer />

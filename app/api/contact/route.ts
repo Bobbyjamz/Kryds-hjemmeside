@@ -13,10 +13,10 @@ function escapeHtml(str: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  // Guard: API key must be present
+  // Guard: if no API key, skip email silently (emails disabled)
   if (!process.env.RESEND_API_KEY) {
-    console.error("[contact] RESEND_API_KEY er ikke sat i miljøvariablerne");
-    return NextResponse.json({ error: "Server-konfigurationsfejl" }, { status: 500 });
+    console.warn("[contact] RESEND_API_KEY ikke sat — forespørgsel modtaget men email ikke sendt");
+    return NextResponse.json({ ok: true });
   }
 
   const body = await req.json();

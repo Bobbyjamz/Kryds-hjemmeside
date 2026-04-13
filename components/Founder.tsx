@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useReveal } from "@/hooks/useReveal";
 
 export default function Founder() {
@@ -14,9 +15,15 @@ export default function Founder() {
         <h2 className="reveal font-condensed font-black text-[clamp(32px,4vw,48px)] uppercase leading-[.95] tracking-[-.01em] mb-6">
           Vi som <span className="text-yellow">team</span>
         </h2>
-        <p className="reveal text-[16px] leading-[1.85] text-[rgba(242,238,230,.6)]">
+        <p className="reveal text-[16px] leading-[1.85] text-[rgba(242,238,230,.6)] mb-8">
           Hos Kryds fokuserer vi på kvalitet og aflastning af de tunge opgaver, der kræver ekstra hænder. Vi stiller med pålidelige, erfarne folk — klar til at tage fat fra dag ét. Uanset om det er renovering, events eller byggepladsarbejde, sørger vi for at dit projekt kører glat og effektivt.
         </p>
+        <Link
+          href="/om-os"
+          className="reveal inline-flex items-center gap-2 font-condensed font-bold text-[12px] tracking-[.18em] uppercase text-yellow border border-[rgba(245,196,0,.35)] px-6 py-3 rounded-[2px] hover:bg-[rgba(245,196,0,.08)] hover:border-yellow transition-colors"
+        >
+          Læs mere →
+        </Link>
       </div>
     </section>
   );

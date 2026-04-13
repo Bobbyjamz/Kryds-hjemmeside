@@ -58,3 +58,11 @@ export async function findEmployeeByCredentials(phone: string, birthDate: string
   const normalized = phone.replace(/\s/g, "");
   return employees.find((e) => e.phone.replace(/\s/g, "") === normalized && e.birthDate === birthDate) ?? null;
 }
+
+export async function findEmployeeByPhoneAndCode(phone: string, code: string): Promise<Employee | null> {
+  const employees = await readEmployees();
+  const normalized = phone.replace(/\s/g, "");
+  return employees.find(
+    (e) => e.phone.replace(/\s/g, "") === normalized && e.confirmationCode === code && e.confirmed === true
+  ) ?? null;
+}

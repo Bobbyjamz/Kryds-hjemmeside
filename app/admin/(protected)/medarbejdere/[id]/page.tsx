@@ -15,6 +15,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,6 +49,32 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     if (!confirm("Slet denne medarbejder permanent?")) return;
     const res = await fetch(`/api/admin/employees/${id}`, { method: "DELETE" });
     if (res.ok) router.push("/admin/medarbejdere");
+  };
+
+  const confirmEmployee = async () => {
+    if (!employee.email) {
+      setMessage("Tilføj email først — koden sendes via email");
+      return;
+    }
+    setConfirming(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/employees/${id}/confirm`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setEmployee({ ...employee, confirmed: true, confirmedAt: new Date().toISOString(), confirmationCode: data.code });
+        if (data.emailSent) {
+          setMessage(`Bekræftet! Kode ${data.code} sendt til ${employee.email}`);
+        } else {
+          setMessage(`Bekræftet! Kode: ${data.code} (email IKKE sendt — tjek Resend)`);
+        }
+      } else {
+        setMessage(data.error || "Kunne ikke bekræfte");
+      }
+    } catch {
+      setMessage("Fejl ved bekræftelse");
+    }
+    setConfirming(false);
   };
 
   const inputClass =
@@ -89,6 +116,44 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-6">
+          {/* Bekræftelses-sektion */}
+          <div className={`mb-6 p-4 rounded-[2px] border ${employee.confirmed ? "border-green-500/30 bg-green-500/5" : "border-yellow/30 bg-yellow/5"}`}>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="font-condensed font-bold text-[11px] tracking-[.15em] uppercase text-muted mb-1">
+                  Status
+                </p>
+                {employee.confirmed ? (
+                  <div>
+                    <p className="text-[15px] text-green-400 font-semibold">
+                      Bekræftet {employee.confirmedAt ? `· ${new Date(employee.confirmedAt).toLocaleDateString("da-DK")}` : ""}
+                    </p>
+                    {employee.confirmationCode && (
+                      <p className="text-[13px] text-muted mt-1">
+                        Kode: <span className="text-cream font-mono tracking-[.15em]">{employee.confirmationCode}</span>
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[15px] text-yellow font-semibold">
+                    Afventer bekræftelse
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={confirmEmployee}
+                disabled={confirming}
+                className={`font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] transition-colors disabled:opacity-50 ${
+                  employee.confirmed
+                    ? "bg-[rgba(242,238,230,.1)] text-cream border border-[rgba(242,238,230,.15)] hover:border-yellow hover:text-yellow"
+                    : "bg-yellow text-black hover:bg-yellow2"
+                }`}
+              >
+                {confirming ? "Sender..." : employee.confirmed ? "Send ny kode" : "Bekræft & send kode"}
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4 mb-4 max-[700px]:grid-cols-1">
             <div>
               <label className={labelClass}>Navn</label>

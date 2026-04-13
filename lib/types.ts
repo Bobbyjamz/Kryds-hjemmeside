@@ -23,6 +23,9 @@ export interface Employee {
   acceptedTerms: boolean;
   acceptedAt?: string;
   contractVersion?: string;
+  confirmationCode?: string;
+  confirmed?: boolean;
+  confirmedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
