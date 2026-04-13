@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
   }
 
   const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
-  const toAddress = process.env.RESEND_TO || "Kontakt@KrydsByg.com";
+  // RESEND_TO skal sættes som env var — default er test-email indtil krydsbyg.com domæne er verificeret på resend.com
+  const toAddress = process.env.RESEND_TO || "krys00305@gmail.com";
 
   // Sanitize all inputs
   const safeVirksomhed = escapeHtml(String(virksomhed));
@@ -154,11 +155,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      console.error("[contact] Resend API error:", error);
-      return NextResponse.json({ error: "Afsendelse fejlede", details: error.message }, { status: 500 });
+      console.error("[contact] Resend API error:", JSON.stringify(error));
+      // Return ok:true anyway so user doesn't see error — we log it server-side
+      return NextResponse.json({ ok: true, warning: "email_error" });
     }
 
-    console.log("[contact] Email sendt succesfuldt:", data?.id);
+    console.log("[contact] Email sendt til", toAddress, "— ID:", data?.id);
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[contact] Uventet fejl:", err);

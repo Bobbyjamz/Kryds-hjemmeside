@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -24,6 +27,16 @@ export default function Nav() {
       >
         <Logo />
         <ul className="flex gap-[38px] list-none items-center">
+          {!isHome && (
+            <li className="max-[900px]:hidden">
+              <Link href="/" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow flex items-center gap-[6px]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Forsiden
+              </Link>
+            </li>
+          )}
           <li className="max-[900px]:hidden">
             <Link href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               Om os
@@ -89,6 +102,7 @@ export default function Nav() {
           style={{ paddingTop: scrolled ? 54 : 66 }}
         >
           {[
+            ...(!isHome ? [{ href: "/", label: "← Forsiden" }] : []),
             { href: "/om-os", label: "Om os" },
             { href: "/priser", label: "Priser" },
             { href: "/tilmeld", label: "Tilmeld dig" },

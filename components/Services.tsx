@@ -447,10 +447,10 @@ export default function Services() {
 
                       {/* Terms */}
                       <div className="mt-4 mb-4">
-                        <div className="max-h-[130px] overflow-y-auto bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-3 mb-3">
+                        <div className="max-h-[130px] overflow-y-auto bg-[rgba(242,238,230,.04)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-3 mb-3">
                           {contractPoints.map((p) => (
                             <div key={p.title} className="mb-2 last:mb-0">
-                              <h5 className="font-condensed font-bold text-[11px] tracking-[.08em] uppercase text-yellow mb-[2px]">
+                              <h5 className="font-condensed font-bold text-[11px] tracking-[.08em] uppercase text-[rgba(242,238,230,.6)] mb-[2px]">
                                 {p.title}
                               </h5>
                               <p className="text-[12px] leading-[1.5] text-cream/80">
@@ -460,10 +460,10 @@ export default function Services() {
                           ))}
                         </div>
                         <label
-                          className={`flex items-start gap-3 bg-[rgba(245,196,0,.05)] border rounded-[2px] p-3 cursor-pointer transition-colors ${
+                          className={`flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${
                             accepted
-                              ? "border-yellow"
-                              : "border-[rgba(245,196,0,.25)] hover:border-[rgba(245,196,0,.5)]"
+                              ? "border-[rgba(242,238,230,.35)]"
+                              : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"
                           }`}
                         >
                           <input
@@ -478,8 +478,8 @@ export default function Services() {
                           <span
                             className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${
                               accepted
-                                ? "bg-yellow border-yellow"
-                                : "bg-transparent border-[rgba(242,238,230,.35)]"
+                                ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]"
+                                : "bg-transparent border-[rgba(242,238,230,.3)]"
                             }`}
                             aria-hidden="true"
                           >
@@ -489,7 +489,7 @@ export default function Services() {
                                 height="12"
                                 viewBox="0 0 24 24"
                                 fill="none"
-                                stroke="#0C0C0A"
+                                stroke="#F2EEE6"
                                 strokeWidth="4"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
