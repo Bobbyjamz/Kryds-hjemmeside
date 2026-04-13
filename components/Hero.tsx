@@ -1,3 +1,15 @@
+"use client";
+
+function scrollToContract() {
+  const el = document.getElementById("contract");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  el.classList.remove("contract-pulse");
+  void el.offsetWidth; // reflow
+  el.classList.add("contract-pulse");
+  el.addEventListener("animationend", () => el.classList.remove("contract-pulse"), { once: true });
+}
+
 export default function Hero() {
   return (
     <section className="min-h-screen flex flex-col justify-end px-[52px] pt-[80px] pb-[88px] relative overflow-hidden max-[900px]:px-5 max-[900px]:pt-[70px] max-[900px]:pb-16">
@@ -32,9 +44,12 @@ export default function Hero() {
             Vi stiller erfarne og hårdtarbejdende folk til alle former for byggeprojekter i København — renovering, maling, havearbejde, montering og byggepladsbemanding. Klar til at tage fat.
           </p>
           <div className="flex gap-[14px] items-center">
-            <a href="#contract" className="bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase px-10 py-4 rounded-[2px] no-underline inline-block transition-all hover:bg-yellow2 hover:-translate-y-[1px]">
+            <button
+              onClick={scrollToContract}
+              className="bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase px-10 py-4 rounded-[2px] no-underline inline-block transition-all hover:bg-yellow2 hover:-translate-y-[1px] cursor-pointer border-none"
+            >
               Book personale nu
-            </a>
+            </button>
             <a href="#services" className="border border-[rgba(242,238,230,.25)] text-cream font-condensed font-semibold text-[14px] tracking-[.1em] uppercase px-[30px] py-[15px] rounded-[2px] no-underline inline-block transition-colors hover:border-yellow hover:text-yellow">
               Se ydelser
             </a>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Barlow } from "next/font/google";
 import "./globals.css";
+import BackToHome from "@/components/BackToHome";
+import CookieBanner from "@/components/CookieBanner";
 
 const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
@@ -130,7 +132,9 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <BackToHome />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

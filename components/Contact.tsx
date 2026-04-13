@@ -224,10 +224,10 @@ export default function Contact() {
                       Version {CUSTOMER_CONTRACT_VERSION}
                     </span>
                   </div>
-                  <div className="max-h-[240px] max-[900px]:max-h-[160px] overflow-y-auto bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-4">
+                  <div className="max-h-[240px] max-[900px]:max-h-[160px] overflow-y-auto bg-[rgba(242,238,230,.03)] border border-[rgba(242,238,230,.1)] rounded-[2px] p-4">
                     {contractPoints.map((p) => (
                       <div key={p.title} className="mb-3 last:mb-0">
-                        <h5 className="font-condensed font-bold text-[12px] tracking-[.08em] uppercase text-yellow mb-1">
+                        <h5 className="font-condensed font-bold text-[12px] tracking-[.08em] uppercase text-[rgba(242,238,230,.6)] mb-1">
                           {p.title}
                         </h5>
                         <p className="text-[13px] leading-[1.55] text-cream/90">{p.body}</p>
@@ -235,8 +235,8 @@ export default function Contact() {
                     ))}
                   </div>
                   <label
-                    className={`mt-3 flex items-start gap-3 bg-[rgba(245,196,0,.05)] border rounded-[2px] p-3 cursor-pointer transition-colors ${
-                      accepted ? "border-yellow" : "border-[rgba(245,196,0,.25)] hover:border-[rgba(245,196,0,.5)]"
+                    className={`mt-3 flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${
+                      accepted ? "border-[rgba(242,238,230,.35)]" : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"
                     }`}
                   >
                     <input
@@ -250,12 +250,12 @@ export default function Contact() {
                     />
                     <span
                       className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${
-                        accepted ? "bg-yellow border-yellow" : "bg-transparent border-[rgba(242,238,230,.35)]"
+                        accepted ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]" : "bg-transparent border-[rgba(242,238,230,.3)]"
                       }`}
                       aria-hidden="true"
                     >
                       {accepted && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       )}

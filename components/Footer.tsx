@@ -1,4 +1,5 @@
 import Logo from "./Logo";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -15,9 +16,15 @@ export default function Footer() {
             <h5 className="font-condensed font-bold text-[11px] tracking-[.18em] uppercase text-yellow mb-4">
               Ydelser
             </h5>
-            {["Renovering", "Maling & spartling", "Havearbejde", "Montering", "Byggepladsbehjælp", "Flyttearbejde", "Flise & anlæg", "Events & scener"].map((s) => (
-              <a key={s} href="#" className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
-                {s}
+            {[
+              { label: "Bygge projekter", href: "/#services" },
+              { label: "Flytte & montere", href: "/#services" },
+              { label: "Events & scener", href: "/#services" },
+              { label: "Priser", href: "/priser" },
+              { label: "Tilmeld som medarbejder", href: "/tilmeld" },
+            ].map((s) => (
+              <a key={s.label} href={s.href} className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
+                {s.label}
               </a>
             ))}
           </div>
@@ -28,7 +35,8 @@ export default function Footer() {
             {[
               { label: "Om Kryds", href: "/om-os" },
               { label: "Priser", href: "/priser" },
-              { label: "Kontakt", href: "/#contract" },
+              { label: "Send forespørgsel", href: "/#contract" },
+              { label: "Medarbejder login", href: "/medarbejder/login" },
             ].map((s) => (
               <a key={s.label} href={s.href} className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
                 {s.label}
@@ -39,16 +47,21 @@ export default function Footer() {
             <h5 className="font-condensed font-bold text-[11px] tracking-[.18em] uppercase text-yellow mb-4">
               Juridisk
             </h5>
-            {["Handelsbetingelser", "Privatlivspolitik", "Cookie-politik"].map((s) => (
-              <a key={s} href="#" className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
-                {s}
-              </a>
+            {[
+              { label: "Handelsbetingelser", href: "/handelsbetingelser" },
+              { label: "Privatlivspolitik", href: "/privatpolitik" },
+              { label: "Medarbejder privatpolitik", href: "/medarbejder-privatpolitik" },
+              { label: "Cookie-politik", href: "/cookie-politik" },
+            ].map((s) => (
+              <Link key={s.label} href={s.href} className="block text-[14px] text-muted no-underline mb-[10px] transition-colors hover:text-cream">
+                {s.label}
+              </Link>
             ))}
           </div>
         </div>
       </div>
-      <div className="flex justify-between items-center">
-        <p className="text-[12px] text-[rgba(242,238,230,.2)]">© 2025 Kryds ApS — CVR: 46369947</p>
+      <div className="flex justify-between items-center flex-wrap gap-3">
+        <p className="text-[12px] text-[rgba(242,238,230,.2)]">© 2026 Kryds ApS — CVR: 46369947</p>
         <p className="text-[12px] text-[rgba(242,238,230,.2)]">
           <a href="mailto:Kontakt@KrydsByg.com" className="text-[rgba(242,238,230,.2)] hover:text-muted transition-colors no-underline">Kontakt@KrydsByg.com</a>
           {" · "}København, Danmark
