@@ -24,8 +24,8 @@ export default function TilmeldWizard() {
   const [photoPath, setPhotoPath] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
 
-  // Step 2
-  const [trade, setTrade] = useState("");
+  // Step 2 — default kategori = Handyman
+  const [trade, setTrade] = useState("HANDYMAN");
   const [skills, setSkills] = useState<string[]>([]);
   const [customSkill, setCustomSkill] = useState("");
   const [experience, setExperience] = useState("");
@@ -217,7 +217,7 @@ export default function TilmeldWizard() {
             </div>
             <div>
               <label className={labelClass}>Profilbillede (valgfrit)</label>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 {photoPath && (
                   <img src={photoPath} alt="Foto" className="w-16 h-16 object-cover rounded-[2px] border border-[rgba(242,238,230,.1)]" />
                 )}
@@ -227,6 +227,14 @@ export default function TilmeldWizard() {
                   </span>
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={photoUploading} />
                 </label>
+                {photoPath && (
+                  <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-[9px] rounded-[2px]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">Billede registreret</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -240,11 +248,11 @@ export default function TilmeldWizard() {
             <div className="mb-[22px]">
               <label className={labelClass}>Primært fag *</label>
               <select className={`${inputClass} cursor-pointer`} value={trade} onChange={(e) => setTrade(e.target.value)}>
-                <option value="">Vælg dit primære fag...</option>
                 {Object.entries(TRADES).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
+              <p className="mt-1 text-[11px] text-muted">Kan du lidt af det hele? Vælg Handyman — standardkategori.</p>
             </div>
             <div className="mb-[22px]">
               <label className={labelClass}>Vælg dine kompetencer</label>
@@ -266,6 +274,25 @@ export default function TilmeldWizard() {
                     </button>
                   );
                 })}
+                {/* Custom tilføjede kompetencer — vises som ekstra chips med × til at fjerne */}
+                {skills
+                  .filter((s) => !SKILL_SUGGESTIONS.includes(s))
+                  .map((s) => (
+                    <span
+                      key={s}
+                      className="inline-flex items-center gap-2 bg-yellow text-black font-condensed font-semibold text-[12px] tracking-[.08em] uppercase px-4 py-2 rounded-[2px] border border-yellow"
+                    >
+                      {s}
+                      <button
+                        type="button"
+                        onClick={() => toggleSkill(s)}
+                        aria-label={`Fjern ${s}`}
+                        className="hover:text-red-700 leading-none text-[14px] font-bold"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
               </div>
               <div className="flex gap-2">
                 <input
@@ -309,17 +336,23 @@ export default function TilmeldWizard() {
             <div className="mb-[22px]">
               <label className={labelClass}>CV (PDF eller billede)</label>
               <div className="flex items-center gap-4 flex-wrap">
-                {cvPath && (
-                  <a href={cvPath} target="_blank" rel="noopener noreferrer" className="text-yellow hover:underline text-[14px]">
-                    Se uploadet CV
-                  </a>
-                )}
                 <label className="cursor-pointer inline-block">
                   <span className="inline-block bg-[rgba(245,196,0,.1)] border border-yellow text-yellow font-condensed font-semibold text-[12px] tracking-[.15em] uppercase px-5 py-3 rounded-[2px] hover:bg-[rgba(245,196,0,.2)] transition-colors">
                     {cvUploading ? "Uploader..." : cvPath ? "Skift CV" : "Upload CV"}
                   </span>
                   <input type="file" accept="application/pdf,image/*" className="hidden" onChange={handleCvChange} disabled={cvUploading} />
                 </label>
+                {cvPath && (
+                  <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-[9px] rounded-[2px]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">CV registreret</span>
+                    <a href={cvPath} target="_blank" rel="noopener noreferrer" className="text-yellow hover:underline text-[12px] font-condensed tracking-[.08em] uppercase ml-2">
+                      Vis
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
             <div className="mb-[22px]">

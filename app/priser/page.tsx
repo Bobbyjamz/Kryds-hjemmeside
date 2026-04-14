@@ -11,52 +11,52 @@ export const metadata: Metadata = {
 
 const tiers = [
   {
-    name: "Standard",
-    subtitle: "Alm. personale",
-    description: "Til de fleste byggeopgaver med dygtige og erfarne folk.",
+    name: "Handyman",
+    subtitle: "Standardpersonale",
+    description: "Flittige hænder til praktiske opgaver — klar til at tage fat.",
     workerPay: "ca. 160–180",
     fee: "90",
     totalExample: "ca. 250–270",
     features: [
-      "Byggehjælpere & alm. håndværkere",
-      "Maling, renovering, havearbejde",
-      "Montering & nedrivning",
+      "Byggehjælpere & handymen",
+      "Maling, oprydning, havearbejde",
+      "Flytning, montering & nedrivning",
       "Fuldt forsikret personale",
       "Ingen minimumsbooking",
     ],
-    cta: "Book personale",
+    cta: "Book handyman",
     highlighted: false,
   },
   {
     name: "Koordinator / Byggeleder",
-    subtitle: "Specialiseret personale",
-    description: "Byggeledere, koordinatorer og specialister med ekstra erfaring og ansvar.",
+    subtitle: "Kvalificeret personale",
+    description: "Koordinatorer og byggeledere med dokumenteret erfaring eller relevant uddannelse inden for byggefaget.",
     badge: "Anbefalet",
     workerPay: "ca. 200–230",
     fee: "115",
     totalExample: "ca. 315–345",
     features: [
-      "Byggeledere & koordinatorer",
-      "Specialiseret fagpersonale",
-      "Projektledelse & overvågning",
-      "Erfaring med store projekter",
+      "Min. 5 års erfaring eller faglig uddannelse",
+      "Referencer fra tidligere byggeprojekter",
+      "Kan lede og fordele arbejdet på pladsen",
+      "Projektledelse, tidsplan & kvalitetssikring",
       "Personlig kontaktperson",
       "Prioriteret mobilisering",
     ],
-    cta: "Book specialist",
+    cta: "Book koordinator",
     highlighted: true,
   },
   {
-    name: "Mængde 5+",
-    subtitle: "Volumenpris",
-    description: "Ved booking af 5 eller flere personer samtidig — samme kvalitet, lavere gebyr.",
+    name: "Mængde 3+",
+    subtitle: "Volumenpris — handyman",
+    description: "Ved booking af 3 eller flere handymen samtidig — samme kvalitet, lavere gebyr.",
     workerPay: "ca. 160–180",
     fee: "70",
     totalExample: "ca. 230–250",
     features: [
-      "5+ personer pr. booking",
+      "3+ handymen pr. booking",
       "Samme kvalitet — lavere gebyr",
-      "Ideel til store projekter",
+      "Ideel til store oprydnings- og byggepladsopgaver",
       "Dedikeret kontaktperson",
       "Fleksibel op-/nedskalering",
       "Samlet faktura pr. periode",
@@ -131,6 +131,13 @@ export default function PriserPage() {
             </h2>
             <p className="text-[15px] text-muted mt-3 max-w-[500px] mx-auto">
               Her ser du hvad medarbejderen ca. får i løn, vores gebyr, og hvad du som kunde betaler i alt pr. time.
+            </p>
+          </div>
+
+          <div className="mb-8 max-w-[780px] mx-auto text-center bg-[rgba(245,196,0,.06)] border border-[rgba(245,196,0,.18)] rounded-[2px] p-4">
+            <p className="text-[13px] leading-[1.6] text-[rgba(242,238,230,.75)]">
+              <strong className="text-yellow">OBS:</strong> Handyman-prisen dækker praktiske opgaver, oprydning, montering, maling og lignende.
+              For faguddannede håndværkere (tømrer, murer, elektriker m.fl.) og byggeledere gælder koordinator-prisen eller separat projekttilbud.
             </p>
           </div>
 

@@ -154,7 +154,7 @@ export default function PrivatpolitikPage() {
                 {[
                   "Ret til indsigt i de oplysninger, vi behandler om dig",
                   "Ret til berigtigelse af urigtige oplysninger",
-                  "Ret til sletning ("retten til at blive glemt"), med visse undtagelser",
+                  "Ret til sletning (\"retten til at blive glemt\"), med visse undtagelser",
                   "Ret til begrænsning af behandling",
                   "Ret til dataportabilitet",
                   "Ret til at gøre indsigelse mod behandling baseret på berettiget interesse",

@@ -166,7 +166,7 @@ export default function MedarbejderPrivatpolitikPage() {
               <a href="mailto:Kontakt@KrydsByg.com" className="text-cream hover:text-yellow transition-colors">
                 Kontakt@KrydsByg.com
               </a>{" "}
-              med emnefeltet "Persondata-anmodning". Vi svarer inden for 30 dage.
+              med emnefeltet &quot;Persondata-anmodning&quot;. Vi svarer inden for 30 dage.
             </p>
           </div>
         </div>
