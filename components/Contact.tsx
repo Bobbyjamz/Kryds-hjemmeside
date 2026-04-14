@@ -65,12 +65,12 @@ export default function Contact() {
       <div className="eyebrow reveal flex items-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-5">
         Kom i gang
       </div>
-      <h2 className="reveal font-condensed font-black text-[clamp(38px,4.5vw,60px)] uppercase leading-[.95] tracking-[-.01em]">
-        Sæt et <span className="text-yellow">kryds</span><br />i kalenderen
-      </h2>
-      <div className="reveal grid grid-cols-[1fr_1.1fr] gap-20 mt-16 items-start max-[900px]:grid-cols-1 max-[900px]:gap-10">
-        {/* Info column */}
+      <div className="reveal grid grid-cols-[1fr_1.1fr] gap-20 items-start max-[900px]:grid-cols-1 max-[900px]:gap-10">
+        {/* Info column — title + lists */}
         <div>
+          <h2 className="font-condensed font-black text-[clamp(38px,4.5vw,60px)] uppercase leading-[.95] tracking-[-.01em] mb-10">
+            Sæt et <span className="text-yellow">kryds</span><br />i kalenderen
+          </h2>
           <h3 className="font-condensed font-bold text-[13px] tracking-[.18em] uppercase text-yellow mb-[14px]">
             Hvad er inkluderet
           </h3>
@@ -115,6 +115,23 @@ export default function Contact() {
           </p>
           <p className="text-[15px] leading-[1.72] text-muted mb-[6px]">+45 42 77 88 66</p>
           <p className="text-[15px] leading-[1.72] text-muted">København, Danmark</p>
+
+          <div className="mt-10 pt-8 border-t border-[rgba(242,238,230,0.07)]">
+            <h3 className="font-condensed font-bold text-[13px] tracking-[.18em] uppercase text-yellow mb-[14px]">
+              Juridisk
+            </h3>
+            <div className="flex flex-col gap-[8px]">
+              {[
+                { label: "Handelsbetingelser", href: "/handelsbetingelser" },
+                { label: "Privatlivspolitik", href: "/privatpolitik" },
+                { label: "Cookie-politik", href: "/cookie-politik" },
+              ].map((l) => (
+                <a key={l.href} href={l.href} className="text-[14px] text-muted hover:text-yellow transition-colors flex items-center gap-2">
+                  <span className="text-yellow opacity-50 text-[10px]">→</span> {l.label}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Form card */}

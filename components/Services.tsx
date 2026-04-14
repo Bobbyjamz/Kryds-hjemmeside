@@ -12,10 +12,10 @@ const CATEGORIES = [
   {
     id: "bygge",
     num: "01",
-    title: "Bygge projekter",
+    title: "Byggeprojekter",
     desc: "Håndværkere og hjælpere til alle typer byggeopgaver — renovering, nybyg, fliser og anlæg.",
     types: ["Murerhjælper", "Tømrer", "Maler / spartler", "Flisemontør", "Stilladsfolk", "Renovering", "Byggepladshjælper"],
-    opgavetype: "Bygge projekter",
+    opgavetype: "Byggeprojekter",
     image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
   },
   {
@@ -134,7 +134,7 @@ export default function Services() {
         Find bemanding
       </div>
       <h2 className="reveal font-condensed font-black text-[clamp(38px,4.5vw,60px)] uppercase leading-[.95] tracking-[-.01em]">
-        Hyrej det <span className="text-yellow">rette hold</span>
+        Hyr det <span className="text-yellow">rette hold</span>
       </h2>
       <p className="reveal mt-5 text-[16px] leading-[1.72] text-[rgba(242,238,230,.5)] max-w-[520px]">
         Vælg din opgavetype og bestil personale — til timepris eller få et

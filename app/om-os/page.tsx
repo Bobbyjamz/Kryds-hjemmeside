@@ -16,14 +16,14 @@ const team = [
     role: "Stifter",
     photo: "/krystian.jpg",
     facePosition: "center 22%",
-    bio: "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds ud fra en simpel overbevisning: at de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige og hårdtarbejdende folk, der er klar til at rykke ud med kort varsel.",
+    bio: "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds med en simpel tanke: de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige, hårdtarbejdende folk, som er klar til at rykke ud med kort varsel.",
   },
   {
     name: "Karl Kristian Ravn",
     role: "Partner & Driftsansvarlig",
     photo: "/karl.jpg",
     facePosition: "center 50%",
-    bio: "Karl sikrer at maskinrummet kører. Som driftsansvarlig har han ansvaret for den daglige koordinering, kvalitetssikring og kundekontakt. Han sørger for at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen mellem kunde og personale altid er i top. Karl tror på at struktur og omsorg for mennesker ikke behøver at udelukke hinanden.",
+    bio: "Karl holder styr på det hele bag kulisserne. Som driftsansvarlig har han ansvaret for koordinering, kvalitetssikring og den daglige kundekontakt. Han sørger for, at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen altid er klar — både over for kunden og personalet. Karl er overbevist om, at struktur og menneskelig omsorg sagtens kan gå hånd i hånd.",
   },
 ];
 
@@ -65,16 +65,16 @@ export default function OmOsPage() {
             </h2>
             <div className="space-y-5 text-[16px] leading-[1.8] text-[rgba(242,238,230,.65)]">
               <p>
-                Byggebranchen er fuld af dygtige mennesker — men systemet gør det ofte svært for dem at finde de rigtige opgaver, og for virksomheder at finde de rigtige folk, hurtigt nok.
+                Der er masser af dygtige folk i byggebranchen, der kæmper for at finde stabilt arbejde. Og der er masser af virksomheder, der ikke kan finde de rigtige hænder hurtigt nok. Det er et problem, vi selv har mærket på kroppen.
               </p>
               <p>
-                Vi startede Kryds fordi vi selv har stået på begge sider. Vi har været dem der ventede på et opkald om arbejde, og vi har været dem der desperat ledte efter ekstra hænder til en deadline.
+                Vi har ventet på det opkald, der aldrig kom. Og vi har stået med en deadline om to dage uden personale til at løse den. Det er ikke sjovt for nogen.
               </p>
               <p>
-                <span className="text-cream font-medium">Vores mål er simpelt:</span> at gøre det nemmere at finde hinanden. Ingen unødvendige mellemled, ingen uigennemsigtige priser, og ingen løfter vi ikke kan holde. Bare reelle folk til reelle opgaver — med en kontaktperson der kender dem ved navn.
+                <span className="text-cream font-medium">Kryds startede ud fra noget meget simpelt:</span> ring til den rigtige person, aftal en fair pris, mødt op til tiden. Vi fjernede det unødvendige bureaukrati og holdt fast i det, der virker — ærlighed, hurtighed og folk, der tager stolthed i det, de laver.
               </p>
               <p>
-                Vi tror på at når folk hjælper hinanden, bliver resultatet bedre for alle. Det er det Kryds handler om.
+                Det er stadig det, vi tror på.
               </p>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { Barlow_Condensed, Barlow } from "next/font/google";
 import "./globals.css";
 import BackToHome from "@/components/BackToHome";
 import CookieBanner from "@/components/CookieBanner";
+import PageTracker from "@/components/PageTracker";
 
 const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
@@ -133,6 +134,7 @@ export default function RootLayout({
       </head>
       <body>
         <BackToHome />
+        <PageTracker />
         {children}
         <CookieBanner />
       </body>
