@@ -66,18 +66,24 @@ export default function BranchCarousel() {
     // Start at 0 — will loop when reaching half of total scrollWidth
     function tick() {
       if (view && !pausedRef.current) {
-        view.scrollLeft += 0.45; // ~27px/s at 60fps — slow, peaceful scroll
-
-        // Seamless loop: when we pass half the content, jump back
         const half = view.scrollWidth / 2;
-        if (view.scrollLeft >= half) {
-          view.scrollLeft -= half;
+        // Guard: if layout hasn't settled yet, just wait
+        if (half > 0) {
+          view.scrollLeft += 0.45; // ~27px/s at 60fps — slow, peaceful scroll
+
+          // Seamless loop: when we pass half the content, jump back
+          if (view.scrollLeft >= half) {
+            view.scrollLeft -= half;
+          }
         }
       }
       rafRef.current = requestAnimationFrame(tick);
     }
 
-    rafRef.current = requestAnimationFrame(tick);
+    // Wait one frame so the DOM has laid out before we start scrolling
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(tick);
+    });
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
@@ -115,7 +121,7 @@ export default function BranchCarousel() {
         {/* The scrollable track */}
         <div
           ref={viewRef}
-          className="flex gap-[18px] overflow-x-auto pb-2"
+          className="branch-carousel-viewport flex gap-[18px] overflow-x-auto pb-2"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -152,8 +158,8 @@ export default function BranchCarousel() {
               style={{
                 width: 360,
                 height: 240,
-                background: "#0C0C0A",
-                border: "1px solid rgba(242,238,230,0.07)",
+                background: "var(--color-black2)",
+                border: "1px solid var(--border)",
               }}
             >
               {/* Background image */}

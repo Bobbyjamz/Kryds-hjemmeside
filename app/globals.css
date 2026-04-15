@@ -264,10 +264,81 @@ h1, h2, h3, h4, .font-condensed {
 }
 [data-theme="light"] input::placeholder,
 [data-theme="light"] textarea::placeholder {
-  color: rgba(26, 25, 24, 0.3) !important;
+  color: rgba(26, 25, 24, 0.35) !important;
 }
 [data-theme="light"] .text-outline {
   -webkit-text-stroke: 2px var(--color-cream);
+}
+
+/* ================================================
+   LIGHT THEME — blanket overrides for hardcoded rgba
+   Many components author arbitrary Tailwind values like
+   border-[rgba(242,238,230,0.07)] that don't flip via
+   CSS variables. These selectors catch them all by
+   substring-matching the literal class name.
+   ================================================ */
+/* Cream borders → dark borders */
+[data-theme="light"] [class*="border-[rgba(242,238,230"] {
+  border-color: rgba(26, 25, 24, 0.15) !important;
+}
+/* Cream backgrounds → subtle dark backgrounds */
+[data-theme="light"] [class*="bg-[rgba(242,238,230"] {
+  background-color: rgba(26, 25, 24, 0.05) !important;
+}
+/* Cream text → dark text */
+[data-theme="light"] [class*="text-[rgba(242,238,230"] {
+  color: rgba(26, 25, 24, 0.65) !important;
+}
+/* Cream hover text → darker text */
+[data-theme="light"] [class*="hover:text-[rgba(242,238,230"]:hover {
+  color: rgba(26, 25, 24, 0.85) !important;
+}
+/* Black backgrounds (inputs / cards) → light surface */
+[data-theme="light"] [class*="bg-[rgba(12,12,10"] {
+  background-color: rgba(244, 240, 232, 0.65) !important;
+  color: var(--color-cream) !important;
+}
+/* Black borders → subtle dark borders */
+[data-theme="light"] [class*="border-[rgba(12,12,10"] {
+  border-color: rgba(26, 25, 24, 0.15) !important;
+}
+/* Hardcoded text-cream/90 opacity variant */
+[data-theme="light"] .text-cream\/90 {
+  color: color-mix(in srgb, var(--color-cream) 90%, transparent) !important;
+}
+
+/* Branch carousel tile — dark-authored inline styles */
+[data-theme="light"] .branch-tile {
+  background: var(--color-black2) !important;
+  border-color: var(--border) !important;
+}
+
+/* Hero big-X lines in light mode — use dark tint instead of cream */
+[data-theme="light"] .hero-bigx::before,
+[data-theme="light"] .hero-bigx::after {
+  background: rgba(26, 25, 24, 0.08) !important;
+}
+[data-theme="light"] .hero-ring {
+  border-color: rgba(26, 25, 24, 0.08) !important;
+}
+[data-theme="light"] .hero-lines::before {
+  background: repeating-linear-gradient(
+    -55deg,
+    transparent, transparent 60px,
+    rgba(26, 25, 24, 0.035) 60px,
+    rgba(26, 25, 24, 0.035) 61px
+  ) !important;
+}
+
+/* Mobile app header / menu button — cream borders in light mode */
+[data-theme="light"] .app-header {
+  border-bottom-color: rgba(26, 25, 24, 0.12) !important;
+}
+[data-theme="light"] .app-menu-btn {
+  border-color: rgba(26, 25, 24, 0.12) !important;
+}
+[data-theme="light"] .app-bottom-nav {
+  border-color: rgba(26, 25, 24, 0.12) !important;
 }
 
 /* ================================================

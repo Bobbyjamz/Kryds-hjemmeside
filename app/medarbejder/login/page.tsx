@@ -88,14 +88,13 @@ export default function MedarbejderLoginPage() {
     "w-full bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] text-cream font-sans text-[15px] px-[14px] py-3 rounded-[2px] outline-none transition-colors focus:border-yellow placeholder:text-[rgba(242,238,230,.2)]";
 
   return (
-    <main className="bg-black min-h-screen flex items-center justify-center p-5">
+    <main className="bg-black2 min-h-screen flex items-center justify-center p-5">
       <div className="w-full max-w-[440px]">
         <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="hover:opacity-80 transition-opacity" title="Tilbage til forsiden">
+          <Link href="/" className="hover:opacity-80 transition-opacity text-cream" title="Tilbage til forsiden">
             <svg width="72" height="72" viewBox="0 0 90 90">
-              <rect width="90" height="90" rx="14" fill="#0C0C0A" />
-              <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="16" strokeLinecap="square" />
-              <line x1="76" y1="14" x2="14" y2="76" stroke="#F2EEE6" strokeWidth="16" strokeLinecap="square" />
+              <line x1="10" y1="10" x2="80" y2="80" stroke="#F5C400" strokeWidth="18" strokeLinecap="square" />
+              <line x1="80" y1="10" x2="10" y2="80" stroke="currentColor" strokeWidth="18" strokeLinecap="square" />
             </svg>
           </Link>
           <h1 className="font-condensed font-black text-[32px] uppercase tracking-[.02em] text-cream mt-4 text-center">
@@ -184,7 +183,7 @@ export default function MedarbejderLoginPage() {
         {showAdmin && (
           <div
             ref={adminRef}
-            className="mt-3 bg-[#111110] border border-[rgba(242,238,230,0.07)] rounded-[2px] p-6"
+            className="mt-3 bg-black2 border border-[rgba(242,238,230,0.07)] rounded-[2px] p-6"
           >
             <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-4">
               Admin adgang
