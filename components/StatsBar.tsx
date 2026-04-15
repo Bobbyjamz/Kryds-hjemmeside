@@ -1,16 +1,18 @@
 "use client";
 
 import { useReveal } from "@/hooks/useReveal";
-
-const stats = [
-  { num: "300+", label: "Aktive byggefolk" },
-  { num: "2t", label: "Gennemsnitlig responstid" },
-  { num: "100%", label: "Forsikret personale" },
-  { num: "7 år", label: "I branchen" },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function StatsBar() {
   const ref = useReveal();
+  const { t } = useLanguage();
+
+  const stats = [
+    { num: "300+", labelKey: "stats_1" },
+    { num: "2t",   labelKey: "stats_2" },
+    { num: "100%", labelKey: "stats_3" },
+    { num: "7 år", labelKey: "stats_4" },
+  ];
 
   return (
     <div ref={ref}>
@@ -30,7 +32,7 @@ export default function StatsBar() {
               {s.num}
             </span>
             <span className="text-[12px] font-normal tracking-[.06em] text-muted uppercase">
-              {s.label}
+              {t(s.labelKey)}
             </span>
           </div>
         ))}

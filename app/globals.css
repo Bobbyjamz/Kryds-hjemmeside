@@ -2,23 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ================================================
+   CSS CUSTOM PROPERTIES — DARK THEME (default)
+   ================================================ */
 :root {
-  --black: #0C0C0A;
-  --black2: #111110;
-  --gray: #1E1E1C;
-  --gray2: #2A2A28;
-  --yellow: #F5C400;
-  --yellow2: #D4A800;
-  --white: #F2EEE6;
-  --muted: #888880;
-  --border: rgba(242, 238, 230, 0.07);
+  /* Brand colors */
+  --color-black:   #0C0C0A;
+  --color-black2:  #111110;
+  --color-gray:    #1E1E1C;
+  --color-gray2:   #2A2A28;
+  --color-yellow:  #F5C400;
+  --color-yellow2: #D4A800;
+  --color-cream:   #F2EEE6;
+  --color-muted:   #888880;
+
+  /* Legacy names used in globals / inline styles */
+  --black:   var(--color-black);
+  --black2:  var(--color-black2);
+  --gray:    var(--color-gray);
+  --gray2:   var(--color-gray2);
+  --yellow:  var(--color-yellow);
+  --yellow2: var(--color-yellow2);
+  --white:   var(--color-cream);
+  --muted:   var(--color-muted);
+  --border:  rgba(242, 238, 230, 0.07);
+
+  /* Hero gradient helper */
+  --hero-grad-bottom: rgba(12, 12, 10, .4);
 }
 
+/* ================================================
+   LIGHT THEME OVERRIDES
+   ================================================ */
+[data-theme="light"] {
+  --color-black:   #F4F0E8;
+  --color-black2:  #EBE7DF;
+  --color-gray:    #E0DBD3;
+  --color-gray2:   #D4CFC7;
+  --color-yellow:  #C49800;
+  --color-yellow2: #A68000;
+  --color-cream:   #1A1918;
+  --color-muted:   #6B6760;
+
+  --black:  var(--color-black);
+  --black2: var(--color-black2);
+  --gray:   var(--color-gray);
+  --gray2:  var(--color-gray2);
+  --border: rgba(26, 25, 24, 0.10);
+
+  --hero-grad-bottom: rgba(244, 240, 232, .7);
+}
+
+/* ================================================
+   GLOBAL RESETS & BASE
+   ================================================ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  background: var(--black);
-  color: var(--white);
+  background: var(--color-black);
+  color: var(--color-cream);
   font-family: var(--font-barlow), 'Barlow', sans-serif;
   font-weight: 300;
   overflow-x: hidden;
@@ -27,9 +69,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1, "liga" 1;
   font-kerning: normal;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* Tight kerning for condensed headlines — fixes gap around æ/ø/å */
+/* Tight kerning for condensed headlines */
 h1, h2, h3, h4, .font-condensed {
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   font-kerning: normal;
@@ -37,8 +80,9 @@ h1, h2, h3, h4, .font-condensed {
 
 [id] { scroll-margin-top: 66px; }
 
-
-/* HERO LINES — pseudo-element animation */
+/* ================================================
+   HERO DECORATIONS
+   ================================================ */
 .hero-lines { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
 .hero-lines::before {
   content: '';
@@ -53,74 +97,96 @@ h1, h2, h3, h4, .font-condensed {
   animation: drift 18s linear infinite;
 }
 
-/* HERO BIG X */
 .hero-bigx { position: absolute; top: 50%; right: 6%; z-index: 0; animation: spin-slow 44s linear infinite; }
 .hero-bigx::before, .hero-bigx::after {
   content: ''; position: absolute; top: 50%; left: 50%;
   width: 100%; height: 3px; background: rgba(245, 196, 0, 0.05);
 }
 .hero-bigx::before { transform: translate(-50%, -50%) rotate(0deg); }
-.hero-bigx::after { transform: translate(-50%, -50%) rotate(90deg); }
+.hero-bigx::after  { transform: translate(-50%, -50%) rotate(90deg); }
 
-/* HERO RINGS */
 .hero-ring {
   position: absolute; top: 50%; border-radius: 50%;
   transform: translateY(-50%); pointer-events: none;
   border: 1px solid rgba(245, 196, 0, 0.07);
 }
 
-/* HERO TEXT OUTLINE */
-.text-outline {
-  -webkit-text-stroke: 2px #F2EEE6;
-  color: transparent;
-}
-
-/* HERO EYEBROW LINE */
+/* Hero eyebrow line */
 .hero-eyebrow::before {
-  content: ''; display: block; width: 36px; height: 1px; background: var(--yellow);
+  content: ''; display: block; width: 36px; height: 1px; background: var(--color-yellow);
 }
 
-/* SECTION EYEBROW LINE */
+/* ================================================
+   SECTION EYEBROW
+   ================================================ */
 .eyebrow::before {
-  content: ''; display: block; width: 20px; height: 1px; background: var(--yellow);
+  content: ''; display: block; width: 20px; height: 1px; background: var(--color-yellow);
 }
 
-/* SERVICE CARD */
+/* ================================================
+   SERVICE CARD (desktop original 8-card grid)
+   ================================================ */
 .service-card {
-  background: var(--black2); padding: 48px 38px; position: relative;
-  overflow: hidden; transition: background .3s, opacity .6s, transform .6s;
-  opacity: 0; transform: translateY(24px);
+  background: var(--color-black2);
+  padding: 48px 38px;
+  position: relative;
+  overflow: hidden;
+  transition: background .3s, opacity .6s, transform .6s;
+  opacity: 0;
+  transform: translateY(24px);
 }
-.service-card.in { opacity: 1; transform: translateY(0); }
+.service-card.in  { opacity: 1; transform: translateY(0); }
 .service-card::before {
   content: ''; position: absolute; bottom: 0; left: 0;
-  width: 100%; height: 2px; background: var(--yellow);
+  width: 100%; height: 2px; background: var(--color-yellow);
   transform: scaleX(0); transform-origin: left; transition: transform .35s ease;
 }
-.service-card:hover { background: var(--gray); }
+.service-card:hover { background: var(--color-gray); }
 .service-card:hover::before { transform: scaleX(1); }
 
-/* SERVICE WATERMARK */
+/* Service watermark X */
 .svc-watermark {
   position: absolute; top: 28px; right: 32px;
   width: 48px; height: 48px; opacity: .05; transition: opacity .3s;
 }
 .svc-watermark::before, .svc-watermark::after {
   content: ''; position: absolute; top: 50%; left: 50%;
-  width: 100%; height: 4px; background: var(--yellow); border-radius: 2px;
+  width: 100%; height: 4px; background: var(--color-yellow); border-radius: 2px;
 }
 .svc-watermark::before { transform: translate(-50%, -50%) rotate(45deg); }
-.svc-watermark::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.svc-watermark::after  { transform: translate(-50%, -50%) rotate(-45deg); }
 .service-card:hover .svc-watermark { opacity: .18; }
 
-/* STEPS CONNECTOR LINE */
+/* ================================================
+   BRANCH CAROUSEL TILE HOVER
+   ================================================ */
+.branch-tile:hover .branch-tile-img {
+  filter: grayscale(0%) brightness(0.72) saturate(1.1) !important;
+  transform: scale(1.15) !important;
+}
+.branch-tile:hover .branch-tile-arrow {
+  background: var(--color-yellow) !important;
+  border-color: var(--color-yellow) !important;
+  transform: translateX(4px);
+}
+.branch-tile:hover .branch-tile-arrow svg {
+  stroke: var(--color-black) !important;
+}
+/* Scrollbar hidden for carousel viewport */
+.branch-carousel-viewport::-webkit-scrollbar { display: none; }
+
+/* ================================================
+   STEPS CONNECTOR
+   ================================================ */
 .steps-grid::after {
   content: ''; position: absolute; top: 23px; left: 6%; right: 6%;
   height: 1px;
   background: linear-gradient(to right, transparent, rgba(245, 196, 0, .18) 20%, rgba(245, 196, 0, .18) 80%, transparent);
 }
 
-/* WHY X-ICON */
+/* ================================================
+   WHY X-ICON
+   ================================================ */
 .why-xicon {
   width: 44px; height: 44px; flex-shrink: 0; position: relative; margin-top: 2px;
   border: 1px solid rgba(245, 196, 0, .2); border-radius: 2px;
@@ -128,51 +194,157 @@ h1, h2, h3, h4, .font-condensed {
 }
 .why-xicon::before, .why-xicon::after {
   content: ''; position: absolute; top: 50%; left: 50%;
-  width: 20px; height: 2px; background: var(--yellow); border-radius: 1px;
+  width: 20px; height: 2px; background: var(--color-yellow); border-radius: 1px;
 }
 .why-xicon::before { transform: translate(-50%, -50%) rotate(45deg); }
-.why-xicon::after { transform: translate(-50%, -50%) rotate(-45deg); }
-.why-item:hover .why-xicon { background: var(--yellow); border-color: var(--yellow); }
+.why-xicon::after  { transform: translate(-50%, -50%) rotate(-45deg); }
+.why-item:hover .why-xicon { background: var(--color-yellow); border-color: var(--color-yellow); }
 .why-item:hover .why-xicon::before,
-.why-item:hover .why-xicon::after { background: var(--black); }
+.why-item:hover .why-xicon::after { background: var(--color-black); }
 
-/* GALLERY */
+/* ================================================
+   GALLERY PLACEHOLDER
+   ================================================ */
 .gallery-placeholder-x {
   width: 44px; height: 44px; position: relative; opacity: .4;
 }
 .gallery-placeholder-x::before, .gallery-placeholder-x::after {
   content: ''; position: absolute; top: 50%; left: 50%;
-  width: 100%; height: 3px; background: var(--yellow); border-radius: 2px;
+  width: 100%; height: 3px; background: var(--color-yellow); border-radius: 2px;
 }
 .gallery-placeholder-x::before { transform: translate(-50%, -50%) rotate(45deg); }
-.gallery-placeholder-x::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.gallery-placeholder-x::after  { transform: translate(-50%, -50%) rotate(-45deg); }
 
-/* CONTRACT X-BULLET */
+/* ================================================
+   CONTRACT X-BULLET
+   ================================================ */
 .bx {
   display: inline-block; width: 12px; height: 12px;
   position: relative; flex-shrink: 0;
 }
 .bx::before, .bx::after {
   content: ''; position: absolute; top: 50%; left: 50%;
-  width: 11px; height: 1.5px; background: var(--yellow); border-radius: 1px;
+  width: 11px; height: 1.5px; background: var(--color-yellow); border-radius: 1px;
 }
 .bx::before { transform: translate(-50%, -50%) rotate(45deg); }
-.bx::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.bx::after  { transform: translate(-50%, -50%) rotate(-45deg); }
 
-/* FORM CARD TOP LINE */
+/* ================================================
+   FORM CARD TOP LINE
+   ================================================ */
 .form-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 2px; background: var(--yellow);
+  height: 2px; background: var(--color-yellow);
 }
 
-/* SCROLL REVEAL */
+/* ================================================
+   SCROLL REVEAL
+   ================================================ */
 .reveal {
   opacity: 0; transform: translateY(32px);
   transition: opacity .7s ease, transform .7s ease;
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
-/* MOBILE */
+/* ================================================
+   LIGHT THEME — specific input / border fixes
+   ================================================ */
+[data-theme="light"] .service-card {
+  background: var(--color-black2);
+}
+[data-theme="light"] .form-card {
+  background: var(--color-gray);
+}
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  color: var(--color-cream);
+  background: rgba(244, 240, 232, 0.6) !important;
+  border-color: rgba(26, 25, 24, 0.15) !important;
+}
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: rgba(26, 25, 24, 0.3) !important;
+}
+[data-theme="light"] .text-outline {
+  -webkit-text-stroke: 2px var(--color-cream);
+}
+
+/* ================================================
+   MOBILE APP INTERFACE (≤ 900px)
+   ================================================ */
+
+/* Header */
+.app-header {
+  position: sticky; top: 0; z-index: 80;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px; height: 58px;
+  background: color-mix(in srgb, var(--color-black) 94%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(242,238,230,.07);
+}
+
+/* Menu button */
+.app-menu-btn {
+  width: 42px; height: 42px;
+  background: var(--color-gray);
+  border: 1px solid rgba(242,238,230,.07);
+  border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; cursor: pointer; position: relative;
+  flex-shrink: 0;
+}
+.app-menu-btn span {
+  display: block; width: 18px; height: 2px;
+  background: var(--color-yellow); border-radius: 1px;
+  transition: transform .25s, opacity .25s;
+}
+.app-menu-btn span:last-child { width: 12px; }
+
+/* Bottom navigation */
+.app-bottom-nav {
+  position: fixed;
+  left: 12px; right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 90;
+  display: flex;
+  background: color-mix(in srgb, var(--color-gray) 92%, transparent);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(242,238,230,.07);
+  border-radius: 18px;
+  padding: 8px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.45);
+}
+.app-bottom-nav a {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; padding: 8px 0;
+  text-decoration: none; color: var(--color-muted);
+  border-radius: 12px; transition: background .2s, color .2s;
+}
+.app-nav-active {
+  background: rgba(245,196,0,.12) !important;
+  color: var(--color-yellow) !important;
+}
+.app-nav-icon {
+  width: 20px; height: 20px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Service tile hover glow */
+.app-service-tile::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(140deg, rgba(245,196,0,.05) 0%, transparent 55%);
+  pointer-events: none; opacity: 0; transition: opacity .3s;
+}
+.app-service-tile:active::after { opacity: 1; }
+
+/* Scrollbar hidden everywhere on mobile */
+.app-mobile-wrapper *::-webkit-scrollbar { display: none; }
+
+/* ================================================
+   MOBILE
+   ================================================ */
 @media (max-width: 900px) {
   .steps-grid::after { display: none; }
 }
@@ -182,7 +354,9 @@ button, a {
   touch-action: manipulation;
 }
 
-/* BOOK NU — pulse ring on contract section when triggered */
+/* ================================================
+   BOOK NU — pulse ring on contract section
+   ================================================ */
 @keyframes section-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(245,196,0,.22), inset 0 0 0 0 rgba(245,196,0,0); }
   40%  { box-shadow: 0 0 0 16px rgba(245,196,0,0), inset 0 0 60px rgba(245,196,0,.05); }
