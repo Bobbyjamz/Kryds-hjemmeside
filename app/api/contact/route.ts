@@ -37,8 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
-  // RESEND_TO skal sættes som env var — default er test-email indtil krydsbyg.com domæne er verificeret på resend.com
-  const toAddress = process.env.RESEND_TO || "krys00305@gmail.com";
+  const toAddress = process.env.RESEND_TO || "kontakt@krydsbyg.com";
 
   // Sanitize all inputs
   const safeVirksomhed = escapeHtml(String(virksomhed));

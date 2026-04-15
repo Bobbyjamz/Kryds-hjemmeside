@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     // Send email notification (best-effort — don't fail registration if email fails)
     if (process.env.RESEND_API_KEY) {
       const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
-      const toAddress = process.env.RESEND_TO || "Kontakt@KrydsByg.com";
+      const toAddress = process.env.RESEND_TO || "kontakt@krydsbyg.com";
 
       const safeName = escapeHtml(employee.name);
       const safePhone = escapeHtml(employee.phone);
