@@ -184,16 +184,36 @@ export default function MobileApp() {
       )}
 
       {/* ── HERO ── */}
-      <section className="px-5 pt-7 pb-4">
-        <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-[10px]">
+      <section className="px-5 pt-7 pb-4 relative">
+        <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-[10px] flex items-center gap-[8px]">
+          <span className="inline-block w-[18px] h-[1px] bg-yellow" />
           {isDA ? "Velkommen" : "Welcome"}
         </p>
         <h1 className="font-condensed font-black text-[44px] leading-[.92] uppercase tracking-[-.01em] text-cream">
           {isDA ? <>Sæt et kryds<br /><span className="text-yellow">i kalenderen</span></> : <>Put a cross<br /><span className="text-yellow">in the calendar</span></>}
         </h1>
-        <p className="text-[14px] leading-[1.6] text-[rgba(242,238,230,.55)] mt-[10px]">
+        <p className="text-[14px] leading-[1.6] text-muted mt-[10px]">
           {isDA ? "Erfarne byggefolk i København — klar til at tage fat." : "Experienced construction workers in Copenhagen — ready to work."}
         </p>
+
+        {/* Trust strip */}
+        <div className="mt-4 flex items-center gap-[10px] flex-wrap">
+          <span className="inline-flex items-center gap-[5px] text-[11px] font-condensed font-bold tracking-[.08em] uppercase text-cream rounded-full px-[10px] py-[5px]"
+            style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            {isDA ? "Forsikret" : "Insured"}
+          </span>
+          <span className="inline-flex items-center gap-[5px] text-[11px] font-condensed font-bold tracking-[.08em] uppercase text-cream rounded-full px-[10px] py-[5px]"
+            style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            {isDA ? "Svar < 2t" : "Reply < 2h"}
+          </span>
+          <span className="inline-flex items-center gap-[5px] text-[11px] font-condensed font-bold tracking-[.08em] uppercase text-cream rounded-full px-[10px] py-[5px]"
+            style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            {isDA ? "København" : "Copenhagen"}
+          </span>
+        </div>
       </section>
 
       {/* ── TWO ACTION CARDS ── */}
@@ -246,7 +266,7 @@ export default function MobileApp() {
               className="app-service-tile flex-shrink-0 flex flex-col gap-[10px] p-4 rounded-[16px] relative overflow-hidden text-left transition-all active:scale-[.96]"
               style={{ width: "calc(50vw - 28px)", maxWidth: 190, minWidth: 150, scrollSnapAlign: "start", background: "var(--color-gray)", border: "1px solid rgba(242,238,230,.07)", color: "var(--color-cream)" }}
             >
-              <span className="absolute top-3 right-3 font-condensed font-bold text-[9px] tracking-[.1em] text-muted px-[6px] py-[3px] rounded-[3px]" style={{ background: "rgba(12,12,10,.6)", border: "1px solid rgba(242,238,230,.08)" }}>
+              <span className="absolute top-3 right-3 font-condensed font-bold text-[9px] tracking-[.1em] text-muted px-[6px] py-[3px] rounded-[3px]" style={{ background: "var(--color-black)", border: "1px solid var(--border)" }}>
                 {tile.count}
               </span>
               <div className="w-10 h-10 rounded-[11px] flex items-center justify-center" style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
@@ -346,19 +366,19 @@ export default function MobileApp() {
           ) : (
             <>
               {/* Date range */}
-              <div className="flex items-stretch rounded-[12px] overflow-hidden mb-3" style={{ background: "rgba(12,12,10,.5)", border: "1px solid rgba(242,238,230,.08)" }}>
+              <div className="flex items-stretch rounded-[12px] overflow-hidden mb-3" style={{ background: "var(--color-black)", border: "1px solid var(--border)" }}>
                 <div className="flex-1 flex flex-col gap-1 p-[10px] px-3">
                   <label className="font-condensed font-bold text-[9px] tracking-[.2em] uppercase text-yellow">{isDA ? "Fra" : "From"}</label>
                   <input type="date" value={dateStart} onChange={e => setDateStart(e.target.value)}
                     className="bg-transparent border-none text-cream font-sans text-[14px] outline-none p-0 appearance-none"
-                    style={{ colorScheme: "dark" }} />
+                    style={{ colorScheme: theme === "dark" ? "dark" : "light" }} />
                 </div>
-                <div className="flex items-center justify-center px-[6px] text-yellow text-[16px]" style={{ borderLeft: "1px solid rgba(242,238,230,.08)", borderRight: "1px solid rgba(242,238,230,.08)" }}>→</div>
+                <div className="flex items-center justify-center px-[6px] text-yellow text-[16px]" style={{ borderLeft: "1px solid var(--border)", borderRight: "1px solid var(--border)" }}>→</div>
                 <div className="flex-1 flex flex-col gap-1 p-[10px] px-3">
                   <label className="font-condensed font-bold text-[9px] tracking-[.2em] uppercase text-yellow">{isDA ? "Til" : "To"}</label>
                   <input type="date" value={dateEnd} onChange={e => setDateEnd(e.target.value)}
                     className="bg-transparent border-none text-cream font-sans text-[14px] outline-none p-0 appearance-none"
-                    style={{ colorScheme: "dark" }} />
+                    style={{ colorScheme: theme === "dark" ? "dark" : "light" }} />
                 </div>
               </div>
 
@@ -372,7 +392,7 @@ export default function MobileApp() {
                 value={selectedCat}
                 onChange={e => setSelectedCat(e.target.value)}
                 className="w-full rounded-[10px] px-[14px] py-3 mb-[10px] font-sans text-[14px] outline-none appearance-none"
-                style={{ background: "rgba(12,12,10,.5)", border: "1px solid rgba(242,238,230,.08)", color: "var(--color-cream)" }}
+                style={{ background: "var(--color-black)", border: "1px solid var(--border)", color: "var(--color-cream)" }}
               >
                 <option value="">{isDA ? "Vælg opgavetype…" : "Select task type…"}</option>
                 {SERVICE_TILES.map(t => <option key={t.cat} value={t.cat}>{t.cat}</option>)}
@@ -385,7 +405,7 @@ export default function MobileApp() {
                 value={antal}
                 onChange={e => setAntal(e.target.value)}
                 className="w-full rounded-[10px] px-[14px] py-3 mb-[10px] font-sans text-[14px] outline-none"
-                style={{ background: "rgba(12,12,10,.5)", border: "1px solid rgba(242,238,230,.08)", color: "var(--color-cream)" }}
+                style={{ background: "var(--color-black)", border: "1px solid var(--border)", color: "var(--color-cream)" }}
               />
 
               <input
@@ -394,7 +414,7 @@ export default function MobileApp() {
                 value={phone}
                 onChange={e => setPhone(e.target.value)}
                 className="w-full rounded-[10px] px-[14px] py-3 mb-[10px] font-sans text-[14px] outline-none"
-                style={{ background: "rgba(12,12,10,.5)", border: "1px solid rgba(242,238,230,.08)", color: "var(--color-cream)" }}
+                style={{ background: "var(--color-black)", border: "1px solid var(--border)", color: "var(--color-cream)" }}
               />
 
               <button
@@ -415,6 +435,51 @@ export default function MobileApp() {
               )}
             </>
           )}
+        </div>
+      </section>
+
+      {/* ── CONTACT STRIP ── */}
+      <section className="px-5 pt-6 pb-2">
+        <div className="flex items-center mb-[14px]">
+          <span className="font-condensed font-extrabold text-[13px] tracking-[.2em] uppercase text-muted flex items-center gap-[10px]">
+            <span className="inline-block w-[18px] h-[1px] bg-yellow align-middle" />
+            {isDA ? "Kontakt" : "Contact"}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <a href="tel:+4542778866"
+            className="flex flex-col items-start gap-[6px] p-4 rounded-[14px] no-underline transition-transform active:scale-[.97]"
+            style={{ background: "var(--color-gray)", border: "1px solid var(--border)" }}>
+            <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.25)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg>
+            </div>
+            <span className="font-condensed font-bold text-[10px] tracking-[.15em] uppercase text-muted">{isDA ? "Ring til os" : "Call us"}</span>
+            <span className="font-condensed font-extrabold text-[14px] text-cream">+45 42 77 88 66</span>
+          </a>
+          <a href="mailto:Kontakt@KrydsByg.com"
+            className="flex flex-col items-start gap-[6px] p-4 rounded-[14px] no-underline transition-transform active:scale-[.97]"
+            style={{ background: "var(--color-gray)", border: "1px solid var(--border)" }}>
+            <div className="w-9 h-9 rounded-[10px] flex items-center justify-center" style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.25)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg>
+            </div>
+            <span className="font-condensed font-bold text-[10px] tracking-[.15em] uppercase text-muted">{isDA ? "Skriv til os" : "Email us"}</span>
+            <span className="font-condensed font-extrabold text-[13px] text-cream break-all">Kontakt@KrydsByg.com</span>
+          </a>
+        </div>
+
+        {/* Legal quick links */}
+        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+          {[
+            { href: "/handelsbetingelser", label: isDA ? "Handelsbetingelser" : "Terms" },
+            { href: "/privatpolitik", label: isDA ? "Privatpolitik" : "Privacy" },
+            { href: "/cookie-politik", label: isDA ? "Cookies" : "Cookies" },
+            { href: "/om-os", label: isDA ? "Om os" : "About" },
+          ].map(l => (
+            <a key={l.href} href={l.href}
+              className="font-condensed font-bold text-[10px] tracking-[.14em] uppercase text-muted no-underline hover:text-yellow transition-colors flex items-center gap-1">
+              <span className="text-yellow opacity-60">→</span> {l.label}
+            </a>
+          ))}
         </div>
       </section>
 

@@ -11,7 +11,6 @@ const CARDS = [
   { num: "05", titleKey: "svc_5_title", descKey: "svc_5_desc", tagsKey: "svc_5_tags" },
   { num: "06", titleKey: "svc_6_title", descKey: "svc_6_desc", tagsKey: "svc_6_tags" },
   { num: "07", titleKey: "svc_7_title", descKey: "svc_7_desc", tagsKey: "svc_7_tags" },
-  { num: "08", titleKey: "svc_8_title", descKey: "svc_8_desc", tagsKey: "svc_8_tags" },
 ];
 
 export default function ServicesDesktop() {

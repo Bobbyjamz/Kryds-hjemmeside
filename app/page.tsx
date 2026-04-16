@@ -2,7 +2,6 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Ticker from "@/components/Ticker";
 import StatsBar from "@/components/StatsBar";
-import ServicesDesktop from "@/components/ServicesDesktop";
 import BranchCarousel from "@/components/BranchCarousel";
 import HowItWorks from "@/components/HowItWorks";
 import WhyKryds from "@/components/WhyKryds";
@@ -20,7 +19,6 @@ export default function Home() {
         <Hero />
         <Ticker />
         <StatsBar />
-        <ServicesDesktop />
         <BranchCarousel />
         <HowItWorks />
         <WhyKryds />

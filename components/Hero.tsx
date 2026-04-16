@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 function scrollToContract() {
@@ -47,7 +48,7 @@ export default function Hero() {
           — <em className="text-yellow not-italic">{t("hero_catch").replace("— ", "")}</em>
         </p>
         <div className="flex items-end justify-between opacity-0 animate-fadeup max-[900px]:flex-col max-[900px]:gap-7 max-[900px]:items-start" style={{ animationDelay: ".65s" }}>
-          <p className="max-w-[400px] text-[16px] leading-[1.75] text-[rgba(242,238,230,.55)]">
+          <p className="max-w-[400px] text-[16px] leading-[1.75] text-muted">
             {t("hero_desc")}
           </p>
           <div className="flex gap-[14px] items-center">
@@ -57,9 +58,9 @@ export default function Hero() {
             >
               {t("hero_btn_book")}
             </button>
-            <a href="#services" className="border border-[rgba(242,238,230,.25)] text-cream font-condensed font-semibold text-[14px] tracking-[.1em] uppercase px-[30px] py-[15px] rounded-[2px] no-underline inline-block transition-colors hover:border-yellow hover:text-yellow">
+            <Link href="/ydelser" className="border border-[var(--border)] text-cream font-condensed font-semibold text-[14px] tracking-[.1em] uppercase px-[30px] py-[15px] rounded-[2px] no-underline inline-block transition-colors hover:border-yellow hover:text-yellow">
               {t("hero_btn_services")}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

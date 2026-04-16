@@ -170,7 +170,7 @@ export default function OmOsPage() {
         </div>
 
         {/* CTA */}
-        <div className="max-w-[600px] mx-auto text-center bg-[#1A1A18] p-12 rounded-[2px] border border-[rgba(245,196,0,.15)]">
+        <div className="max-w-[600px] mx-auto text-center bg-gray p-12 rounded-[2px] border border-[rgba(245,196,0,.15)] shadow-[0_10px_40px_rgba(0,0,0,.15)]">
           <h3 className="font-condensed font-extrabold text-[26px] uppercase tracking-[.02em] text-cream mb-3">
             Klar til at sætte et kryds?
           </h3>

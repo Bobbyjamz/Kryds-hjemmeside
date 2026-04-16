@@ -14,9 +14,9 @@ const tiers = [
     name: "Handyman",
     subtitle: "Standardpersonale",
     description: "Flittige hænder til praktiske opgaver — klar til at tage fat.",
-    workerPay: "ca. 160–180",
-    fee: "90",
-    totalExample: "ca. 250–270",
+    workerPay: "ca. 170–190",
+    fee: "105",
+    totalExample: "ca. 275–295",
     features: [
       "Byggehjælpere & handymen",
       "Maling, oprydning, havearbejde",
@@ -32,9 +32,9 @@ const tiers = [
     subtitle: "Kvalificeret personale",
     description: "Koordinatorer og byggeledere med dokumenteret erfaring eller relevant uddannelse inden for byggefaget.",
     badge: "Anbefalet",
-    workerPay: "ca. 200–230",
-    fee: "115",
-    totalExample: "ca. 315–345",
+    workerPay: "ca. 220–250",
+    fee: "135",
+    totalExample: "ca. 355–385",
     features: [
       "Min. 5 års erfaring eller faglig uddannelse",
       "Referencer fra tidligere byggeprojekter",
@@ -50,9 +50,9 @@ const tiers = [
     name: "Mængde 3+",
     subtitle: "Volumenpris — handyman",
     description: "Ved booking af 3 eller flere handymen samtidig — samme kvalitet, lavere gebyr.",
-    workerPay: "ca. 160–180",
-    fee: "70",
-    totalExample: "ca. 230–250",
+    workerPay: "ca. 170–190",
+    fee: "85",
+    totalExample: "ca. 255–275",
     features: [
       "3+ handymen pr. booking",
       "Samme kvalitet — lavere gebyr",
@@ -119,7 +119,7 @@ export default function PriserPage() {
             Medarbejderens løn + <span className="text-yellow font-bold">Kryds-gebyr</span> = din timepris
           </p>
           <p className="text-[14px] text-muted mt-2">
-            Eksempel: 170 kr løn + 90 kr gebyr = <strong className="text-cream">260 kr/t total</strong>
+            Eksempel: 180 kr løn + 105 kr gebyr = <strong className="text-cream">285 kr/t total</strong>
           </p>
         </div>
 
@@ -147,8 +147,8 @@ export default function PriserPage() {
                 key={tier.name}
                 className={`relative rounded-[2px] p-10 border transition-all duration-300 ${
                   tier.highlighted
-                    ? "bg-[#1A1A18] border-yellow shadow-[0_0_40px_rgba(245,196,0,0.08)] scale-[1.03] max-[900px]:scale-100"
-                    : "bg-gray border-[rgba(242,238,230,0.07)] hover:border-[rgba(245,196,0,.25)]"
+                    ? "bg-black2 border-yellow shadow-[0_12px_50px_rgba(245,196,0,0.18)] scale-[1.03] max-[900px]:scale-100"
+                    : "bg-gray border-[var(--border)] shadow-[0_6px_20px_rgba(0,0,0,.08)] hover:border-[rgba(245,196,0,.25)] hover:shadow-[0_10px_35px_rgba(0,0,0,.12)]"
                 }`}
               >
                 {tier.badge && (
@@ -161,7 +161,7 @@ export default function PriserPage() {
                 </p>
 
                 {/* Price breakdown */}
-                <div className="bg-[rgba(12,12,10,.5)] border border-[rgba(242,238,230,0.06)] rounded-[2px] p-4 mb-5">
+                <div className="bg-black border border-[var(--border)] rounded-[2px] p-4 mb-5">
                   <div className="flex justify-between items-center py-[5px]">
                     <span className="text-[13px] text-muted">Medarbejderens løn</span>
                     <span className="font-condensed font-semibold text-[14px] text-cream">{tier.workerPay} kr/t</span>

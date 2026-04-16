@@ -302,6 +302,37 @@ h1, h2, h3, h4, .font-condensed {
 [data-theme="light"] [class*="border-[rgba(12,12,10"] {
   border-color: rgba(26, 25, 24, 0.15) !important;
 }
+/* Hardcoded hex dark backgrounds → theme-aware surface */
+[data-theme="light"] [class*="bg-[#0C0C0A]"],
+[data-theme="light"] [class*="bg-[#0c0c0a]"] {
+  background-color: var(--color-black) !important;
+}
+[data-theme="light"] [class*="bg-[#111110]"] {
+  background-color: var(--color-black2) !important;
+}
+[data-theme="light"] [class*="bg-[#1A1A18]"],
+[data-theme="light"] [class*="bg-[#1a1a18]"] {
+  background-color: var(--color-gray) !important;
+}
+[data-theme="light"] [class*="bg-[#1E1E1C]"],
+[data-theme="light"] [class*="bg-[#1e1e1c]"] {
+  background-color: var(--color-gray) !important;
+}
+/* Hardcoded hex dark borders → subtle dark border */
+[data-theme="light"] [class*="border-[#1A1A18]"],
+[data-theme="light"] [class*="border-[#1a1a18]"],
+[data-theme="light"] [class*="border-[#2A2A28]"],
+[data-theme="light"] [class*="border-[#2a2a28]"] {
+  border-color: var(--border) !important;
+}
+/* Legacy shorthand bg/text from Tailwind theme (bg-black, bg-black2, bg-gray) — already CSS-var driven */
+/* Add subtle shadow to major "cards" in light mode so they stand out on the cream bg */
+[data-theme="light"] .form-card,
+[data-theme="light"] .service-card,
+[data-theme="light"] .bg-gray,
+[data-theme="light"] .bg-black2 {
+  box-shadow: 0 6px 20px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+}
 /* Hardcoded text-cream/90 opacity variant */
 [data-theme="light"] .text-cream\/90 {
   color: color-mix(in srgb, var(--color-cream) 90%, transparent) !important;

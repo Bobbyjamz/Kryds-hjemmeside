@@ -4,6 +4,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   da: {
     // NAV
     nav_om_os: "Om os",
+    nav_ydelser: "Ydelser",
     nav_priser: "Priser",
     nav_tilmeld: "Tilmeld dig",
     nav_medarbejder: "Medarbejder",
@@ -36,30 +37,33 @@ export const translations: Record<Lang, Record<string, string>> = {
     stats_3: "Forsikret personale",
     stats_4: "I branchen",
 
-    // SERVICES DESKTOP (original 8 cards)
+    // SERVICES (7 ydelser matching branches)
     svc_eyebrow: "Vores ydelser",
     svc_h2: "Alt inden for",
     svc_h2_yellow: "byggeprojekter",
-    svc_1_title: "Renovering",
+    svc_page_subtitle:
+      "Vi stiller hold klar til hele spektret — fra renovering og byggeplads til events og havearbejde. Én kontakt, syv brancher.",
+    svc_cta: "Book ydelsen",
+    svc_1_title: "Byggeprojekter",
     svc_1_desc:
-      "Erfarne folk til indvendig og udvendig renovering. Vi stiller hold klar til alt fra lettere istandsættelse til større renoveringsprojekter.",
-    svc_1_tags: "Indvendig · Udvendig · Istandsættelse · Håndværk",
+      "Erfarne folk til indvendig og udvendig renovering samt byggeprojekter. Vi stiller hold klar til alt fra lettere istandsættelse til større byggeprojekter.",
+    svc_1_tags: "Renovering · Byggeri · Istandsættelse · Håndværk",
     svc_2_title: "Maling & spartling",
     svc_2_desc:
       "Malere og hjælpere til alle typer malerarbejde — vægge, lofter, facader og trapper. Vi leverer hurtige hænder med sans for detaljen.",
     svc_2_tags: "Indendørs · Facade · Spartling · Grundning",
-    svc_3_title: "Havearbejde",
+    svc_3_title: "Flytte & montere",
     svc_3_desc:
-      "Havefolk til rydning, beskæring, ukrudtsbekæmpelse, anlæg og vedligehold. Klar til sæsonopgaver og løbende pasning af større arealer.",
-    svc_3_tags: "Rydning · Beskæring · Anlæg · Vedligehold",
-    svc_4_title: "Montering",
+      "Erfarne folk til flytning og montering af køkkener, badeværelser, møbler, inventar og stilladser. Vi gør det rigtigt første gang.",
+    svc_3_tags: "Flytning · Køkken · Stillads · Inventar",
+    svc_4_title: "Havearbejde",
     svc_4_desc:
-      "Erfarne folk til montering af køkkener, badeværelser, møbler, inventar og stilladser. Vi stiller med folk der ved hvad de laver — og gør det rigtigt første gang.",
-    svc_4_tags: "Køkken · Badeværelse · Stillads · Inventar",
-    svc_5_title: "Byggepladsbehjælp",
+      "Havefolk til rydning, beskæring, ukrudtsbekæmpelse, anlæg og vedligehold. Klar til sæsonopgaver og løbende pasning af større arealer.",
+    svc_4_tags: "Rydning · Beskæring · Anlæg · Vedligehold",
+    svc_5_title: "Events & scener",
     svc_5_desc:
-      "Generelle byggehjælpere til byggepladser — materialehåndtering, rengøring, bortskaffelse og støttefunktioner til håndværkere og entreprenører.",
-    svc_5_tags: "Materialer · Rengøring · Transport · Støttefunktion",
+      "Opbygning og nedtagning af scener, pavilloner, messer og events. Vi stiller stærke, pålidelige hænder til både korte og længere produktioner.",
+    svc_5_tags: "Scene · Messer · Festival · Opsætning",
     svc_6_title: "Nedrivning & rydning",
     svc_6_desc:
       "Fysiske folk til nedrivning, rydning og bortskaffelse. Vi leverer hold der kan tage de hårde jobs — og som møder til tiden.",
@@ -68,10 +72,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_7_desc:
       "Hjælpere og faglærte til flisearbejde, belægning, kantsten og anlægsprojekter. Vi matcher kompetenceniveauet til din opgave.",
     svc_7_tags: "Fliser · Belægning · Kantsten · Anlæg",
-    svc_8_title: "Kombinerede opgaver",
-    svc_8_desc:
-      "Har du et projekt der spænder over flere fagområder? Vi sætter det rette hold sammen — med de rette kompetencer til hver enkelt del af opgaven.",
-    svc_8_tags: "Helhedsprojekt · Sammensat hold · Fleksibelt",
 
     // BRANCH CAROUSEL
     branches_eyebrow: "Vores brancher",
@@ -82,19 +82,19 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // BRANCH NAMES
     branch_1_name: "Byggeprojekter",
-    branch_1_sub: "Renovation & construction",
+    branch_1_sub: "Renovering & byggeri",
     branch_2_name: "Maling & spartling",
-    branch_2_sub: "Painting & plastering",
+    branch_2_sub: "Maling & spartling",
     branch_3_name: "Flytte & montere",
-    branch_3_sub: "Moving & mounting",
+    branch_3_sub: "Flytning & montering",
     branch_4_name: "Havearbejde",
-    branch_4_sub: "Garden & landscaping",
+    branch_4_sub: "Have & anlægsgartneri",
     branch_5_name: "Events & scener",
-    branch_5_sub: "Events & stage setup",
+    branch_5_sub: "Events & sceneopbygning",
     branch_6_name: "Nedrivning & rydning",
-    branch_6_sub: "Demolition & clearing",
+    branch_6_sub: "Nedrivning & oprydning",
     branch_7_name: "Flise & anlæg",
-    branch_7_sub: "Tiles & groundwork",
+    branch_7_sub: "Fliser & anlægsarbejde",
 
     // HOW IT WORKS
     how_eyebrow: "Processen",
@@ -267,6 +267,7 @@ export const translations: Record<Lang, Record<string, string>> = {
   en: {
     // NAV
     nav_om_os: "About",
+    nav_ydelser: "Services",
     nav_priser: "Pricing",
     nav_tilmeld: "Join us",
     nav_medarbejder: "Employee",
@@ -303,26 +304,29 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_eyebrow: "Our services",
     svc_h2: "Everything within",
     svc_h2_yellow: "construction",
-    svc_1_title: "Renovation",
+    svc_page_subtitle:
+      "We assemble teams for the full spectrum — from renovation and construction to events and gardening. One contact, seven branches.",
+    svc_cta: "Book this service",
+    svc_1_title: "Construction",
     svc_1_desc:
-      "Experienced people for interior and exterior renovation. We assemble teams for everything from light refurbishment to major renovation projects.",
-    svc_1_tags: "Interior · Exterior · Refurbishment · Craftsmanship",
+      "Experienced people for interior and exterior renovation and construction. We assemble teams for everything from light refurbishment to major construction projects.",
+    svc_1_tags: "Renovation · Construction · Refurbishment · Craftsmanship",
     svc_2_title: "Painting & plastering",
     svc_2_desc:
       "Painters and assistants for all types of painting work — walls, ceilings, facades and staircases. Fast hands with an eye for detail.",
     svc_2_tags: "Indoor · Facade · Plastering · Priming",
-    svc_3_title: "Garden work",
+    svc_3_title: "Moving & mounting",
     svc_3_desc:
-      "Garden workers for clearing, pruning, weeding, landscaping and maintenance. Ready for seasonal tasks and ongoing maintenance of larger areas.",
-    svc_3_tags: "Clearing · Pruning · Landscaping · Maintenance",
-    svc_4_title: "Mounting",
+      "Experienced people for moving and mounting kitchens, bathrooms, furniture, fixtures and scaffolding. We get it right the first time.",
+    svc_3_tags: "Moving · Kitchen · Scaffolding · Fixtures",
+    svc_4_title: "Garden work",
     svc_4_desc:
-      "Experienced people for mounting kitchens, bathrooms, furniture, fixtures and scaffolding. We provide people who know their craft.",
-    svc_4_tags: "Kitchen · Bathroom · Scaffolding · Fixtures",
-    svc_5_title: "Site assistance",
+      "Garden workers for clearing, pruning, weeding, landscaping and maintenance. Ready for seasonal tasks and ongoing maintenance of larger areas.",
+    svc_4_tags: "Clearing · Pruning · Landscaping · Maintenance",
+    svc_5_title: "Events & stages",
     svc_5_desc:
-      "General construction assistants — material handling, cleaning, disposal and support functions for craftspeople and contractors.",
-    svc_5_tags: "Materials · Cleaning · Transport · Support",
+      "Build-up and tear-down of stages, pavilions, trade shows and events. We deliver strong, reliable hands for short and longer productions.",
+    svc_5_tags: "Stage · Trade show · Festival · Setup",
     svc_6_title: "Demolition & clearing",
     svc_6_desc:
       "Physical workers for demolition, clearing and disposal. We deliver teams that can handle the tough jobs — and show up on time.",
@@ -331,10 +335,6 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_7_desc:
       "Assistants and specialists for tile work, paving, kerbing and landscaping projects. We match skill level to your task.",
     svc_7_tags: "Tiles · Paving · Kerbing · Groundwork",
-    svc_8_title: "Combined tasks",
-    svc_8_desc:
-      "Have a project spanning multiple trades? We assemble the right team — with the right skills for each part of the job.",
-    svc_8_tags: "Full project · Combined team · Flexible",
 
     // BRANCH CAROUSEL
     branches_eyebrow: "Our branches",

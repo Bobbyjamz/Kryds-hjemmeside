@@ -108,6 +108,11 @@ export default function Nav() {
             </Link>
           </li>
           <li className="max-[900px]:hidden">
+            <Link href="/ydelser" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+              {t("nav_ydelser")}
+            </Link>
+          </li>
+          <li className="max-[900px]:hidden">
             <Link href="/priser" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
               {t("nav_priser")}
             </Link>
@@ -172,6 +177,7 @@ export default function Nav() {
         >
           {[
             { href: "/om-os",           label: t("nav_om_os") },
+            { href: "/ydelser",         label: t("nav_ydelser") },
             { href: "/priser",          label: t("nav_priser") },
             { href: "/tilmeld",         label: t("nav_tilmeld") },
             { href: "/medarbejder/login", label: t("nav_medarbejder") + " login" },
