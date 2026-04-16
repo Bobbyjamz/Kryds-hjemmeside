@@ -44,8 +44,8 @@ export default function AdminLoginPage() {
         <div className="flex flex-col items-center mb-8">
           <Link href="/" className="hover:opacity-80 transition-opacity text-cream" title="Tilbage til forsiden">
             <svg width="64" height="64" viewBox="0 0 90 90">
-              <line x1="10" y1="10" x2="80" y2="80" stroke="#F5C400" strokeWidth="18" strokeLinecap="square" />
-              <line x1="80" y1="10" x2="10" y2="80" stroke="currentColor" strokeWidth="18" strokeLinecap="square" />
+              <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
+              <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
             </svg>
           </Link>
           <h1 className="font-condensed font-black text-[28px] uppercase tracking-[.02em] text-cream mt-4">

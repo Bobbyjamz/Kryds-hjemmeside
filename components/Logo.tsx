@@ -14,8 +14,8 @@ export default function Logo({ size = 38 }: LogoProps) {
         viewBox="0 0 90 90"
         style={{ marginRight: size === 38 ? 13 : 10 }}
       >
-        <line x1="8" y1="8" x2="82" y2="82" stroke="#F5C400" strokeWidth="18" strokeLinecap="square" />
-        <line x1="82" y1="8" x2="8" y2="82" stroke="currentColor" strokeWidth="18" strokeLinecap="square" />
+        <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
+        <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
       </svg>
       <div className="flex flex-col justify-center">
         <span className="font-condensed font-black text-[26px] tracking-[.02em] text-cream uppercase leading-none">

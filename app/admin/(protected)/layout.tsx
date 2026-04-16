@@ -12,10 +12,9 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     <div className="bg-black text-cream min-h-screen flex">
       <aside className="w-[240px] bg-black2 border-r border-[rgba(242,238,230,0.07)] flex flex-col sticky top-0 h-screen">
         <Link href="/" className="p-6 border-b border-[rgba(242,238,230,0.07)] flex items-center gap-3 hover:bg-[rgba(245,196,0,.03)] transition-colors" title="Tilbage til forsiden">
-          <svg width="36" height="36" viewBox="0 0 90 90">
-            <rect width="90" height="90" rx="12" fill="#0C0C0A" />
-            <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="16" strokeLinecap="square" />
-            <line x1="76" y1="14" x2="14" y2="76" stroke="#F2EEE6" strokeWidth="16" strokeLinecap="square" />
+          <svg width="36" height="36" viewBox="0 0 90 90" className="text-cream">
+            <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
+            <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
           </svg>
           <div>
             <p className="font-condensed font-black text-[15px] uppercase tracking-[.04em] text-cream leading-none">Kryds</p>

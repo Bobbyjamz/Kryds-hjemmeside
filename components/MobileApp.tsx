@@ -8,8 +8,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 function XLogo() {
   return (
     <svg width="32" height="32" viewBox="0 0 90 90" className="text-cream" style={{ marginRight: 10, flexShrink: 0 }}>
-      <line x1="8" y1="8" x2="82" y2="82" stroke="#F5C400" strokeWidth="18" strokeLinecap="square" />
-      <line x1="82" y1="8" x2="8" y2="82" stroke="currentColor" strokeWidth="18" strokeLinecap="square" />
+      <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
+      <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
     </svg>
   );
 }

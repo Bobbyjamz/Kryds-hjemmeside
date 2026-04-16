@@ -69,7 +69,7 @@ export default function BranchCarousel() {
         const half = view.scrollWidth / 2;
         // Guard: if layout hasn't settled yet, just wait
         if (half > 0) {
-          view.scrollLeft += 0.45; // ~27px/s at 60fps — slow, peaceful scroll
+          view.scrollLeft += 0.9; // ~54px/s at 60fps — visible but unhurried
 
           // Seamless loop: when we pass half the content, jump back
           if (view.scrollLeft >= half) {
