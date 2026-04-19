@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { TRADES, SKILL_SUGGESTIONS } from "@/lib/constants";
 import ContractBox from "./ContractBox";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Ref = { name: string; phone: string; company: string; relation: string };
 
@@ -11,9 +12,16 @@ const inputClass =
 
 const labelClass = "block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]";
 
-const steps = ["Dine oplysninger", "Kompetencer", "CV & referencer", "Kontrakt & indsend"];
-
 export default function TilmeldWizard() {
+  const { t } = useLanguage();
+
+  const steps = [
+    t("tw_step_1"),
+    t("tw_step_2"),
+    t("tw_step_3"),
+    t("tw_step_4"),
+  ];
+
   const [step, setStep] = useState(0);
 
   // Step 1
@@ -21,7 +29,10 @@ export default function TilmeldWizard() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [photoPath, setPhotoPath] = useState<string | null>(null);
+  // Photo stored as base64 data URL + metadata (no server-side path)
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
+  const [photoName, setPhotoName] = useState<string | null>(null);
+  const [photoType, setPhotoType] = useState<string | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
 
   // Step 2 — default kategori = Handyman
@@ -30,8 +41,10 @@ export default function TilmeldWizard() {
   const [customSkill, setCustomSkill] = useState("");
   const [experience, setExperience] = useState("");
 
-  // Step 3
-  const [cvPath, setCvPath] = useState<string | null>(null);
+  // Step 3 — CV stored as base64 data URL + metadata
+  const [cvDataUrl, setCvDataUrl] = useState<string | null>(null);
+  const [cvName, setCvName] = useState<string | null>(null);
+  const [cvType, setCvType] = useState<string | null>(null);
   const [cvUploading, setCvUploading] = useState(false);
   const [references, setReferences] = useState<Ref[]>([{ name: "", phone: "", company: "", relation: "" }]);
   const [notes, setNotes] = useState("");
@@ -63,17 +76,18 @@ export default function TilmeldWizard() {
   const addRef = () => setReferences([...references, { name: "", phone: "", company: "", relation: "" }]);
   const removeRef = (i: number) => setReferences(references.filter((_, idx) => idx !== i));
 
-  const uploadFile = async (file: File, kind: "photo" | "cv"): Promise<string | null> => {
+  /** Upload a file to /api/upload which returns a base64 data URL — no server-side filesystem writes. */
+  const uploadFile = async (file: File, kind: "photo" | "cv"): Promise<{ dataUrl: string; name: string; type: string } | null> => {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("kind", kind);
     const res = await fetch("/api/upload", { method: "POST", body: fd });
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error || "Upload fejlede");
+      setError(data.error || t("tw_err_upload"));
       return null;
     }
-    return data.path as string;
+    return { dataUrl: data.dataUrl as string, name: data.name as string, type: data.type as string };
   };
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,8 +95,12 @@ export default function TilmeldWizard() {
     if (!file) return;
     setError(null);
     setPhotoUploading(true);
-    const path = await uploadFile(file, "photo");
-    if (path) setPhotoPath(path);
+    const result = await uploadFile(file, "photo");
+    if (result) {
+      setPhotoDataUrl(result.dataUrl);
+      setPhotoName(result.name);
+      setPhotoType(result.type);
+    }
     setPhotoUploading(false);
   };
 
@@ -91,8 +109,12 @@ export default function TilmeldWizard() {
     if (!file) return;
     setError(null);
     setCvUploading(true);
-    const path = await uploadFile(file, "cv");
-    if (path) setCvPath(path);
+    const result = await uploadFile(file, "cv");
+    if (result) {
+      setCvDataUrl(result.dataUrl);
+      setCvName(result.name);
+      setCvType(result.type);
+    }
     setCvUploading(false);
   };
 
@@ -120,21 +142,26 @@ export default function TilmeldWizard() {
           skills,
           experience,
           notes,
-          photoPath,
-          cvPath,
+          // Base64 file attachments — sent to server and emailed as attachments
+          photoFile: photoDataUrl,
+          photoName,
+          photoType,
+          cvFile: cvDataUrl,
+          cvName,
+          cvType,
           references: references.filter((r) => r.name.trim()),
           acceptedTerms: accepted,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Noget gik galt");
+        setError(data.error || t("tw_err_generic"));
         setSubmitting(false);
         return;
       }
       setSuccess(true);
     } catch {
-      setError("Kunne ikke forbinde til serveren");
+      setError(t("tw_err_connection"));
     } finally {
       setSubmitting(false);
     }
@@ -149,13 +176,13 @@ export default function TilmeldWizard() {
           </svg>
         </div>
         <h3 className="font-condensed font-extrabold text-[36px] uppercase tracking-[.02em] text-cream mb-4">
-          Tak for din tilmelding
+          {t("tw_success_h3")}
         </h3>
         <p className="text-[16px] text-muted mb-2 leading-[1.6]">
-          Vi har modtaget dine oplysninger og vender tilbage hurtigst muligt.
+          {t("tw_success_p1")}
         </p>
         <p className="text-[14px] text-muted">
-          Du kan nu logge ind på <a href="/medarbejder/login" className="text-yellow hover:underline">/medarbejder/login</a> med dit telefonnummer og fødselsdato for at se åbne vagter.
+          {t("tw_success_p2_1")} <a href="/medarbejder/login" className="text-yellow hover:underline">/medarbejder/login</a> {t("tw_success_p2_2")}
         </p>
       </div>
     );
@@ -192,47 +219,47 @@ export default function TilmeldWizard() {
         {step === 0 && (
           <div>
             <h2 className="font-condensed font-extrabold text-[28px] uppercase tracking-[.02em] text-cream mb-6">
-              Hvem er du?
+              {t("tw_s1_h2")}
             </h2>
             <div className="grid grid-cols-2 gap-[14px] mb-[18px] max-[700px]:grid-cols-1">
               <div>
-                <label className={labelClass}>Fulde navn *</label>
-                <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder="Fornavn Efternavn" />
+                <label className={labelClass}>{t("tw_s1_name_label")}</label>
+                <input className={inputClass} value={name} onChange={(e) => setName(e.target.value)} placeholder={t("tw_s1_name_ph")} />
               </div>
               <div>
-                <label className={labelClass}>Telefon *</label>
-                <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+45 00 00 00 00" />
+                <label className={labelClass}>{t("tw_s1_phone_label")}</label>
+                <input className={inputClass} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={t("tw_s1_phone_ph")} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-[14px] mb-[18px] max-[700px]:grid-cols-1">
               <div>
-                <label className={labelClass}>Email</label>
-                <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="din@mail.dk" />
+                <label className={labelClass}>{t("tw_s1_email_label")}</label>
+                <input type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t("tw_s1_email_ph")} />
               </div>
               <div>
-                <label className={labelClass}>Fødselsdato *</label>
+                <label className={labelClass}>{t("tw_s1_birth_label")}</label>
                 <input type="date" className={inputClass} value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
-                <p className="mt-1 text-[11px] text-muted">Bruges som adgang til dit medarbejder-dashboard.</p>
+                <p className="mt-1 text-[11px] text-muted">{t("tw_s1_birth_hint")}</p>
               </div>
             </div>
             <div>
-              <label className={labelClass}>Profilbillede (valgfrit)</label>
+              <label className={labelClass}>{t("tw_s1_photo_label")}</label>
               <div className="flex items-center gap-4 flex-wrap">
-                {photoPath && (
-                  <img src={photoPath} alt="Foto" className="w-16 h-16 object-cover rounded-[2px] border border-[rgba(242,238,230,.1)]" />
+                {photoDataUrl && (
+                  <img src={photoDataUrl} alt={t("tw_s1_photo_registered")} className="w-16 h-16 object-cover rounded-[2px] border border-[rgba(242,238,230,.1)]" />
                 )}
                 <label className="cursor-pointer inline-block">
                   <span className="inline-block bg-[rgba(245,196,0,.1)] border border-yellow text-yellow font-condensed font-semibold text-[12px] tracking-[.15em] uppercase px-5 py-3 rounded-[2px] hover:bg-[rgba(245,196,0,.2)] transition-colors">
-                    {photoUploading ? "Uploader..." : photoPath ? "Skift billede" : "Upload billede"}
+                    {photoUploading ? t("tw_s1_photo_uploading") : photoDataUrl ? t("tw_s1_photo_change") : t("tw_s1_photo_upload")}
                   </span>
                   <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} disabled={photoUploading} />
                 </label>
-                {photoPath && (
+                {photoDataUrl && (
                   <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-[9px] rounded-[2px]">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">Billede registreret</span>
+                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">{t("tw_s1_photo_registered")}</span>
                   </div>
                 )}
               </div>
@@ -243,19 +270,19 @@ export default function TilmeldWizard() {
         {step === 1 && (
           <div>
             <h2 className="font-condensed font-extrabold text-[28px] uppercase tracking-[.02em] text-cream mb-6">
-              Dine kompetencer
+              {t("tw_s2_h2")}
             </h2>
             <div className="mb-[22px]">
-              <label className={labelClass}>Primært fag *</label>
+              <label className={labelClass}>{t("tw_s2_trade_label")}</label>
               <select className={`${inputClass} cursor-pointer`} value={trade} onChange={(e) => setTrade(e.target.value)}>
                 {Object.entries(TRADES).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
-              <p className="mt-1 text-[11px] text-muted">Kan du lidt af det hele? Vælg Handyman — standardkategori.</p>
+              <p className="mt-1 text-[11px] text-muted">{t("tw_s2_trade_hint")}</p>
             </div>
             <div className="mb-[22px]">
-              <label className={labelClass}>Vælg dine kompetencer</label>
+              <label className={labelClass}>{t("tw_s2_skills_label")}</label>
               <div className="flex flex-wrap gap-2 mb-3">
                 {SKILL_SUGGESTIONS.map((s) => {
                   const active = skills.includes(s);
@@ -286,7 +313,7 @@ export default function TilmeldWizard() {
                       <button
                         type="button"
                         onClick={() => toggleSkill(s)}
-                        aria-label={`Fjern ${s}`}
+                        aria-label={`${t("tw_s2_remove_aria")} ${s}`}
                         className="hover:text-red-700 leading-none text-[14px] font-bold"
                       >
                         ×
@@ -305,24 +332,24 @@ export default function TilmeldWizard() {
                       addCustomSkill();
                     }
                   }}
-                  placeholder="Tilføj egen kompetence..."
+                  placeholder={t("tw_s2_custom_ph")}
                 />
                 <button
                   type="button"
                   onClick={addCustomSkill}
                   className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 rounded-[2px] hover:bg-yellow2 transition-colors whitespace-nowrap"
                 >
-                  Tilføj
+                  {t("tw_s2_custom_btn")}
                 </button>
               </div>
             </div>
             <div>
-              <label className={labelClass}>Erfaring (år, steder, projekter)</label>
+              <label className={labelClass}>{t("tw_s2_exp_label")}</label>
               <textarea
                 className={`${inputClass} resize-y min-h-[120px]`}
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
-                placeholder="F.eks. 5 års erfaring som tømrer hos XYZ, tagarbejde på kontorbyggeri i København..."
+                placeholder={t("tw_s2_exp_ph")}
               />
             </div>
           </div>
@@ -331,25 +358,25 @@ export default function TilmeldWizard() {
         {step === 2 && (
           <div>
             <h2 className="font-condensed font-extrabold text-[28px] uppercase tracking-[.02em] text-cream mb-6">
-              CV & referencer
+              {t("tw_s3_h2")}
             </h2>
             <div className="mb-[22px]">
-              <label className={labelClass}>CV (PDF eller billede)</label>
+              <label className={labelClass}>{t("tw_s3_cv_label")}</label>
               <div className="flex items-center gap-4 flex-wrap">
                 <label className="cursor-pointer inline-block">
                   <span className="inline-block bg-[rgba(245,196,0,.1)] border border-yellow text-yellow font-condensed font-semibold text-[12px] tracking-[.15em] uppercase px-5 py-3 rounded-[2px] hover:bg-[rgba(245,196,0,.2)] transition-colors">
-                    {cvUploading ? "Uploader..." : cvPath ? "Skift CV" : "Upload CV"}
+                    {cvUploading ? t("tw_s3_cv_uploading") : cvDataUrl ? t("tw_s3_cv_change") : t("tw_s3_cv_upload")}
                   </span>
                   <input type="file" accept="application/pdf,image/*" className="hidden" onChange={handleCvChange} disabled={cvUploading} />
                 </label>
-                {cvPath && (
+                {cvDataUrl && (
                   <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-[9px] rounded-[2px]">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">CV registreret</span>
-                    <a href={cvPath} target="_blank" rel="noopener noreferrer" className="text-yellow hover:underline text-[12px] font-condensed tracking-[.08em] uppercase ml-2">
-                      Vis
+                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">{t("tw_s3_cv_registered")}</span>
+                    <a href={cvDataUrl} target="_blank" rel="noopener noreferrer" className="text-yellow hover:underline text-[12px] font-condensed tracking-[.08em] uppercase ml-2">
+                      {t("tw_s3_cv_view")}
                     </a>
                   </div>
                 )}
@@ -357,22 +384,22 @@ export default function TilmeldWizard() {
             </div>
             <div className="mb-[22px]">
               <div className="flex items-center justify-between mb-2">
-                <label className={labelClass + " mb-0"}>Referencer</label>
+                <label className={labelClass + " mb-0"}>{t("tw_s3_refs_label")}</label>
                 <button
                   type="button"
                   onClick={addRef}
                   className="font-condensed font-semibold text-[11px] tracking-[.12em] uppercase text-yellow hover:underline"
                 >
-                  + tilføj reference
+                  {t("tw_s3_ref_add")}
                 </button>
               </div>
               {references.map((r, i) => (
                 <div key={i} className="border border-[rgba(242,238,230,.08)] rounded-[2px] p-4 mb-3 bg-[rgba(12,12,10,.3)]">
                   <div className="grid grid-cols-2 gap-3 max-[700px]:grid-cols-1">
-                    <input className={inputClass} placeholder="Navn" value={r.name} onChange={(e) => updateRef(i, "name", e.target.value)} />
-                    <input className={inputClass} placeholder="Telefon" value={r.phone} onChange={(e) => updateRef(i, "phone", e.target.value)} />
-                    <input className={inputClass} placeholder="Virksomhed" value={r.company} onChange={(e) => updateRef(i, "company", e.target.value)} />
-                    <input className={inputClass} placeholder="Relation (f.eks. tidligere chef)" value={r.relation} onChange={(e) => updateRef(i, "relation", e.target.value)} />
+                    <input className={inputClass} placeholder={t("tw_s3_ref_name_ph")} value={r.name} onChange={(e) => updateRef(i, "name", e.target.value)} />
+                    <input className={inputClass} placeholder={t("tw_s3_ref_phone_ph")} value={r.phone} onChange={(e) => updateRef(i, "phone", e.target.value)} />
+                    <input className={inputClass} placeholder={t("tw_s3_ref_company_ph")} value={r.company} onChange={(e) => updateRef(i, "company", e.target.value)} />
+                    <input className={inputClass} placeholder={t("tw_s3_ref_relation_ph")} value={r.relation} onChange={(e) => updateRef(i, "relation", e.target.value)} />
                   </div>
                   {references.length > 1 && (
                     <button
@@ -380,19 +407,19 @@ export default function TilmeldWizard() {
                       onClick={() => removeRef(i)}
                       className="mt-2 text-[11px] text-muted hover:text-red-400 uppercase tracking-[.12em] font-condensed font-semibold"
                     >
-                      Fjern reference
+                      {t("tw_s3_ref_remove")}
                     </button>
                   )}
                 </div>
               ))}
             </div>
             <div>
-              <label className={labelClass}>Noter til Kryds (valgfrit)</label>
+              <label className={labelClass}>{t("tw_s3_notes_label")}</label>
               <textarea
                 className={`${inputClass} resize-y min-h-[100px]`}
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Særlige bemærkninger, tilgængelighed, kørekort, egen bil osv."
+                placeholder={t("tw_s3_notes_ph")}
               />
             </div>
           </div>
@@ -401,10 +428,10 @@ export default function TilmeldWizard() {
         {step === 3 && (
           <div>
             <h2 className="font-condensed font-extrabold text-[28px] uppercase tracking-[.02em] text-cream mb-6">
-              Accepter kontrakten
+              {t("tw_s4_h2")}
             </h2>
             <p className="text-[14px] text-muted mb-6 leading-[1.6]">
-              Læs kontrakten omhyggeligt. Ved at sætte flueben accepterer du vilkårene for dit ansættelsesforhold med Kryds ApS. Du er ikke bundet til Kryds udover de vagter, du selv accepterer.
+              {t("tw_s4_intro")}
             </p>
             <ContractBox employeeName={name} accepted={accepted} onAcceptChange={setAccepted} />
           </div>
@@ -421,7 +448,7 @@ export default function TilmeldWizard() {
             disabled={step === 0}
             className="font-condensed font-semibold text-[12px] tracking-[.15em] uppercase text-muted px-5 py-3 rounded-[2px] border border-[rgba(242,238,230,.1)] hover:text-cream hover:border-cream transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            ← Tilbage
+            {t("tw_btn_back")}
           </button>
           {step < steps.length - 1 ? (
             <button
@@ -430,7 +457,7 @@ export default function TilmeldWizard() {
               disabled={!canContinue()}
               className="bg-yellow text-black font-condensed font-extrabold text-[13px] tracking-[.12em] uppercase px-7 py-3 rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Næste →
+              {t("tw_btn_next")}
             </button>
           ) : (
             <button
@@ -439,7 +466,7 @@ export default function TilmeldWizard() {
               disabled={!canContinue() || submitting}
               className="bg-yellow text-black font-condensed font-extrabold text-[13px] tracking-[.12em] uppercase px-7 py-3 rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {submitting ? "Sender..." : "Send tilmelding"}
+              {submitting ? t("tw_btn_sending") : t("tw_btn_submit")}
             </button>
           )}
         </div>

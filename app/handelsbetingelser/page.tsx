@@ -1,7 +1,7 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import Link from "next/link";
 import type { Metadata } from "next";
+import LegalHeader from "./LegalHeader";
 
 export const metadata: Metadata = {
   title: "Handelsbetingelser — Kryds",
@@ -92,22 +92,7 @@ export default function HandelsbetingelserPage() {
       <Nav />
       <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-5 max-[900px]:pt-[100px]">
         <div className="max-w-[800px] mx-auto">
-          <Link href="/" className="inline-flex items-center gap-2 font-condensed font-semibold text-[13px] tracking-[.1em] uppercase text-muted no-underline hover:text-yellow mb-8 transition-colors">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5" /><polyline points="12 19 5 12 12 5" />
-            </svg>
-            Forsiden
-          </Link>
-
-          <div className="mb-10">
-            <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-4">Juridisk</p>
-            <h1 className="font-condensed font-black text-[clamp(34px,5vw,56px)] uppercase leading-[.95] tracking-[-.01em] text-cream mb-4">
-              Handelsbetingelser
-            </h1>
-            <p className="text-[15px] text-muted leading-[1.7]">
-              Version v1-2026-04 · Gældende fra april 2026 · Kryds ApS, CVR 46369947
-            </p>
-          </div>
+          <LegalHeader />
 
           <div className="space-y-0 border-t border-[rgba(242,238,230,.07)]">
             {sections.map((s) => (

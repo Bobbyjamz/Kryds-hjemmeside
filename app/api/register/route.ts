@@ -31,6 +31,12 @@ export async function POST(req: NextRequest) {
       notes,
       photoPath,
       cvPath,
+      photoFile,
+      photoName,
+      photoType,
+      cvFile,
+      cvName,
+      cvType,
       references,
       acceptedTerms,
     } = body as {
@@ -44,6 +50,13 @@ export async function POST(req: NextRequest) {
       notes?: string;
       photoPath?: string;
       cvPath?: string;
+      /** Base64-encoded file contents (without the data URL prefix) */
+      photoFile?: string;
+      photoName?: string;
+      photoType?: string;
+      cvFile?: string;
+      cvName?: string;
+      cvType?: string;
       references?: Reference[];
       acceptedTerms?: boolean;
     };
@@ -114,12 +127,43 @@ export async function POST(req: NextRequest) {
               .join("")
           : `<p style="margin:4px 0;font-size:14px;color:#888880;">Ingen referencer</p>`;
 
+      // Build file attachments (stripped from base64 data URL if needed)
+      type Attachment = { filename: string; content: Buffer };
+      const attachments: Attachment[] = [];
+      function decodeBase64(dataOrBase64: string): Buffer {
+        // Accept either raw base64 or a full data URL
+        const idx = dataOrBase64.indexOf("base64,");
+        const raw = idx >= 0 ? dataOrBase64.slice(idx + 7) : dataOrBase64;
+        return Buffer.from(raw, "base64");
+      }
+      if (photoFile) {
+        try {
+          const buf = decodeBase64(photoFile);
+          const ext = (photoType && photoType.split("/")[1]) || "jpg";
+          const filename = photoName || `foto-${employee.id}.${ext}`;
+          attachments.push({ filename, content: buf });
+        } catch (e) {
+          console.warn("[register] couldn't decode photo:", e);
+        }
+      }
+      if (cvFile) {
+        try {
+          const buf = decodeBase64(cvFile);
+          const ext = (cvType && cvType.split("/")[1]) || "pdf";
+          const filename = cvName || `cv-${employee.id}.${ext}`;
+          attachments.push({ filename, content: buf });
+        } catch (e) {
+          console.warn("[register] couldn't decode cv:", e);
+        }
+      }
+
       try {
         const { data: emailData, error: emailError } = await resend.emails.send({
           from: fromAddress,
           to: [toAddress],
           replyTo: employee.email || undefined,
           subject: `Ny medarbejder-tilmelding: ${safeName} (${safeTrade})`,
+          attachments: attachments.length > 0 ? attachments : undefined,
           html: `
 <!DOCTYPE html>
 <html lang="da">
@@ -167,11 +211,11 @@ export async function POST(req: NextRequest) {
             ${safeRefs}
           </td></tr>
           <tr><td style="padding:10px 0;">
-            <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#888880;">Filer</p>
+            <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#888880;">Vedhæftede filer</p>
             <p style="margin:4px 0 0;font-size:14px;color:#F2EEE6;">
-              ${employee.photoPath ? `Foto: ${escapeHtml(employee.photoPath)}<br>` : ""}
-              ${employee.cvPath ? `CV: ${escapeHtml(employee.cvPath)}` : ""}
-              ${!employee.photoPath && !employee.cvPath ? "Ingen filer uploadet" : ""}
+              ${photoFile ? `📷 Foto: ${escapeHtml(photoName || "foto")} (vedhæftet)<br>` : ""}
+              ${cvFile ? `📄 CV: ${escapeHtml(cvName || "cv")} (vedhæftet)` : ""}
+              ${!photoFile && !cvFile ? "Ingen filer vedhæftet" : ""}
             </p>
           </td></tr>
         </table></td></tr>

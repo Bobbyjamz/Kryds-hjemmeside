@@ -47,11 +47,12 @@ function MoonIcon() {
 /* ── Toggle switches ── */
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const { t } = useLanguage();
   return (
     <button
       onClick={toggle}
-      aria-label={theme === "dark" ? "Skift til lys tilstand" : "Skift til mørk tilstand"}
-      title={theme === "dark" ? "Lys tilstand" : "Mørk tilstand"}
+      aria-label={theme === "dark" ? t("nav_theme_to_light") : t("nav_theme_to_dark")}
+      title={theme === "dark" ? t("nav_theme_light") : t("nav_theme_dark")}
       className="flex items-center gap-[6px] font-condensed font-bold text-[11px] tracking-[.1em] uppercase text-muted hover:text-yellow border border-[rgba(242,238,230,.12)] hover:border-[rgba(245,196,0,.4)] rounded-full px-[10px] py-[5px] transition-all duration-200 select-none"
     >
       {theme === "dark" ? <SunIcon /> : <MoonIcon />}
@@ -65,6 +66,7 @@ function LangToggle() {
     <button
       onClick={toggle}
       aria-label={lang === "da" ? "Switch to English" : "Skift til dansk"}
+      title={lang === "da" ? "English" : "Dansk"}
       className="font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-muted hover:text-yellow border border-[rgba(242,238,230,.12)] hover:border-[rgba(245,196,0,.4)] rounded-[2px] px-[9px] py-[5px] transition-all duration-200 select-none min-w-[34px] text-center"
     >
       {lang === "da" ? "EN" : "DA"}
@@ -154,7 +156,7 @@ export default function Nav() {
               {t("nav_book")}
             </a>
             <button
-              aria-label="Åbn menu"
+              aria-label={menuOpen ? t("nav_menu_close") : t("nav_menu_open")}
               onClick={() => setMenuOpen((v) => !v)}
               className="flex flex-col justify-center gap-[5px] w-[28px] h-[28px] bg-transparent border-none cursor-pointer p-0"
             >
@@ -180,7 +182,7 @@ export default function Nav() {
             { href: "/ydelser",         label: t("nav_ydelser") },
             { href: "/priser",          label: t("nav_priser") },
             { href: "/tilmeld",         label: t("nav_tilmeld") },
-            { href: "/medarbejder/login", label: t("nav_medarbejder") + " login" },
+            { href: "/medarbejder/login", label: t("nav_medarbejder_login") },
             { href: "/#contract",       label: t("nav_book") },
           ].map(({ href, label }) => (
             <a
@@ -199,13 +201,13 @@ export default function Nav() {
               onClick={toggleTheme}
               className="flex items-center gap-2 font-condensed font-bold text-[13px] tracking-[.1em] uppercase text-muted border border-[rgba(242,238,230,.15)] rounded-full px-4 py-2 hover:border-yellow hover:text-yellow transition-all"
             >
-              {theme === "dark" ? <><SunIcon /><span>Lys</span></> : <><MoonIcon /><span>Mørk</span></>}
+              {theme === "dark" ? <><SunIcon /><span>{t("nav_theme_light")}</span></> : <><MoonIcon /><span>{t("nav_theme_dark")}</span></>}
             </button>
             <button
               onClick={toggleLang}
               className="font-condensed font-bold text-[13px] tracking-[.12em] uppercase text-muted border border-[rgba(242,238,230,.15)] rounded-[2px] px-4 py-2 hover:border-yellow hover:text-yellow transition-all"
             >
-              {lang === "da" ? "English" : "Dansk"}
+              {lang === "da" ? t("nav_lang_label_en") : t("nav_lang_label_da")}
             </button>
           </div>
 

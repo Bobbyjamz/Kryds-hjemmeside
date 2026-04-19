@@ -262,6 +262,267 @@ export const translations: Record<Lang, Record<string, string>> = {
     footer_leg_4: "Cookie-politik",
     footer_copyright: "© 2026 Kryds ApS — CVR: 46369947",
     footer_location: "København, Danmark",
+
+    // COMMON
+    common_back_home: "Tilbage til forsiden",
+    common_back_short: "Forsiden",
+
+    // NAV EXTRA
+    nav_menu_open: "Åbn menu",
+    nav_menu_close: "Luk menu",
+    nav_theme_light: "Lys",
+    nav_theme_dark: "Mørk",
+    nav_theme_to_light: "Skift til lys tilstand",
+    nav_theme_to_dark: "Skift til mørk tilstand",
+    nav_medarbejder_login: "Medarbejder login",
+    nav_lang_label_en: "English",
+    nav_lang_label_da: "Dansk",
+
+    // PRISER PAGE
+    priser_eyebrow: "Priser",
+    priser_h1_1: "Enkelt og",
+    priser_h1_yellow: "gennemsigtigt",
+    priser_subtitle:
+      "Vi tager et fast gebyr oven på medarbejderens timeløn. Ingen skjulte gebyrer, ingen admin-omkostninger, ingen weekend-tillæg på gebyret.",
+    priser_how_eyebrow: "Sådan virker det",
+    priser_how_formula_1: "Medarbejderens løn +",
+    priser_how_formula_2: "Kryds-gebyr",
+    priser_how_formula_3: "= din timepris",
+    priser_how_example: "Eksempel: 180 kr løn + 105 kr gebyr =",
+    priser_how_example_bold: "285 kr/t total",
+    priser_tiers_h2_1: "Timepriser",
+    priser_tiers_h2_yellow: "pr. medarbejder",
+    priser_tiers_subtitle:
+      "Her ser du hvad medarbejderen ca. får i løn, vores gebyr, og hvad du som kunde betaler i alt pr. time.",
+    priser_tiers_notice_bold: "OBS:",
+    priser_tiers_notice:
+      "Handyman-prisen dækker praktiske opgaver, oprydning, montering, maling og lignende. For faguddannede håndværkere (tømrer, murer, elektriker m.fl.) og byggeledere gælder koordinator-prisen eller separat projekttilbud.",
+    priser_unit_hour: "kr/t",
+    priser_row_worker_pay: "Medarbejderens løn",
+    priser_row_fee: "Kryds-gebyr",
+    priser_row_total: "Du betaler i alt",
+
+    // Tier 1 — Handyman
+    priser_tier1_name: "Handyman",
+    priser_tier1_subtitle: "Standardpersonale",
+    priser_tier1_desc: "Flittige hænder til praktiske opgaver — klar til at tage fat.",
+    priser_tier1_worker_pay: "ca. 170–190",
+    priser_tier1_total: "ca. 275–295",
+    priser_tier1_feat_1: "Byggehjælpere & handymen",
+    priser_tier1_feat_2: "Maling, oprydning, havearbejde",
+    priser_tier1_feat_3: "Flytning, montering & nedrivning",
+    priser_tier1_feat_4: "Fuldt forsikret personale",
+    priser_tier1_feat_5: "Ingen minimumsbooking",
+    priser_tier1_cta: "Book handyman",
+
+    // Tier 2 — Koordinator
+    priser_tier2_name: "Koordinator / Byggeleder",
+    priser_tier2_subtitle: "Kvalificeret personale",
+    priser_tier2_desc:
+      "Koordinatorer og byggeledere med dokumenteret erfaring eller relevant uddannelse inden for byggefaget.",
+    priser_tier2_badge: "Anbefalet",
+    priser_tier2_worker_pay: "ca. 220–250",
+    priser_tier2_total: "ca. 355–385",
+    priser_tier2_feat_1: "Min. 5 års erfaring eller faglig uddannelse",
+    priser_tier2_feat_2: "Referencer fra tidligere byggeprojekter",
+    priser_tier2_feat_3: "Kan lede og fordele arbejdet på pladsen",
+    priser_tier2_feat_4: "Projektledelse, tidsplan & kvalitetssikring",
+    priser_tier2_feat_5: "Personlig kontaktperson",
+    priser_tier2_feat_6: "Prioriteret mobilisering",
+    priser_tier2_cta: "Book koordinator",
+
+    // Tier 3 — Volumen
+    priser_tier3_name: "Mængde 3+",
+    priser_tier3_subtitle: "Volumenpris — handyman",
+    priser_tier3_desc:
+      "Ved booking af 3 eller flere handymen samtidig — samme kvalitet, lavere gebyr.",
+    priser_tier3_worker_pay: "ca. 170–190",
+    priser_tier3_total: "ca. 255–275",
+    priser_tier3_feat_1: "3+ handymen pr. booking",
+    priser_tier3_feat_2: "Samme kvalitet — lavere gebyr",
+    priser_tier3_feat_3: "Ideel til store oprydnings- og byggepladsopgaver",
+    priser_tier3_feat_4: "Dedikeret kontaktperson",
+    priser_tier3_feat_5: "Fleksibel op-/nedskalering",
+    priser_tier3_feat_6: "Samlet faktura pr. periode",
+    priser_tier3_cta: "Kontakt os",
+
+    // Projektpris
+    priser_proj_eyebrow: "Projektpris",
+    priser_proj_h2_1: "Fast pris på",
+    priser_proj_h2_yellow: "hele resultatet",
+    priser_proj_subtitle:
+      "Har du brug for et færdigt resultat i stedet for timebemanding? Vi sender et skræddersyet tilbud baseret på hele opgaven — inkl. materialer, montering og arbejdskraft.",
+    priser_proj_how_title: "Sådan fungerer det",
+    priser_proj_step_1_title: "Send en forespørgsel",
+    priser_proj_step_1_desc: "Beskriv opgaven — hvad skal laves, hvor, og hvornår.",
+    priser_proj_step_2_title: "Vi vurderer opgaven",
+    priser_proj_step_2_desc:
+      "Vi besøger evt. lokationen og vurderer omfang, materialer og tidsestimat.",
+    priser_proj_step_3_title: "Modtag tilbud",
+    priser_proj_step_3_desc:
+      "Du får et samlet tilbud med fast pris — inkl. materialer, arbejdsløn og evt. montering.",
+    priser_proj_step_4_title: "Vi udfører arbejdet",
+    priser_proj_step_4_desc:
+      "Godkend tilbuddet, og vi tager os af resten. Færdigt resultat, ingen overraskelser.",
+    priser_proj_inc_title: "Hvad er inkluderet i tilbuddet",
+    priser_proj_inc_1: "Arbejdskraft — erfarne folk til opgaven",
+    priser_proj_inc_2: "Materialer — vi rådgiver og indkøber",
+    priser_proj_inc_3: "Montering & installation",
+    priser_proj_inc_4: "Oprydning efter endt arbejde",
+    priser_proj_inc_5: "Ansvarsforsikring på hele projektet",
+    priser_proj_inc_6: "Ingen ekstra gebyrer udover tilbuddet",
+    priser_proj_inc_7: "Gratis besigtigelse ved større opgaver",
+    priser_proj_typical_title: "Typiske projektopgaver",
+    priser_proj_tag_1: "Renovering",
+    priser_proj_tag_2: "Maling",
+    priser_proj_tag_3: "Montering",
+    priser_proj_tag_4: "Fliser",
+    priser_proj_tag_5: "Nedrivning",
+    priser_proj_tag_6: "Haveanlæg",
+    priser_proj_tag_7: "Sceneopbygning",
+    priser_proj_tag_8: "Indretning",
+    priser_proj_cta: "Send forespørgsel om tilbud",
+    priser_proj_cta_note: "Vi vender tilbage inden for 2 timer med et uforpligtende tilbud.",
+
+    // Enterprise
+    priser_ent_eyebrow: "Store projekter",
+    priser_ent_h3: "10+ personer? Kontakt os for skræddersyet pris",
+    priser_ent_desc:
+      "Ved store og langvarige projekter tilbyder vi individuelle aftaler med endnu lavere gebyrer og en dedikeret projektleder.",
+    priser_ent_cta: "Kontakt os",
+
+    // FAQ icons
+    priser_faq_1_title: "Gennemsigtig pris",
+    priser_faq_1_desc: "Medarbejderens løn + Kryds-gebyr. Du ved altid hvad du betaler.",
+    priser_faq_2_title: "Samlet faktura",
+    priser_faq_2_desc:
+      "Ugentlig eller månedlig faktura med specificerede timer. Betaling inden for 14 dage.",
+    priser_faq_3_title: "Ingen skjulte gebyrer",
+    priser_faq_3_desc: "Ingen opstartsgebyr, ingen admin-fee, ingen weekend-tillæg på vores gebyr.",
+
+    // OM OS PAGE
+    omos_eyebrow: "Om Kryds",
+    omos_h1_1: "Vi tror på at",
+    omos_h1_yellow: "hjælpe hinanden",
+    omos_subtitle:
+      "Kryds blev skabt fordi vi så et behov: dygtige folk der manglede arbejde, og virksomheder der manglede hænder. Vores mission er at forbinde dem — enkelt, hurtigt og med respekt for begge sider.",
+    omos_why_title: "Hvorfor vi startede Kryds",
+    omos_why_p1:
+      "Der er masser af dygtige folk i byggebranchen, der kæmper for at finde stabilt arbejde. Og der er masser af virksomheder, der ikke kan finde de rigtige hænder hurtigt nok. Det er et problem, vi selv har mærket på kroppen.",
+    omos_why_p2:
+      "Vi har ventet på det opkald, der aldrig kom. Og vi har stået med en deadline om to dage uden personale til at løse den. Det er ikke sjovt for nogen.",
+    omos_why_p3_bold: "Kryds startede ud fra noget meget simpelt:",
+    omos_why_p3:
+      "ring til den rigtige person, aftal en fair pris, mødt op til tiden. Vi fjernede det unødvendige bureaukrati og holdt fast i det, der virker — ærlighed, hurtighed og folk, der tager stolthed i det, de laver.",
+    omos_why_p4: "Det er stadig det, vi tror på.",
+    omos_team_h2_1: "Folkene bag",
+    omos_team_h2_yellow: "Kryds",
+    omos_team_1_name: "Krystian Seweryn Balasz",
+    omos_team_1_role: "Stifter",
+    omos_team_1_bio:
+      "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds med en simpel tanke: de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige, hårdtarbejdende folk, som er klar til at rykke ud med kort varsel.",
+    omos_team_2_name: "Karl Kristian Ravn",
+    omos_team_2_role: "Partner & Driftsansvarlig",
+    omos_team_2_bio:
+      "Karl holder styr på det hele bag kulisserne. Som driftsansvarlig har han ansvaret for koordinering, kvalitetssikring og den daglige kundekontakt. Han sørger for, at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen altid er klar — både over for kunden og personalet. Karl er overbevist om, at struktur og menneskelig omsorg sagtens kan gå hånd i hånd.",
+    omos_values_h2_1: "Hvad vi",
+    omos_values_h2_yellow: "står for",
+    omos_val_1_title: "Gennemsigtighed",
+    omos_val_1_desc:
+      "Ingen skjulte gebyrer. Ingen overraskelser. Du ved hvad du betaler og hvad medarbejderen får.",
+    omos_val_2_title: "Respekt for mennesker",
+    omos_val_2_desc:
+      "Vi behandler vores folk ordentligt — fair løn, gode vilkår og anerkendelse for det arbejde de laver.",
+    omos_val_3_title: "Pålidelighed",
+    omos_val_3_desc:
+      "Når vi siger vi er klar, er vi klar. Vi har bygget vores ry på at holde hvad vi lover — hver gang.",
+    omos_cta_h3: "Klar til at sætte et kryds?",
+    omos_cta_desc: "Uanset om du har brug for én ekstra hånd eller et helt hold — vi er klar.",
+    omos_cta_btn: "Send en forespørgsel",
+
+    // YDELSER PAGE
+    svc_cta_h3: "Klar til at booke et hold?",
+    svc_cta_desc:
+      "Fortæl os om projektet, så matcher vi med de rette folk — hurtigt og uden bøvl.",
+    svc_cta_btn: "Send forespørgsel",
+
+    // TILMELD PAGE
+    tilmeld_eyebrow: "For håndværkere",
+    tilmeld_h1_1: "Tilmeld dig",
+    tilmeld_h1_yellow: "Kryds",
+    tilmeld_subtitle:
+      "Opret din profil og få adgang til bygge- og håndværksopgaver i hovedstadsområdet. Du bliver kun medarbejder hos Kryds, når du selv siger ja til en vagt — og ansættelsen ophører automatisk, når opgaven er afsluttet.",
+
+    // TILMELD WIZARD
+    tw_step_1: "Dine oplysninger",
+    tw_step_2: "Kompetencer",
+    tw_step_3: "CV & referencer",
+    tw_step_4: "Kontrakt & indsend",
+    tw_success_h3: "Tak for din tilmelding",
+    tw_success_p1: "Vi har modtaget dine oplysninger og vender tilbage hurtigst muligt.",
+    tw_success_p2_1: "Du kan nu logge ind på",
+    tw_success_p2_2:
+      "med dit telefonnummer og fødselsdato for at se åbne vagter.",
+    tw_s1_h2: "Hvem er du?",
+    tw_s1_name_label: "Fulde navn *",
+    tw_s1_name_ph: "Fornavn Efternavn",
+    tw_s1_phone_label: "Telefon *",
+    tw_s1_phone_ph: "+45 00 00 00 00",
+    tw_s1_email_label: "Email",
+    tw_s1_email_ph: "din@mail.dk",
+    tw_s1_birth_label: "Fødselsdato *",
+    tw_s1_birth_hint: "Bruges som adgang til dit medarbejder-dashboard.",
+    tw_s1_photo_label: "Profilbillede (valgfrit)",
+    tw_s1_photo_uploading: "Uploader...",
+    tw_s1_photo_change: "Skift billede",
+    tw_s1_photo_upload: "Upload billede",
+    tw_s1_photo_registered: "Billede registreret",
+    tw_s2_h2: "Dine kompetencer",
+    tw_s2_trade_label: "Primært fag *",
+    tw_s2_trade_hint: "Kan du lidt af det hele? Vælg Handyman — standardkategori.",
+    tw_s2_skills_label: "Vælg dine kompetencer",
+    tw_s2_custom_ph: "Tilføj egen kompetence...",
+    tw_s2_custom_btn: "Tilføj",
+    tw_s2_remove_aria: "Fjern",
+    tw_s2_exp_label: "Erfaring (år, steder, projekter)",
+    tw_s2_exp_ph:
+      "F.eks. 5 års erfaring som tømrer hos XYZ, tagarbejde på kontorbyggeri i København...",
+    tw_s3_h2: "CV & referencer",
+    tw_s3_cv_label: "CV (PDF eller billede)",
+    tw_s3_cv_uploading: "Uploader...",
+    tw_s3_cv_change: "Skift CV",
+    tw_s3_cv_upload: "Upload CV",
+    tw_s3_cv_registered: "CV registreret",
+    tw_s3_cv_view: "Vis",
+    tw_s3_refs_label: "Referencer",
+    tw_s3_ref_add: "+ tilføj reference",
+    tw_s3_ref_name_ph: "Navn",
+    tw_s3_ref_phone_ph: "Telefon",
+    tw_s3_ref_company_ph: "Virksomhed",
+    tw_s3_ref_relation_ph: "Relation (f.eks. tidligere chef)",
+    tw_s3_ref_remove: "Fjern reference",
+    tw_s3_notes_label: "Noter til Kryds (valgfrit)",
+    tw_s3_notes_ph: "Særlige bemærkninger, tilgængelighed, kørekort, egen bil osv.",
+    tw_s4_h2: "Accepter kontrakten",
+    tw_s4_intro:
+      "Læs kontrakten omhyggeligt. Ved at sætte flueben accepterer du vilkårene for dit ansættelsesforhold med Kryds ApS. Du er ikke bundet til Kryds udover de vagter, du selv accepterer.",
+    tw_btn_back: "← Tilbage",
+    tw_btn_next: "Næste →",
+    tw_btn_submit: "Send tilmelding",
+    tw_btn_sending: "Sender...",
+    tw_err_upload: "Upload fejlede",
+    tw_err_generic: "Noget gik galt",
+    tw_err_connection: "Kunne ikke forbinde til serveren",
+
+    // LEGAL PAGES (titles + intros)
+    legal_eyebrow: "Juridisk",
+    legal_h_handels: "Handelsbetingelser",
+    legal_h_privat: "Privatlivspolitik",
+    legal_h_cookie: "Cookie-politik",
+    legal_h_medarb_eyebrow: "Juridisk — Medarbejdere",
+    legal_h_medarb: "Privatlivspolitik for medarbejdere",
+    legal_version_line: "Version v1-2026-04 · Gældende fra april 2026 · Kryds ApS, CVR 46369947",
+    legal_version_privat: "Version v1-2026-04 · Gældende fra april 2026 · Sidst opdateret april 2026",
   },
 
   en: {
@@ -524,5 +785,270 @@ export const translations: Record<Lang, Record<string, string>> = {
     footer_leg_4: "Cookie policy",
     footer_copyright: "© 2026 Kryds ApS — CVR: 46369947",
     footer_location: "Copenhagen, Denmark",
+
+    // COMMON
+    common_back_home: "Back to home",
+    common_back_short: "Home",
+
+    // NAV EXTRA
+    nav_menu_open: "Open menu",
+    nav_menu_close: "Close menu",
+    nav_theme_light: "Light",
+    nav_theme_dark: "Dark",
+    nav_theme_to_light: "Switch to light mode",
+    nav_theme_to_dark: "Switch to dark mode",
+    nav_medarbejder_login: "Employee login",
+    nav_lang_label_en: "English",
+    nav_lang_label_da: "Dansk",
+
+    // PRISER PAGE
+    priser_eyebrow: "Pricing",
+    priser_h1_1: "Simple and",
+    priser_h1_yellow: "transparent",
+    priser_subtitle:
+      "We charge a fixed fee on top of the worker's hourly wage. No hidden charges, no admin fees, no weekend surcharges on our fee.",
+    priser_how_eyebrow: "How it works",
+    priser_how_formula_1: "Worker's wage +",
+    priser_how_formula_2: "Kryds fee",
+    priser_how_formula_3: "= your hourly rate",
+    priser_how_example: "Example: DKK 180 wage + DKK 105 fee =",
+    priser_how_example_bold: "DKK 285/hr total",
+    priser_tiers_h2_1: "Hourly rates",
+    priser_tiers_h2_yellow: "per worker",
+    priser_tiers_subtitle:
+      "Here you see approximately what the worker earns, our fee, and what you as the client pay in total per hour.",
+    priser_tiers_notice_bold: "Note:",
+    priser_tiers_notice:
+      "The handyman rate covers practical tasks, cleanup, mounting, painting and similar. Skilled tradespeople (carpenters, masons, electricians and others) and site managers fall under the coordinator rate or a separate project quote.",
+    priser_unit_hour: "DKK/hr",
+    priser_row_worker_pay: "Worker's wage",
+    priser_row_fee: "Kryds fee",
+    priser_row_total: "You pay in total",
+
+    // Tier 1 — Handyman
+    priser_tier1_name: "Handyman",
+    priser_tier1_subtitle: "Standard worker",
+    priser_tier1_desc: "Diligent hands for practical tasks — ready to get started.",
+    priser_tier1_worker_pay: "approx. 170–190",
+    priser_tier1_total: "approx. 275–295",
+    priser_tier1_feat_1: "Construction assistants & handymen",
+    priser_tier1_feat_2: "Painting, cleanup, garden work",
+    priser_tier1_feat_3: "Moving, mounting & demolition",
+    priser_tier1_feat_4: "Fully insured staff",
+    priser_tier1_feat_5: "No minimum booking",
+    priser_tier1_cta: "Book handyman",
+
+    // Tier 2 — Coordinator
+    priser_tier2_name: "Coordinator / Site manager",
+    priser_tier2_subtitle: "Qualified staff",
+    priser_tier2_desc:
+      "Coordinators and site managers with documented experience or relevant trade education in construction.",
+    priser_tier2_badge: "Recommended",
+    priser_tier2_worker_pay: "approx. 220–250",
+    priser_tier2_total: "approx. 355–385",
+    priser_tier2_feat_1: "Min. 5 years' experience or trade education",
+    priser_tier2_feat_2: "References from previous construction projects",
+    priser_tier2_feat_3: "Can lead and allocate work on site",
+    priser_tier2_feat_4: "Project management, schedule & QA",
+    priser_tier2_feat_5: "Personal contact person",
+    priser_tier2_feat_6: "Priority mobilisation",
+    priser_tier2_cta: "Book coordinator",
+
+    // Tier 3 — Volume
+    priser_tier3_name: "Volume 3+",
+    priser_tier3_subtitle: "Volume rate — handyman",
+    priser_tier3_desc:
+      "When booking 3 or more handymen at once — same quality, lower fee.",
+    priser_tier3_worker_pay: "approx. 170–190",
+    priser_tier3_total: "approx. 255–275",
+    priser_tier3_feat_1: "3+ handymen per booking",
+    priser_tier3_feat_2: "Same quality — lower fee",
+    priser_tier3_feat_3: "Ideal for large cleanup and site tasks",
+    priser_tier3_feat_4: "Dedicated contact person",
+    priser_tier3_feat_5: "Flexible up-/downscaling",
+    priser_tier3_feat_6: "Consolidated invoice per period",
+    priser_tier3_cta: "Contact us",
+
+    // Project pricing
+    priser_proj_eyebrow: "Project pricing",
+    priser_proj_h2_1: "Fixed price on",
+    priser_proj_h2_yellow: "the full result",
+    priser_proj_subtitle:
+      "Need a finished result instead of hourly staffing? We send a tailored quote based on the entire task — including materials, installation and labour.",
+    priser_proj_how_title: "How it works",
+    priser_proj_step_1_title: "Send a request",
+    priser_proj_step_1_desc: "Describe the task — what, where and when.",
+    priser_proj_step_2_title: "We assess the task",
+    priser_proj_step_2_desc:
+      "We may visit the location and assess scope, materials and time estimate.",
+    priser_proj_step_3_title: "Receive a quote",
+    priser_proj_step_3_desc:
+      "You get a single fixed-price quote — including materials, labour and any installation.",
+    priser_proj_step_4_title: "We do the work",
+    priser_proj_step_4_desc:
+      "Approve the quote and we handle the rest. Finished result, no surprises.",
+    priser_proj_inc_title: "What is included in the quote",
+    priser_proj_inc_1: "Labour — experienced people for the task",
+    priser_proj_inc_2: "Materials — we advise and purchase",
+    priser_proj_inc_3: "Mounting & installation",
+    priser_proj_inc_4: "Cleanup after completion",
+    priser_proj_inc_5: "Liability insurance on the whole project",
+    priser_proj_inc_6: "No extra fees beyond the quote",
+    priser_proj_inc_7: "Free on-site assessment on larger jobs",
+    priser_proj_typical_title: "Typical project tasks",
+    priser_proj_tag_1: "Renovation",
+    priser_proj_tag_2: "Painting",
+    priser_proj_tag_3: "Mounting",
+    priser_proj_tag_4: "Tiles",
+    priser_proj_tag_5: "Demolition",
+    priser_proj_tag_6: "Landscaping",
+    priser_proj_tag_7: "Stage build",
+    priser_proj_tag_8: "Interior fit-out",
+    priser_proj_cta: "Request a quote",
+    priser_proj_cta_note: "We respond within 2 hours with a no-obligation quote.",
+
+    // Enterprise
+    priser_ent_eyebrow: "Large projects",
+    priser_ent_h3: "10+ people? Contact us for a tailored rate",
+    priser_ent_desc:
+      "For large and long-running projects we offer individual agreements with even lower fees and a dedicated project manager.",
+    priser_ent_cta: "Contact us",
+
+    // FAQ icons
+    priser_faq_1_title: "Transparent pricing",
+    priser_faq_1_desc: "Worker's wage + Kryds fee. You always know what you pay.",
+    priser_faq_2_title: "Consolidated invoice",
+    priser_faq_2_desc:
+      "Weekly or monthly invoice with itemised hours. Payment within 14 days.",
+    priser_faq_3_title: "No hidden fees",
+    priser_faq_3_desc: "No setup fee, no admin fee, no weekend surcharges on our fee.",
+
+    // OM OS PAGE
+    omos_eyebrow: "About Kryds",
+    omos_h1_1: "We believe in",
+    omos_h1_yellow: "helping each other",
+    omos_subtitle:
+      "Kryds was built because we saw a need: skilled people looking for work, and companies looking for hands. Our mission is to connect them — simply, quickly and with respect on both sides.",
+    omos_why_title: "Why we started Kryds",
+    omos_why_p1:
+      "There are plenty of skilled people in construction struggling to find stable work. And plenty of companies that can't find the right hands fast enough. It's a problem we've felt ourselves.",
+    omos_why_p2:
+      "We've waited for the call that never came. And we've stood with a deadline two days out and no staff to make it. It's not fun for anyone.",
+    omos_why_p3_bold: "Kryds started from something very simple:",
+    omos_why_p3:
+      "call the right person, agree a fair price, show up on time. We removed the unnecessary bureaucracy and kept what works — honesty, speed and people who take pride in what they do.",
+    omos_why_p4: "That's still what we believe in.",
+    omos_team_h2_1: "The people behind",
+    omos_team_h2_yellow: "Kryds",
+    omos_team_1_name: "Krystian Seweryn Balasz",
+    omos_team_1_role: "Founder",
+    omos_team_1_bio:
+      "Krystian has been in the construction industry for over 7 years and knows the challenges from the inside. He started Kryds with a simple idea: the right people should meet the right projects — quickly, reliably and without unnecessary bureaucracy. With experience from renovation to large construction sites, he has built a network of skilled, hard-working people ready to mobilise on short notice.",
+    omos_team_2_name: "Karl Kristian Ravn",
+    omos_team_2_role: "Partner & Operations lead",
+    omos_team_2_bio:
+      "Karl keeps everything running behind the scenes. As operations lead, he handles coordination, quality assurance and day-to-day client contact. He makes sure every project gets the right people, schedules are kept, and communication is always clear — both towards the client and the staff. Karl is convinced that structure and human care go hand in hand.",
+    omos_values_h2_1: "What we",
+    omos_values_h2_yellow: "stand for",
+    omos_val_1_title: "Transparency",
+    omos_val_1_desc:
+      "No hidden fees. No surprises. You know what you pay and what the worker earns.",
+    omos_val_2_title: "Respect for people",
+    omos_val_2_desc:
+      "We treat our people properly — fair pay, good conditions and recognition for the work they do.",
+    omos_val_3_title: "Reliability",
+    omos_val_3_desc:
+      "When we say we're ready, we're ready. We've built our reputation on keeping our word — every time.",
+    omos_cta_h3: "Ready to put a X in the calendar?",
+    omos_cta_desc:
+      "Whether you need one extra pair of hands or a full team — we're ready.",
+    omos_cta_btn: "Send a request",
+
+    // YDELSER PAGE
+    svc_cta_h3: "Ready to book a team?",
+    svc_cta_desc:
+      "Tell us about the project and we'll match you with the right people — fast and hassle-free.",
+    svc_cta_btn: "Send a request",
+
+    // TILMELD PAGE
+    tilmeld_eyebrow: "For tradespeople",
+    tilmeld_h1_1: "Join",
+    tilmeld_h1_yellow: "Kryds",
+    tilmeld_subtitle:
+      "Create your profile and get access to construction and trade jobs in the Copenhagen area. You only become a Kryds employee when you say yes to a shift yourself — and the employment ends automatically when the job is done.",
+
+    // TILMELD WIZARD
+    tw_step_1: "Your details",
+    tw_step_2: "Skills",
+    tw_step_3: "CV & references",
+    tw_step_4: "Contract & submit",
+    tw_success_h3: "Thank you for signing up",
+    tw_success_p1:
+      "We've received your details and will get back to you as soon as possible.",
+    tw_success_p2_1: "You can now log in at",
+    tw_success_p2_2:
+      "with your phone number and date of birth to see open shifts.",
+    tw_s1_h2: "Who are you?",
+    tw_s1_name_label: "Full name *",
+    tw_s1_name_ph: "First name Last name",
+    tw_s1_phone_label: "Phone *",
+    tw_s1_phone_ph: "+45 00 00 00 00",
+    tw_s1_email_label: "Email",
+    tw_s1_email_ph: "you@mail.com",
+    tw_s1_birth_label: "Date of birth *",
+    tw_s1_birth_hint: "Used as access to your employee dashboard.",
+    tw_s1_photo_label: "Profile picture (optional)",
+    tw_s1_photo_uploading: "Uploading...",
+    tw_s1_photo_change: "Change photo",
+    tw_s1_photo_upload: "Upload photo",
+    tw_s1_photo_registered: "Photo registered",
+    tw_s2_h2: "Your skills",
+    tw_s2_trade_label: "Primary trade *",
+    tw_s2_trade_hint:
+      "A bit of everything? Pick Handyman — our standard category.",
+    tw_s2_skills_label: "Select your skills",
+    tw_s2_custom_ph: "Add your own skill...",
+    tw_s2_custom_btn: "Add",
+    tw_s2_remove_aria: "Remove",
+    tw_s2_exp_label: "Experience (years, places, projects)",
+    tw_s2_exp_ph:
+      "E.g. 5 years' experience as carpenter at XYZ, roofing on office buildings in Copenhagen...",
+    tw_s3_h2: "CV & references",
+    tw_s3_cv_label: "CV (PDF or image)",
+    tw_s3_cv_uploading: "Uploading...",
+    tw_s3_cv_change: "Change CV",
+    tw_s3_cv_upload: "Upload CV",
+    tw_s3_cv_registered: "CV registered",
+    tw_s3_cv_view: "View",
+    tw_s3_refs_label: "References",
+    tw_s3_ref_add: "+ add reference",
+    tw_s3_ref_name_ph: "Name",
+    tw_s3_ref_phone_ph: "Phone",
+    tw_s3_ref_company_ph: "Company",
+    tw_s3_ref_relation_ph: "Relation (e.g. former manager)",
+    tw_s3_ref_remove: "Remove reference",
+    tw_s3_notes_label: "Notes for Kryds (optional)",
+    tw_s3_notes_ph:
+      "Special notes, availability, driving licence, own vehicle, etc.",
+    tw_s4_h2: "Accept the contract",
+    tw_s4_intro:
+      "Read the contract carefully. By ticking the box you accept the terms of your employment with Kryds ApS. You are not bound to Kryds beyond the shifts you accept yourself.",
+    tw_btn_back: "← Back",
+    tw_btn_next: "Next →",
+    tw_btn_submit: "Submit registration",
+    tw_btn_sending: "Sending...",
+    tw_err_upload: "Upload failed",
+    tw_err_generic: "Something went wrong",
+    tw_err_connection: "Could not connect to the server",
+
+    // LEGAL PAGES (titles + intros)
+    legal_eyebrow: "Legal",
+    legal_h_handels: "Terms of trade",
+    legal_h_privat: "Privacy policy",
+    legal_h_cookie: "Cookie policy",
+    legal_h_medarb_eyebrow: "Legal — Employees",
+    legal_h_medarb: "Privacy policy for employees",
+    legal_version_line: "Version v1-2026-04 · Effective from April 2026 · Kryds ApS, CVR 46369947",
+    legal_version_privat: "Version v1-2026-04 · Effective from April 2026 · Last updated April 2026",
   },
 };

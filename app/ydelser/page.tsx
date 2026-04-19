@@ -31,7 +31,7 @@ export default function YdelserPage() {
             <path d="M19 12H5" />
             <polyline points="12 19 5 12 12 5" />
           </svg>
-          {t("nav_om_os") === "Om os" ? "Tilbage til forsiden" : "Back to home"}
+          {t("common_back_home")}
         </Link>
 
         {/* Hero */}
@@ -95,16 +95,16 @@ export default function YdelserPage() {
         {/* CTA */}
         <div className="max-w-[640px] mx-auto text-center bg-gray p-12 rounded-[2px] border border-[rgba(128,128,128,0.12)] mt-[80px] shadow-[0_10px_40px_rgba(0,0,0,.12)]">
           <h3 className="font-condensed font-extrabold text-[26px] uppercase tracking-[.02em] text-cream mb-3">
-            {t("nav_book")} {t("svc_eyebrow").toLowerCase()}?
+            {t("svc_cta_h3")}
           </h3>
           <p className="text-[15px] leading-[1.6] text-muted mb-6">
-            {t("svc_page_subtitle")}
+            {t("svc_cta_desc")}
           </p>
           <Link
             href="/#contract"
             className="inline-block font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase bg-yellow text-black px-10 py-[14px] rounded-[2px] no-underline transition-all hover:bg-yellow2 hover:-translate-y-[1px]"
           >
-            {t("nav_book")}
+            {t("svc_cta_btn")}
           </Link>
         </div>
       </main>
