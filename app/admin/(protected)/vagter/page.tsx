@@ -83,11 +83,12 @@ export default function VagterListPage() {
       <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
         <div>
           <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Vagtsystem</p>
-          <h1 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">Vagter</h1>
+          <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[32px] uppercase tracking-[-.01em] text-cream leading-none">Vagter</h1>
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
           className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:bg-yellow2 transition-colors"
+          style={{ minHeight: 44 }}
         >
           {showForm ? "Annuller" : "+ Opret vagt"}
         </button>

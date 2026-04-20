@@ -32,13 +32,13 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="mb-10">
+      <div className="mb-8 max-[700px]:mb-6">
         <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Oversigt</p>
-        <h1 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">Dashboard</h1>
+        <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[32px] uppercase tracking-[-.01em] text-cream leading-none">Dashboard</h1>
       </div>
 
       {/* ── Medarbejder stats ───────────────────────────────────── */}
-      <div className="grid grid-cols-4 gap-4 mb-10 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
+      <div className="grid grid-cols-4 gap-4 mb-10 max-[900px]:grid-cols-2 max-[500px]:grid-cols-1">
         {[
           { label: "Medarbejdere", value: employees.length },
           { label: "Ledige", value: ledige },
@@ -76,9 +76,9 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Daily sparkline */}
-        <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-6 mb-6">
+        <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-6 max-[500px]:p-4 mb-6">
           <p className="font-condensed font-bold text-[11px] tracking-[.18em] uppercase text-muted mb-4">Daglige besøg</p>
-          <div className="flex items-end gap-[6px] h-[72px]">
+          <div className="flex items-end gap-[6px] max-[500px]:gap-[3px] h-[88px] max-[500px]:h-[72px]">
             {stats.daily.map((d) => (
               <div key={d.date} className="flex-1 flex flex-col items-center gap-[6px] group">
                 <span className="font-condensed text-[10px] text-muted opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">

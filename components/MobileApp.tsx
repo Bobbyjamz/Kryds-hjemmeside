@@ -235,6 +235,26 @@ export default function MobileApp() {
             <span className="text-[12px] opacity-70">{isDA ? "Tilmeld dig som byggefolk" : "Sign up as construction worker"}</span>
           </div>
         </a>
+        {/* Employee login chip */}
+        <a
+          href="/medarbejder/login"
+          className="flex items-center justify-center gap-[8px] no-underline transition-colors active:scale-[.98]"
+          style={{
+            background: "transparent",
+            border: "1px solid rgba(245,196,0,.4)",
+            color: "var(--color-yellow)",
+            minHeight: 44,
+            borderRadius: 12,
+            padding: "10px 14px",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          <span className="font-condensed font-bold text-[12px] tracking-[.18em] uppercase">
+            {isDA ? "Log ind som medarbejder" : "Employee login"}
+          </span>
+        </a>
       </div>
 
 

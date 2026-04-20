@@ -62,16 +62,24 @@ export async function findEmployeeById(id: string): Promise<Employee | null> {
   return employees.find((e) => e.id === id) ?? null;
 }
 
+// Normalize phone numbers for comparison. We strip every non-digit character
+// (spaces, "+", dashes, parentheses) and compare the last 8 digits so that
+// "+45 31 22 44 77", "+4531224477", "31 22 44 77" and "31224477" all match.
+function normalizePhone(phone: string): string {
+  const digits = String(phone).replace(/\D/g, "");
+  return digits.slice(-8);
+}
+
 export async function findEmployeeByCredentials(phone: string, birthDate: string): Promise<Employee | null> {
   const employees = await readEmployees();
-  const normalized = phone.replace(/\s/g, "");
-  return employees.find((e) => e.phone.replace(/\s/g, "") === normalized && e.birthDate === birthDate) ?? null;
+  const normalized = normalizePhone(phone);
+  return employees.find((e) => normalizePhone(e.phone) === normalized && e.birthDate === birthDate) ?? null;
 }
 
 export async function findEmployeeByPhoneAndCode(phone: string, code: string): Promise<Employee | null> {
   const employees = await readEmployees();
-  const normalized = phone.replace(/\s/g, "");
+  const normalized = normalizePhone(phone);
   return employees.find(
-    (e) => e.phone.replace(/\s/g, "") === normalized && e.confirmationCode === code && e.confirmed === true
+    (e) => normalizePhone(e.phone) === normalized && e.confirmationCode === code && e.confirmed === true
   ) ?? null;
 }

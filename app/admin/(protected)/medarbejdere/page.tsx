@@ -56,34 +56,36 @@ export default function MedarbejdereListPage() {
 
   return (
     <div>
-      <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+      <div className="mb-8 max-[700px]:mb-6 flex items-start justify-between flex-wrap gap-4">
         <div>
           <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Oversigt</p>
-          <h1 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">Medarbejdere</h1>
+          <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[32px] uppercase tracking-[-.01em] text-cream leading-none">Medarbejdere</h1>
         </div>
         <Link
           href="/tilmeld"
           target="_blank"
           className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:bg-yellow2 transition-colors"
+          style={{ minHeight: 44 }}
         >
           + Ny tilmelding
         </Link>
       </div>
 
-      <div className="flex gap-3 mb-6 flex-wrap">
+      <div className="flex gap-3 mb-6 flex-wrap max-[500px]:flex-col">
         <input
-          className={inputClass + " w-[260px]"}
+          className={inputClass + " w-[260px] max-[500px]:w-full"}
+          style={{ minHeight: 44 }}
           placeholder="Søg navn eller telefon..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <select className={inputClass + " cursor-pointer"} value={tradeFilter} onChange={(e) => setTradeFilter(e.target.value)}>
+        <select className={inputClass + " cursor-pointer max-[500px]:w-full"} style={{ minHeight: 44 }} value={tradeFilter} onChange={(e) => setTradeFilter(e.target.value)}>
           <option value="ALL">Alle fag</option>
           {Object.entries(TRADES).map(([k, label]) => (
             <option key={k} value={k}>{label}</option>
           ))}
         </select>
-        <select className={inputClass + " cursor-pointer"} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <select className={inputClass + " cursor-pointer max-[500px]:w-full"} style={{ minHeight: 44 }} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="ALL">Alle status</option>
           {Object.entries(STATUS_LABELS).map(([k, label]) => (
             <option key={k} value={k}>{label}</option>
@@ -91,7 +93,57 @@ export default function MedarbejdereListPage() {
         </select>
       </div>
 
-      <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] overflow-x-auto">
+      {/* ── Mobile cards (< 700px) ── */}
+      <div className="hidden max-[700px]:flex flex-col gap-3">
+        {loading ? (
+          <p className="p-6 text-muted text-center bg-gray rounded-[2px]">Indlæser...</p>
+        ) : filtered.length === 0 ? (
+          <p className="p-6 text-muted text-center bg-gray rounded-[2px]">Ingen medarbejdere</p>
+        ) : (
+          filtered.map((e) => (
+            <div key={e.id} className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[6px] p-4 flex flex-col gap-2">
+              <div className="flex items-start justify-between gap-3">
+                <Link href={`/admin/medarbejdere/${e.id}`} className="flex-1 min-w-0">
+                  <p className="text-[16px] text-cream font-semibold truncate">{e.name}</p>
+                  <p className="text-[11px] text-muted uppercase tracking-[.1em] font-condensed mt-[2px]">
+                    {TRADES[e.trade as keyof typeof TRADES] || e.trade} · {TYPE_LABELS[e.employeeType] || e.employeeType}
+                  </p>
+                </Link>
+                <span className={`text-[10px] font-condensed uppercase tracking-[.12em] px-2 py-1 rounded-[2px] flex-shrink-0 ${
+                  e.status === "LEDIG" ? "bg-yellow/20 text-yellow" :
+                  e.status === "UDSENDT" ? "bg-cream/10 text-cream" :
+                  "bg-muted/10 text-muted"
+                }`}>
+                  {STATUS_LABELS[e.status]}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[12px] text-muted">
+                <a href={`tel:${e.phone}`} className="text-cream truncate">{e.phone}</a>
+                <span>{new Date(e.createdAt).toLocaleDateString("da-DK")}</span>
+              </div>
+              <div className="flex gap-2 mt-1">
+                <Link
+                  href={`/admin/medarbejdere/${e.id}`}
+                  className="flex-1 text-center font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-yellow border border-[rgba(245,196,0,.3)] rounded-[4px]"
+                  style={{ minHeight: 44, display: "flex", alignItems: "center", justifyContent: "center" }}
+                >
+                  Åbn →
+                </Link>
+                <button
+                  onClick={() => deleteOne(e.id)}
+                  className="px-4 font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-muted border border-[rgba(242,238,230,.08)] rounded-[4px] hover:text-red-400 hover:border-red-400/40"
+                  style={{ minHeight: 44 }}
+                >
+                  Slet
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* ── Desktop table (≥ 700px) ── */}
+      <div className="max-[700px]:hidden bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-[rgba(242,238,230,0.07)]">
