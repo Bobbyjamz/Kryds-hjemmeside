@@ -25,6 +25,39 @@ const TILES = [...BRANCHES, ...BRANCHES];
 type FormState = "idle" | "submitting" | "success" | "error";
 type Billing = "hourly" | "fixed";
 type CustomerType = "company" | "private";
+type Scope = "small" | "medium" | "large";
+
+// Hours per branch (approximate, per scope) — used for Momondo-style estimate
+const SCOPE_HOURS: Record<string, Record<Scope, number>> = {
+  "01": { small: 16, medium: 60, large: 180 }, // Renovering
+  "02": { small: 12, medium: 40, large: 120 }, // Maling
+  "03": { small: 8,  medium: 24, large: 80  }, // Havearbejde
+  "04": { small: 4,  medium: 16, large: 48  }, // Montering
+  "05": { small: 10, medium: 32, large: 100 }, // Nedrivning
+  "06": { small: 14, medium: 48, large: 140 }, // Flise
+  "07": { small: 20, medium: 80, large: 240 }, // Byggepladsbehjælp
+};
+
+function estimateDuration(branchNum: string, scope: Scope, people: number) {
+  const hours = SCOPE_HOURS[branchNum]?.[scope] ?? 24;
+  const workers = Math.max(1, people);
+  const totalHours = hours;
+  const perWorkerHours = totalHours / workers;
+  const days = Math.max(1, Math.ceil(perWorkerHours / 8));
+  return { hours: totalHours, days, perWorker: Math.ceil(perWorkerHours) };
+}
+
+function addBusinessDays(startIso: string, days: number): string {
+  if (!startIso) return "";
+  const d = new Date(startIso);
+  let added = 0;
+  while (added < days) {
+    d.setDate(d.getDate() + 1);
+    const wd = d.getDay();
+    if (wd !== 0 && wd !== 6) added++;
+  }
+  return d.toISOString().slice(0, 10);
+}
 
 export default function BranchCarousel() {
   const { t, lang } = useLanguage();
@@ -44,6 +77,7 @@ export default function BranchCarousel() {
   const [antal, setAntal] = useState("");
   const [startdato, setStartdato] = useState("");
   const [beskrivelse, setBeskrivelse] = useState("");
+  const [scope, setScope] = useState<Scope>("medium");
   const [accepted, setAccepted] = useState(false);
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -114,6 +148,19 @@ export default function BranchCarousel() {
     const billingLabel = billing === "hourly" ? (lang === "da" ? "Timelønnet" : "Hourly") : (lang === "da" ? "Færdigt arbejde / fast pris" : "Fixed price / finished work");
     const customerLabel = isCompany ? (lang === "da" ? "Virksomhed" : "Company") : (lang === "da" ? "Privatperson" : "Private");
 
+    const peopleNum = parseInt(antal || "1", 10) || 1;
+    const est = estimateDuration(openBranch.num, scope, peopleNum);
+    const endDate = startdato ? addBusinessDays(startdato, est.days) : "";
+    const scopeLabel =
+      scope === "small"
+        ? (lang === "da" ? "Lille opgave" : "Small task")
+        : scope === "medium"
+          ? (lang === "da" ? "Mellem opgave" : "Medium task")
+          : (lang === "da" ? "Stor opgave" : "Large task");
+    const estimateLine = lang === "da"
+      ? `Estimeret omfang: ${scopeLabel} · ~${est.hours} timer total · ~${est.days} arbejdsdage med ${peopleNum} person${peopleNum > 1 ? "er" : ""}${endDate ? ` · forventet færdig ${endDate}` : ""}`
+      : `Estimated scope: ${scopeLabel} · ~${est.hours} total hours · ~${est.days} working days with ${peopleNum} worker${peopleNum > 1 ? "s" : ""}${endDate ? ` · expected finish ${endDate}` : ""}`;
+
     const payload = {
       virksomhed: companyName,
       kontaktperson: contactPerson,
@@ -122,7 +169,7 @@ export default function BranchCarousel() {
       opgavetype: t(openBranch.nameKey),
       antal,
       startdato,
-      beskrivelse: `[${customerLabel}] [${billingLabel}]\n\n${beskrivelse}`,
+      beskrivelse: `[${customerLabel}] [${billingLabel}] [${scopeLabel}]\n${estimateLine}\n\n${beskrivelse}`,
       acceptedTerms: accepted,
       contractVersion: CUSTOMER_CONTRACT_VERSION,
     };
@@ -215,7 +262,7 @@ export default function BranchCarousel() {
                 className="absolute inset-0 z-[1]"
                 style={{
                   background:
-                    "linear-gradient(to top, rgba(12,12,10,.88) 0%, rgba(12,12,10,.25) 60%, transparent 100%)",
+                    "linear-gradient(to top, rgba(12,12,10,.72) 0%, rgba(12,12,10,.25) 60%, transparent 100%)",
                 }}
               />
               {/* Book-now chip (shows on hover) */}
@@ -225,13 +272,13 @@ export default function BranchCarousel() {
                 {lang === "da" ? "Book nu →" : "Book now →"}
               </span>
               {/* Number */}
-              <span className="absolute top-[18px] left-[20px] z-[2] font-condensed font-bold text-[11px] tracking-[.18em] text-[rgba(242,238,230,.55)]">
+              <span className="absolute top-[18px] left-[20px] z-[2] font-condensed font-bold text-[11px] tracking-[.18em] text-cream opacity-70">
                 — {branch.num}
               </span>
               {/* Content */}
               <div className="absolute left-0 right-0 bottom-0 z-[2] flex items-end justify-between gap-3 p-6 text-left">
                 <div>
-                  <h4 className="font-condensed font-extrabold text-[24px] tracking-[.04em] uppercase text-cream leading-[1.05]">
+                  <h4 className="font-condensed font-extrabold text-[24px] tracking-[.04em] uppercase text-cream leading-[1.05] drop-shadow-sm">
                     {t(branch.nameKey)}
                   </h4>
                   <small className="block font-condensed font-semibold text-[11px] tracking-[.18em] text-yellow uppercase mt-[6px]">
@@ -427,7 +474,7 @@ export default function BranchCarousel() {
                       onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-[10px] mb-[10px] max-[600px]:grid-cols-1">
+                  <div className="grid grid-cols-2 gap-[10px] mb-[14px] max-[600px]:grid-cols-1">
                     <input
                       type="number"
                       min="1"
@@ -443,6 +490,76 @@ export default function BranchCarousel() {
                       onChange={(e) => setStartdato(e.target.value)}
                     />
                   </div>
+
+                  {/* ── Momondo-style duration estimator ── */}
+                  <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
+                    {lang === "da" ? "Omfang af opgaven" : "Scope of task"}
+                  </p>
+                  <div className="grid grid-cols-3 gap-[8px] mb-[12px]">
+                    {(["small", "medium", "large"] as Scope[]).map((key) => {
+                      const active = scope === key;
+                      const label =
+                        key === "small"
+                          ? (lang === "da" ? "Lille" : "Small")
+                          : key === "medium"
+                            ? (lang === "da" ? "Mellem" : "Medium")
+                            : (lang === "da" ? "Stor" : "Large");
+                      const sub =
+                        key === "small"
+                          ? (lang === "da" ? "1–2 dage" : "1–2 days")
+                          : key === "medium"
+                            ? (lang === "da" ? "3–10 dage" : "3–10 days")
+                            : (lang === "da" ? "2+ uger" : "2+ weeks");
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setScope(key)}
+                          className={`text-center py-[10px] px-[6px] rounded-[3px] border-2 transition-colors ${
+                            active
+                              ? "border-yellow bg-[rgba(245,196,0,.08)]"
+                              : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"
+                          }`}
+                        >
+                          <span className="font-condensed font-extrabold text-[13px] tracking-[.04em] uppercase text-cream block">{label}</span>
+                          <span className="text-[10px] text-muted">{sub}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Live estimate preview (Momondo-style) */}
+                  {(() => {
+                    const peopleNum = parseInt(antal || "1", 10) || 1;
+                    const est = estimateDuration(openBranch.num, scope, peopleNum);
+                    const endDate = startdato ? addBusinessDays(startdato, est.days) : "";
+                    return (
+                      <div
+                        className="mb-[14px] p-[12px] rounded-[3px] border flex items-center gap-[12px]"
+                        style={{ background: "rgba(245,196,0,.06)", borderColor: "rgba(245,196,0,.25)" }}
+                      >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-condensed font-bold text-[10px] tracking-[.18em] uppercase text-yellow">
+                            {lang === "da" ? "Estimeret varighed" : "Estimated duration"}
+                          </p>
+                          <p className="text-[14px] text-cream leading-[1.35] mt-[2px]">
+                            <strong className="font-bold">~{est.days}</strong> {lang === "da" ? `arbejdsdage` : `working days`}
+                            <span className="text-muted"> · ~{est.hours} {lang === "da" ? "timer" : "hours"} total</span>
+                          </p>
+                          {endDate && (
+                            <p className="text-[12px] text-muted mt-[2px]">
+                              {lang === "da" ? "Forventet færdig" : "Expected finish"}: <span className="text-cream">{endDate}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <textarea
                     placeholder={lang === "da" ? "Kort beskrivelse af opgaven..." : "Short description of the task..."}
                     className={`${popoverInputClass} resize-y min-h-[80px] mb-[10px]`}

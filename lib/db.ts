@@ -1,11 +1,12 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
-import type { Employee, Shift } from "./types";
+import type { Employee, Shift, FeedMessage } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const EMPLOYEES_FILE = path.join(DATA_DIR, "employees.json");
 const SHIFTS_FILE = path.join(DATA_DIR, "shifts.json");
+const FEED_FILE = path.join(DATA_DIR, "feed.json");
 
 async function ensureDir() {
   try {
@@ -42,6 +43,14 @@ export async function readShifts(): Promise<Shift[]> {
 
 export async function writeShifts(shifts: Shift[]): Promise<void> {
   return writeJson(SHIFTS_FILE, shifts);
+}
+
+export async function readFeed(): Promise<FeedMessage[]> {
+  return readJson<FeedMessage[]>(FEED_FILE, []);
+}
+
+export async function writeFeed(messages: FeedMessage[]): Promise<void> {
+  return writeJson(FEED_FILE, messages);
 }
 
 export function generateId(): string {

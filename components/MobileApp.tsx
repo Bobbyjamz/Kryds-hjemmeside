@@ -1,8 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+
+const BRANCH_IMGS = [
+  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
+  "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80",
+  "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80",
+  "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80",
+  "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80",
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80",
+];
 
 /* ── SVG icons ── */
 function XLogo() {
@@ -25,15 +35,6 @@ const SERVICE_TILES = [
   { cat: "Kombineret / andet",   labelKey: "mob_tile_8_label", subKey: "mob_tile_8_sub", count: "∞",  icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg> },
 ];
 
-const STAFF_CARDS = [
-  { num: "01", cat: "Renovering",           labelKey: "mob_tile_1_label", count: "52", icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round"><path d="M14 3l7 7-4 4-7-7zM10 10l-7 7v4h4l7-7"/></svg> },
-  { num: "02", cat: "Maling & spartling",   labelKey: "mob_tile_2_label", count: "34", icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="14" height="6" rx="1"/><path d="M17 7h4v5h-9v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-5"/></svg> },
-  { num: "03", cat: "Havearbejde",          labelKey: "mob_tile_3_label", count: "28", icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 6 6 10 6 14a6 6 0 0 0 12 0c0-4-2-8-6-12z"/><path d="M12 14v8"/></svg> },
-  { num: "04", cat: "Montering",            labelKey: "mob_tile_4_label", count: "41", icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8z"/></svg> },
-  { num: "05", cat: "Nedrivning & rydning", labelKey: "mob_tile_5_label", count: "19", icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20l9-9M11 11l6-6 4 4-6 6zM13 13l5 5"/></svg> },
-  { num: "06", cat: "Flise & anlæg",        labelKey: "mob_tile_6_label", count: "22", icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
-];
-
 type FormState = "idle" | "submitting" | "success" | "error";
 
 export default function MobileApp() {
@@ -43,28 +44,10 @@ export default function MobileApp() {
   const [selectedCat, setSelectedCat] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
-  const [antal, setAntal] = useState("");
   const [phone, setPhone] = useState("");
   const [formState, setFormState] = useState<FormState>("idle");
   const [menuOpen, setMenuOpen] = useState(false);
-  const staffTrackRef = useRef<HTMLDivElement>(null);
-  const staffPaused = useRef(false);
   const bookRef = useRef<HTMLElement>(null);
-
-  // Staff carousel auto-scroll
-  useEffect(() => {
-    const track = staffTrackRef.current;
-    if (!track) return;
-    let dir = 1;
-    const id = setInterval(() => {
-      if (staffPaused.current) return;
-      const max = track.scrollWidth - track.clientWidth;
-      if (track.scrollLeft >= max - 2) dir = -1;
-      else if (track.scrollLeft <= 2) dir = 1;
-      track.scrollLeft += 0.6 * dir;
-    }, 40);
-    return () => clearInterval(id);
-  }, []);
 
   // Compute duration
   const duration = (() => {
@@ -100,7 +83,7 @@ export default function MobileApp() {
           email: "",
           telefon: phone,
           opgavetype: selectedCat || "Ikke angivet",
-          antal: antal || "1",
+          antal: "1",
           startdato: dateStart,
           beskrivelse: `Fra: ${dateStart} Til: ${dateEnd}${duration ? ` (${duration} dage)` : ""}`,
           acceptedTerms: true,
@@ -196,24 +179,6 @@ export default function MobileApp() {
           {isDA ? "Erfarne byggefolk i København — klar til at tage fat." : "Experienced construction workers in Copenhagen — ready to work."}
         </p>
 
-        {/* Trust strip */}
-        <div className="mt-4 flex items-center gap-[10px] flex-wrap">
-          <span className="inline-flex items-center gap-[5px] text-[11px] font-condensed font-bold tracking-[.08em] uppercase text-cream rounded-full px-[10px] py-[5px]"
-            style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            {isDA ? "Forsikret" : "Insured"}
-          </span>
-          <span className="inline-flex items-center gap-[5px] text-[11px] font-condensed font-bold tracking-[.08em] uppercase text-cream rounded-full px-[10px] py-[5px]"
-            style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            {isDA ? "Svar < 2t" : "Reply < 2h"}
-          </span>
-          <span className="inline-flex items-center gap-[5px] text-[11px] font-condensed font-bold tracking-[.08em] uppercase text-cream rounded-full px-[10px] py-[5px]"
-            style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            {isDA ? "København" : "Copenhagen"}
-          </span>
-        </div>
       </section>
 
       {/* ── TWO ACTION CARDS ── */}
@@ -259,81 +224,52 @@ export default function MobileApp() {
           </span>
         </div>
         <div className="flex gap-3 overflow-x-auto px-5 pb-1" style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
-          {SERVICE_TILES.map((tile) => (
-            <button
-              key={tile.cat}
-              onClick={() => prefillAndScroll(tile.cat)}
-              className="app-service-tile flex-shrink-0 flex flex-col gap-[10px] p-4 rounded-[16px] relative overflow-hidden text-left transition-all active:scale-[.96]"
-              style={{ width: "calc(50vw - 28px)", maxWidth: 190, minWidth: 150, scrollSnapAlign: "start", background: "var(--color-gray)", border: "1px solid rgba(242,238,230,.07)", color: "var(--color-cream)" }}
-            >
-              <span className="absolute top-3 right-3 font-condensed font-bold text-[9px] tracking-[.1em] text-muted px-[6px] py-[3px] rounded-[3px]" style={{ background: "var(--color-black)", border: "1px solid var(--border)" }}>
-                {tile.count}
-              </span>
-              <div className="w-10 h-10 rounded-[11px] flex items-center justify-center" style={{ background: "rgba(245,196,0,.1)", border: "1px solid rgba(245,196,0,.22)" }}>
-                {tile.icon}
-              </div>
-              <h5 className="font-condensed font-extrabold text-[14px] tracking-[.04em] uppercase">{t(tile.labelKey)}</h5>
-              <p className="text-[11px] text-muted leading-[1.4]">{t(tile.subKey)}</p>
-              <span className="mt-auto font-condensed font-bold text-[10px] tracking-[.18em] uppercase text-yellow flex items-center gap-1">
-                {isDA ? "Book nu →" : "Book now →"}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* ── STAFF CARDS CAROUSEL ── */}
-      <section className="pt-6 pb-2" id="appStaff">
-        <div className="flex items-center justify-between px-5 mb-[14px]">
-          <span className="font-condensed font-extrabold text-[13px] tracking-[.2em] uppercase text-muted flex items-center gap-[10px]">
-            <span className="inline-block w-[18px] h-[1px] bg-yellow align-middle" />
-            {isDA ? "Vores folk" : "Our people"}
-          </span>
-          <a href="/om-os" className="font-condensed font-bold text-[11px] tracking-[.14em] uppercase text-yellow no-underline">
-            {isDA ? "Se alle →" : "See all →"}
-          </a>
-        </div>
-        <div
-          ref={staffTrackRef}
-          className="flex gap-3 overflow-x-auto px-5 pb-1"
-          style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none" }}
-          onTouchStart={() => { staffPaused.current = true; }}
-          onTouchEnd={() => { setTimeout(() => { staffPaused.current = false; }, 2500); }}
-        >
-          {STAFF_CARDS.map((card) => (
-            <button
-              key={card.num}
-              onClick={() => prefillAndScroll(card.cat)}
-              className="flex-shrink-0 relative overflow-hidden rounded-[16px] transition-all active:scale-[.97]"
-              style={{ width: 180, height: 220, background: "var(--color-gray)", border: "1px solid rgba(242,238,230,.07)", scrollSnapAlign: "start" }}
-            >
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 30%, rgba(245,196,0,.07) 0%, transparent 70%)", transform: "scale(1.15)", transition: "transform .7s ease" }} />
-              <span className="absolute top-[10px] right-[10px] font-condensed font-bold text-[9px] tracking-[.12em] px-[7px] py-[3px] rounded-[4px]" style={{ background: "rgba(245,196,0,.12)", border: "1px solid rgba(245,196,0,.25)", color: "var(--color-yellow)" }}>
-                {card.num}
-              </span>
-              <div className="relative z-[1] h-full flex flex-col items-center justify-center px-[14px] py-[16px] text-center gap-0">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center mb-[14px]" style={{ background: "rgba(245,196,0,.06)", border: "1px solid rgba(245,196,0,.25)" }}>
-                  {card.icon}
+          {SERVICE_TILES.map((tile, i) => {
+            const img = BRANCH_IMGS[i % BRANCH_IMGS.length];
+            return (
+              <button
+                key={tile.cat}
+                onClick={() => prefillAndScroll(tile.cat)}
+                className="app-service-tile flex-shrink-0 relative overflow-hidden rounded-[16px] text-left transition-all active:scale-[.96]"
+                style={{
+                  width: "90vw",
+                  maxWidth: 320,
+                  height: 200,
+                  scrollSnapAlign: "start",
+                  border: "1px solid rgba(242,238,230,.07)",
+                  color: "var(--color-cream)",
+                  background: "var(--color-gray)",
+                }}
+              >
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url('${img}')`,
+                    filter: "grayscale(25%) brightness(0.6) saturate(0.9)",
+                  }}
+                />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(12,12,10,.82) 0%, rgba(12,12,10,.3) 60%, transparent 100%)",
+                  }}
+                />
+                <span className="absolute top-3 right-3 font-condensed font-bold text-[10px] tracking-[.16em] uppercase bg-yellow text-black px-[10px] py-[4px] rounded-full">
+                  {isDA ? "Book →" : "Book →"}
+                </span>
+                <span className="absolute top-4 left-4 font-condensed font-bold text-[10px] tracking-[.2em] text-cream opacity-70">
+                  — 0{(i % 7) + 1}
+                </span>
+                <div className="relative h-full flex flex-col justify-end p-4">
+                  <h5 className="font-condensed font-extrabold text-[20px] tracking-[.02em] uppercase text-cream leading-[1.05] drop-shadow-sm">
+                    {t(tile.labelKey)}
+                  </h5>
+                  <p className="text-[12px] text-muted mt-[4px]">{t(tile.subKey)}</p>
                 </div>
-                <h6 className="font-condensed font-extrabold text-[15px] tracking-[.04em] uppercase text-cream mb-1">{t(card.labelKey)}</h6>
-                <small className="text-[10px] text-muted tracking-[.08em] uppercase">{card.count} {isDA ? "folk · klar nu" : "workers · ready"}</small>
-              </div>
-            </button>
-          ))}
-          {/* Add task card */}
-          <button
-            onClick={() => prefillAndScroll("")}
-            className="flex-shrink-0 flex flex-col items-center justify-center gap-[10px] rounded-[16px] transition-all active:scale-[.97]"
-            style={{ width: 140, height: 220, background: "transparent", border: "1px dashed rgba(242,238,230,.15)", scrollSnapAlign: "start" }}
-          >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center relative" style={{ border: "1px solid rgba(245,196,0,.3)" }}>
-              <span className="absolute w-4 h-[2px] bg-yellow rounded" />
-              <span className="absolute w-[2px] h-4 bg-yellow rounded" />
-            </div>
-            <span className="font-condensed font-semibold text-[11px] tracking-[.14em] uppercase text-muted text-center leading-[1.5]">
-              {isDA ? "Tilføj\nopgave" : "Add\ntask"}
-            </span>
-          </button>
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -399,16 +335,6 @@ export default function MobileApp() {
               </select>
 
               <input
-                type="number"
-                placeholder={isDA ? "Antal personer (fx 3)" : "Number of people (e.g. 3)"}
-                min="1"
-                value={antal}
-                onChange={e => setAntal(e.target.value)}
-                className="w-full rounded-[10px] px-[14px] py-3 mb-[10px] font-sans text-[14px] outline-none"
-                style={{ background: "var(--color-black)", border: "1px solid var(--border)", color: "var(--color-cream)" }}
-              />
-
-              <input
                 type="tel"
                 placeholder={isDA ? "Dit telefonnummer" : "Your phone number"}
                 value={phone}
@@ -467,20 +393,6 @@ export default function MobileApp() {
           </a>
         </div>
 
-        {/* Legal quick links */}
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
-          {[
-            { href: "/handelsbetingelser", label: isDA ? "Handelsbetingelser" : "Terms" },
-            { href: "/privatpolitik", label: isDA ? "Privatpolitik" : "Privacy" },
-            { href: "/cookie-politik", label: isDA ? "Cookies" : "Cookies" },
-            { href: "/om-os", label: isDA ? "Om os" : "About" },
-          ].map(l => (
-            <a key={l.href} href={l.href}
-              className="font-condensed font-bold text-[10px] tracking-[.14em] uppercase text-muted no-underline hover:text-yellow transition-colors flex items-center gap-1">
-              <span className="text-yellow opacity-60">→</span> {l.label}
-            </a>
-          ))}
-        </div>
       </section>
 
       {/* Spacer for bottom nav */}
@@ -491,7 +403,6 @@ export default function MobileApp() {
         {[
           { id: "home", href: "#", label: isDA ? "Hjem" : "Home", icon: <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg> },
           { id: "book", href: "#appBook", label: isDA ? "Book" : "Book", icon: <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg> },
-          { id: "folk", href: "#appStaff", label: isDA ? "Folk" : "People", icon: <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/></svg> },
           { id: "ring", href: "tel:+4542778866", label: isDA ? "Ring" : "Call", icon: <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg> },
         ].map(item => (
           <a

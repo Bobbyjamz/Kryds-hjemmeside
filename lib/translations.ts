@@ -445,6 +445,18 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_cta_desc:
       "Fortæl os om projektet, så matcher vi med de rette folk — hurtigt og uden bøvl.",
     svc_cta_btn: "Send forespørgsel",
+    ydelser_why_eyebrow: "Hvorfor Kryds",
+    ydelser_why_h2: "Derfor vælger kunderne",
+    ydelser_why_h2_yellow: "os",
+    ydelser_why_1_title: "Ét kontaktpunkt",
+    ydelser_why_1_desc:
+      "Du har én person at ringe til — uanset om opgaven er renovering, havearbejde eller sceneopbygning. Vi koordinerer hele holdet.",
+    ydelser_why_2_title: "Fleksibelt hold",
+    ydelser_why_2_desc:
+      "Fra én ekstra hånd til 20+ folk på pladsen. Vi skalerer op og ned efter dit behov — dag for dag eller hele projektet.",
+    ydelser_why_3_title: "Hurtig respons",
+    ydelser_why_3_desc:
+      "Vi svarer på alle forespørgsler inden for 2 timer på hverdage. Akut behov? Vi mobiliserer ofte samme dag.",
 
     // TILMELD PAGE
     tilmeld_eyebrow: "For håndværkere",
@@ -969,6 +981,18 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_cta_desc:
       "Tell us about the project and we'll match you with the right people — fast and hassle-free.",
     svc_cta_btn: "Send a request",
+    ydelser_why_eyebrow: "Why Kryds",
+    ydelser_why_h2: "Why clients choose",
+    ydelser_why_h2_yellow: "us",
+    ydelser_why_1_title: "One point of contact",
+    ydelser_why_1_desc:
+      "You have one person to call — whether the task is renovation, garden work or stage build. We coordinate the whole crew.",
+    ydelser_why_2_title: "Flexible team",
+    ydelser_why_2_desc:
+      "From one extra pair of hands to 20+ people on site. We scale up and down as you need — day by day or for the whole project.",
+    ydelser_why_3_title: "Fast response",
+    ydelser_why_3_desc:
+      "We reply to every request within 2 hours on weekdays. Urgent need? We often mobilise the same day.",
 
     // TILMELD PAGE
     tilmeld_eyebrow: "For tradespeople",

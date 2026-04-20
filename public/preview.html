@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="dark">
+<!--
+  KrydsByg — Visuel preview & verifikationsside
+  Åbn i browser for at verificere layout, farver og typografi.
+  Stand-alone: ingen server krævet.
+-->
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KrydsByg — Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap"
+  rel="stylesheet"
+/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --color-black:  #0C0C0A;
+    --color-black2: #111110;
+    --color-gray:   #1E1E1C;
+    --color-gray2:  #2A2A28;
+    --color-yellow: #F5C400;
+    --color-cream:  #F2EEE6;
+    --color-muted:  #888880;
+    --border:       rgba(242,238,230,0.07);
+  }
+  [data-theme="light"] {
+    --color-black:  #F4F0E8;
+    --color-black2: #ECE6DB;
+    --color-gray:   #E0DBD3;
+    --color-gray2:  #D3CDC4;
+    --color-yellow: #F5C400;
+    --color-cream:  #1A1918;
+    --color-muted:  #6B6760;
+    --border:       rgba(26,25,24,0.10);
+  }
+  html, body {
+    background: var(--color-black);
+    color: var(--color-cream);
+    font-family: "Barlow", system-ui, sans-serif;
+  }
+  .font-cond { font-family: "Barlow Condensed", system-ui, sans-serif; }
+  .bg-black     { background: var(--color-black); }
+  .bg-black2    { background: var(--color-black2); }
+  .bg-gray      { background: var(--color-gray); }
+  .bg-gray2     { background: var(--color-gray2); }
+  .bg-yellow    { background: var(--color-yellow); }
+  .text-cream   { color: var(--color-cream); }
+  .text-muted   { color: var(--color-muted); }
+  .text-yellow  { color: var(--color-yellow); }
+  .text-black   { color: var(--color-black); }
+  .border-theme { border-color: var(--border); }
+
+  .branch-card {
+    position: relative; overflow: hidden; border-radius: 3px;
+    height: 220px; border: 1px solid var(--border);
+    background-size: cover; background-position: center;
+    transition: transform .5s ease;
+  }
+  .branch-card::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(12,12,10,.72) 0%, rgba(12,12,10,.25) 60%, transparent 100%);
+  }
+  .branch-card:hover { transform: translateY(-4px); }
+  .branch-card > .content { position: relative; z-index: 2; }
+
+  .mobile-frame {
+    width: 390px; height: 780px;
+    border: 10px solid #2A2A28;
+    border-radius: 40px;
+    background: var(--color-black);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 80px rgba(0,0,0,.4);
+  }
+</style>
+</head>
+<body>
+
+<!-- Control bar -->
+<header class="flex items-center justify-between px-6 py-4 border-b border-theme sticky top-0 z-40" style="background:var(--color-black2);">
+  <div class="flex items-center gap-3">
+    <svg width="30" height="30" viewBox="0 0 90 90">
+      <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" stroke-width="18" stroke-linecap="round" />
+      <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" class="text-cream" stroke-width="18" stroke-linecap="round" />
+    </svg>
+    <div>
+      <p class="font-cond font-black text-[15px] uppercase tracking-widest text-cream leading-none">KRYDS — Preview</p>
+      <p class="font-cond text-[10px] tracking-widest uppercase text-muted leading-none mt-1">Visuel verifikation</p>
+    </div>
+  </div>
+  <button id="themeToggle" class="font-cond font-bold text-[11px] tracking-[.16em] uppercase bg-yellow text-black px-4 py-2 rounded-sm">
+    Skift tema
+  </button>
+</header>
+
+<main class="max-w-[1280px] mx-auto px-6 py-10 space-y-16">
+
+  <!-- Color palette -->
+  <section>
+    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">01 — Farvepalette</p>
+    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">CSS-variabler (begge temaer)</h2>
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-3">Dark (default)</p>
+        <div class="grid grid-cols-4 gap-3" data-swatches="dark">
+          <!-- populated via JS for consistency -->
+        </div>
+      </div>
+      <div>
+        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-3">Light</p>
+        <div class="grid grid-cols-4 gap-3" data-swatches="light"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Typografi -->
+  <section>
+    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">02 — Typografi</p>
+    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">Skala (Barlow + Barlow Condensed)</h2>
+    <div class="bg-gray border border-theme rounded-sm p-8 space-y-4">
+      <p class="font-cond font-black text-[64px] leading-[.95] uppercase text-cream">Display / 64px / 900</p>
+      <p class="font-cond font-extrabold text-[44px] uppercase text-cream">H1 / 44px / 800</p>
+      <p class="font-cond font-extrabold text-[28px] uppercase text-cream">H2 / 28px / 800</p>
+      <p class="font-cond font-extrabold text-[22px] uppercase text-cream">H3 / 22px / 800</p>
+      <p class="font-cond font-bold text-[11px] tracking-[.22em] uppercase text-yellow">Eyebrow / 11px / 700 / tracked</p>
+      <p class="text-[17px] text-cream">Body lead / 17px / 400 — Vi dækker hele spektret fra renovering til events.</p>
+      <p class="text-[14px] text-muted">Body / 14px / 400 / muted — Sekundær tekst og beskrivelser.</p>
+    </div>
+  </section>
+
+  <!-- Branch cards -->
+  <section>
+    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">03 — Brancher</p>
+    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">Vores <span class="text-yellow">7 brancher</span></h2>
+    <div class="grid grid-cols-3 gap-4" id="branchGrid"></div>
+  </section>
+
+  <!-- Priser tiers -->
+  <section>
+    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">04 — Priser</p>
+    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">Timepriser pr. medarbejder</h2>
+    <div class="grid grid-cols-3 gap-5">
+      <div class="bg-gray border border-theme rounded-sm p-7">
+        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-2">Handyman</p>
+        <p class="font-cond font-extrabold text-4xl text-cream mb-1">275–295 <span class="text-[14px] text-muted">kr/t</span></p>
+        <p class="text-[13px] text-muted mb-4">Standardpersonale til praktiske opgaver.</p>
+        <ul class="text-[13px] text-cream space-y-1">
+          <li>Byggehjælpere &amp; handymen</li>
+          <li>Maling, oprydning, havearbejde</li>
+          <li>Fuldt forsikret personale</li>
+        </ul>
+      </div>
+      <div class="bg-gray border rounded-sm p-7 relative" style="border-color:var(--color-yellow);">
+        <span class="absolute -top-3 left-6 font-cond font-bold text-[10px] tracking-[.2em] uppercase bg-yellow text-black px-3 py-1 rounded-sm">Anbefalet</span>
+        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-yellow mb-2">Koordinator</p>
+        <p class="font-cond font-extrabold text-4xl text-cream mb-1">355–385 <span class="text-[14px] text-muted">kr/t</span></p>
+        <p class="text-[13px] text-muted mb-4">Kvalificeret personale med dokumenteret erfaring.</p>
+        <ul class="text-[13px] text-cream space-y-1">
+          <li>Min. 5 års erfaring</li>
+          <li>Projektledelse &amp; QA</li>
+          <li>Prioriteret mobilisering</li>
+        </ul>
+      </div>
+      <div class="bg-gray border border-theme rounded-sm p-7">
+        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-2">Mængde 3+</p>
+        <p class="font-cond font-extrabold text-4xl text-cream mb-1">255–275 <span class="text-[14px] text-muted">kr/t</span></p>
+        <p class="text-[13px] text-muted mb-4">Volumenpris ved 3+ handymen samtidig.</p>
+        <ul class="text-[13px] text-cream space-y-1">
+          <li>Samme kvalitet — lavere gebyr</li>
+          <li>Dedikeret kontaktperson</li>
+          <li>Samlet faktura pr. periode</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mobile frame mock -->
+  <section>
+    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">05 — Mobile</p>
+    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">App-preview (390px)</h2>
+    <div class="flex justify-center">
+      <div class="mobile-frame">
+        <div class="h-full overflow-y-auto" style="padding-bottom:78px;">
+          <header class="px-5 py-4 flex items-center justify-between border-b border-theme">
+            <div class="flex items-center gap-2">
+              <svg width="22" height="22" viewBox="0 0 90 90">
+                <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" stroke-width="18" stroke-linecap="round" />
+                <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" class="text-cream" stroke-width="18" stroke-linecap="round" />
+              </svg>
+              <span class="font-cond font-black text-[16px] uppercase text-cream"><span class="text-yellow">K</span>RYDS</span>
+            </div>
+            <span class="font-cond text-[9px] tracking-widest uppercase text-muted">Preview</span>
+          </header>
+          <section class="px-5 pt-5 pb-3">
+            <p class="font-cond font-semibold text-[10px] tracking-widest uppercase text-yellow mb-2">Velkommen</p>
+            <h1 class="font-cond font-black text-[38px] leading-[.95] uppercase text-cream">Sæt et kryds<br><span class="text-yellow">i kalenderen</span></h1>
+          </section>
+          <section class="px-5 py-3 flex flex-col gap-3" id="mobileTiles"></section>
+          <section class="px-5 py-3">
+            <p class="font-cond font-extrabold text-[11px] tracking-[.2em] uppercase text-muted mb-2">Hurtig booking</p>
+            <div class="bg-gray border border-theme rounded-[12px] p-3">
+              <input type="tel" placeholder="Dit telefonnummer" class="w-full bg-black border border-theme rounded-[8px] px-3 py-2 text-cream text-[13px] outline-none mb-2" />
+              <button class="w-full bg-yellow text-black font-cond font-extrabold text-[13px] tracking-widest uppercase py-[11px] rounded-[10px]">Send forespørgsel →</button>
+            </div>
+          </section>
+        </div>
+        <!-- Bottom nav: 3 items -->
+        <nav class="absolute bottom-0 left-0 right-0 flex items-center border-t border-theme" style="background:var(--color-black2); height:62px;">
+          <div class="flex-1 flex flex-col items-center text-yellow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+            <span class="font-cond font-bold text-[9px] tracking-widest uppercase mt-1">Hjem</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center text-muted">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+            <span class="font-cond font-bold text-[9px] tracking-widest uppercase mt-1">Book</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center text-muted">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg>
+            <span class="font-cond font-bold text-[9px] tracking-widest uppercase mt-1">Ring</span>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center text-[12px] text-muted pt-10 pb-4 border-t border-theme">
+    KrydsByg · Preview-side · Uden server-afhængigheder
+  </footer>
+</main>
+
+<script>
+  // Swatch data
+  const darkColors = [
+    ["--color-black", "#0C0C0A"],
+    ["--color-black2", "#111110"],
+    ["--color-gray", "#1E1E1C"],
+    ["--color-gray2", "#2A2A28"],
+    ["--color-yellow", "#F5C400"],
+    ["--color-cream", "#F2EEE6"],
+    ["--color-muted", "#888880"],
+    ["--border", "rgba(242,238,230,.07)"],
+  ];
+  const lightColors = [
+    ["--color-black", "#F4F0E8"],
+    ["--color-black2", "#ECE6DB"],
+    ["--color-gray", "#E0DBD3"],
+    ["--color-gray2", "#D3CDC4"],
+    ["--color-yellow", "#F5C400"],
+    ["--color-cream", "#1A1918"],
+    ["--color-muted", "#6B6760"],
+    ["--border", "rgba(26,25,24,.10)"],
+  ];
+
+  function renderSwatches(target, list) {
+    const el = document.querySelector(`[data-swatches="${target}"]`);
+    if (!el) return;
+    el.innerHTML = list.map(([name, val]) => `
+      <div class="rounded-sm overflow-hidden border border-theme">
+        <div style="background:${val}; height:56px;"></div>
+        <div class="p-2 bg-gray">
+          <p class="font-cond font-bold text-[10px] tracking-widest uppercase text-cream">${name}</p>
+          <p class="text-[10px] text-muted font-mono">${val}</p>
+        </div>
+      </div>
+    `).join("");
+  }
+  renderSwatches("dark", darkColors);
+  renderSwatches("light", lightColors);
+
+  // Branch cards
+  const BRANCHES = [
+    ["01", "Byggeprojekter", "Renovering & byggeri",   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80"],
+    ["02", "Maling & spartling", "Maling & spartling", "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80"],
+    ["03", "Flytte & montere", "Flytning & montering", "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"],
+    ["04", "Havearbejde", "Have & anlægsgartneri",     "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80"],
+    ["05", "Events & scener", "Events & scene",        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80"],
+    ["06", "Nedrivning & rydning", "Nedrivning",       "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80"],
+    ["07", "Flise & anlæg", "Fliser & anlæg",          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80"],
+  ];
+  const grid = document.getElementById("branchGrid");
+  grid.innerHTML = BRANCHES.map(([num, name, sub, img]) => `
+    <div class="branch-card" style="background-image:url('${img}'); filter:none;">
+      <div class="content h-full flex flex-col justify-between p-5">
+        <span class="font-cond font-bold text-[11px] tracking-widest text-cream opacity-70">— ${num}</span>
+        <div>
+          <h4 class="font-cond font-extrabold text-[22px] uppercase text-cream leading-tight drop-shadow">${name}</h4>
+          <p class="font-cond font-semibold text-[11px] tracking-widest uppercase text-yellow mt-1">${sub}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  // Mobile tiles (first 3 branches)
+  const mt = document.getElementById("mobileTiles");
+  mt.innerHTML = BRANCHES.slice(0,3).map(([num, name, sub, img]) => `
+    <div class="relative overflow-hidden rounded-[14px] border border-theme" style="height:140px; background-image:url('${img}'); background-size:cover; background-position:center;">
+      <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(12,12,10,.8), rgba(12,12,10,.2) 60%, transparent);"></div>
+      <span class="absolute top-3 right-3 font-cond font-bold text-[10px] tracking-widest uppercase bg-yellow text-black px-2 py-1 rounded-full">Book →</span>
+      <span class="absolute top-3 left-3 font-cond font-bold text-[10px] tracking-widest text-cream opacity-70">— ${num}</span>
+      <div class="absolute bottom-0 left-0 right-0 p-3">
+        <h5 class="font-cond font-extrabold text-[16px] uppercase text-cream leading-tight">${name}</h5>
+        <p class="text-[11px] text-muted">${sub}</p>
+      </div>
+    </div>
+  `).join("");
+
+  // Theme toggle
+  document.getElementById("themeToggle").addEventListener("click", () => {
+    const html = document.documentElement;
+    html.dataset.theme = html.dataset.theme === "dark" ? "light" : "dark";
+  });
+</script>
+</body>
+</html>

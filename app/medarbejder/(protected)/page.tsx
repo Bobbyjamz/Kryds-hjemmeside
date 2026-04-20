@@ -10,10 +10,19 @@ interface Data {
   mine: Shift[];
 }
 
+interface FeedItem {
+  id: string;
+  title: string;
+  body: string;
+  priority: string;
+  createdAt: string;
+}
+
 export default function MedarbejderDashboard() {
   const [data, setData] = useState<Data | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feed, setFeed] = useState<FeedItem[]>([]);
 
   const load = async () => {
     setLoading(true);
@@ -27,6 +36,13 @@ export default function MedarbejderDashboard() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/feed")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => setFeed(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, []);
 
   const signup = async (shiftId: string, action: "signup" | "withdraw" = "signup") => {
     const res = await fetch("/api/medarbejder/signup", {
@@ -50,6 +66,43 @@ export default function MedarbejderDashboard() {
         <h1 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">Hej {data.employee.name.split(" ")[0]}</h1>
         <p className="text-[14px] text-muted mt-2">Dit fag: <span className="text-cream">{tradeLabel}</span></p>
       </div>
+
+      {feed.length > 0 && (
+        <section className="mb-10">
+          <h2 className="font-condensed font-extrabold text-[18px] uppercase tracking-[.04em] text-cream mb-4">
+            Beskeder fra Kryds
+          </h2>
+          <div className="space-y-3">
+            {feed.slice(0, 5).map((msg) => (
+              <div
+                key={msg.id}
+                className={`p-5 rounded-[2px] border ${
+                  msg.priority === "urgent"
+                    ? "border-yellow bg-[rgba(245,196,0,.06)]"
+                    : "border-[var(--border)] bg-gray"
+                }`}
+              >
+                {msg.priority === "urgent" && (
+                  <span className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-yellow mb-2 block">
+                    Vigtigt
+                  </span>
+                )}
+                <h3 className="font-condensed font-extrabold text-[16px] uppercase tracking-[.02em] text-cream mb-2">
+                  {msg.title}
+                </h3>
+                <p className="text-[14px] text-muted leading-[1.6] whitespace-pre-wrap">{msg.body}</p>
+                <p className="text-[11px] text-muted mt-3">
+                  {new Date(msg.createdAt).toLocaleDateString("da-DK", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mb-12">
         <h2 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.04em] text-cream mb-4">Mine vagter</h2>

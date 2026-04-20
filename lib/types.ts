@@ -45,3 +45,12 @@ export interface Shift {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface FeedMessage {
+  id: string;
+  title: string;
+  body: string;
+  authorName: string;
+  priority: "normal" | "urgent";
+  createdAt: string;
+}
