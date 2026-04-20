@@ -11,8 +11,27 @@ export const runtime = "nodejs";
 
 const MAX_PHOTO = 4 * 1024 * 1024; // 4 MB (stay under Vercel 4.5MB body limit)
 const MAX_CV = 4 * 1024 * 1024; // 4 MB
-const ALLOWED_PHOTO = ["image/jpeg", "image/png", "image/webp"];
-const ALLOWED_CV = ["application/pdf", "image/jpeg", "image/png"];
+const ALLOWED_PHOTO = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+// Accept PDFs, images, Word docs, plain text, RTF, and OpenDocument for CV / ansøgning
+const ALLOWED_CV = [
+  "application/pdf",
+  "application/x-pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.oasis.opendocument.text",
+  "application/rtf",
+  "text/rtf",
+  "text/plain",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+  // Some phones report empty type — we fall back to extension below
+  "",
+  "application/octet-stream",
+];
+const ALLOWED_CV_EXT = /\.(pdf|doc|docx|odt|rtf|txt|jpg|jpeg|png|webp|heic|heif)$/i;
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,8 +54,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!allowed.includes(file.type)) {
-      return NextResponse.json({ error: "Filtype er ikke tilladt" }, { status: 400 });
+    // For CV, allow either matching MIME or a known file extension (phones often report empty type)
+    const extOk = !isPhoto && ALLOWED_CV_EXT.test(file.name || "");
+    if (!allowed.includes(file.type) && !extOk) {
+      return NextResponse.json(
+        {
+          error: isPhoto
+            ? "Billedformat ikke tilladt (brug JPG, PNG, HEIC eller WebP)"
+            : "Filtype ikke tilladt (brug PDF, DOC, DOCX, ODT, RTF, TXT eller billede)",
+        },
+        { status: 400 }
+      );
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());

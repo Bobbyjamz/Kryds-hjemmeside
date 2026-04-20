@@ -22,27 +22,33 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { virksomhed, kontaktperson, email, telefon, opgavetype, antal, startdato, beskrivelse, acceptedTerms, contractVersion } = body;
 
-  if (!virksomhed || !email || !opgavetype) {
-    return NextResponse.json({ error: "Manglende felter: virksomhed, email og opgavetype er påkrævet" }, { status: 400 });
+  // Must have opgavetype + at least one contact channel (email OR phone)
+  if (!opgavetype || (!email && !telefon)) {
+    return NextResponse.json(
+      { error: "Manglende felter: opgavetype og enten email eller telefon er påkrævet" },
+      { status: 400 }
+    );
   }
 
   if (acceptedTerms !== true) {
     return NextResponse.json({ error: "Du skal acceptere kundevilkårene" }, { status: 400 });
   }
 
-  // Basic email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
-    return NextResponse.json({ error: "Ugyldig email-adresse" }, { status: 400 });
+  // Basic email validation (only if email is provided)
+  if (email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: "Ugyldig email-adresse" }, { status: 400 });
+    }
   }
 
   const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
   const toAddress = process.env.RESEND_TO || "kontakt@krydsbyg.com";
 
   // Sanitize all inputs
-  const safeVirksomhed = escapeHtml(String(virksomhed));
+  const safeVirksomhed = escapeHtml(String(virksomhed || "–"));
   const safeKontakt = escapeHtml(String(kontaktperson || "–"));
-  const safeEmail = escapeHtml(String(email));
+  const safeEmail = escapeHtml(String(email || "–"));
   const safeTelefon = escapeHtml(String(telefon || "–"));
   const safeOpgavetype = escapeHtml(String(opgavetype));
   const safeAntal = escapeHtml(String(antal || "–"));
@@ -55,7 +61,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: fromAddress,
       to: [toAddress],
-      replyTo: email,
+      replyTo: email || undefined,
       subject: `Ny forespørgsel: ${safeOpgavetype} — ${safeVirksomhed}`,
       html: `
 <!DOCTYPE html>

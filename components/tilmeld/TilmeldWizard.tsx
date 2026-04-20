@@ -367,7 +367,13 @@ export default function TilmeldWizard() {
                   <span className="inline-block bg-[rgba(245,196,0,.1)] border border-yellow text-yellow font-condensed font-semibold text-[12px] tracking-[.15em] uppercase px-5 py-3 rounded-[2px] hover:bg-[rgba(245,196,0,.2)] transition-colors">
                     {cvUploading ? t("tw_s3_cv_uploading") : cvDataUrl ? t("tw_s3_cv_change") : t("tw_s3_cv_upload")}
                   </span>
-                  <input type="file" accept="application/pdf,image/*" className="hidden" onChange={handleCvChange} disabled={cvUploading} />
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.jpg,.jpeg,.png,.webp,.heic,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.oasis.opendocument.text,application/rtf,text/plain,image/*"
+                    className="hidden"
+                    onChange={handleCvChange}
+                    disabled={cvUploading}
+                  />
                 </label>
                 {cvDataUrl && (
                   <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-[9px] rounded-[2px]">

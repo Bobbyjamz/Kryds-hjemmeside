@@ -80,6 +80,17 @@ export default function MobileApp() {
     return days > 0 ? days : null;
   })();
 
+  function centerBranchTile(tileEl: HTMLElement) {
+    const view = branchScrollRef.current;
+    if (!view) return;
+    const viewRect = view.getBoundingClientRect();
+    const tileRect = tileEl.getBoundingClientRect();
+    const currentScroll = view.scrollLeft;
+    const tileCenter = tileRect.left - viewRect.left + currentScroll + tileRect.width / 2;
+    const target = tileCenter - viewRect.width / 2;
+    view.scrollTo({ left: target, behavior: "smooth" });
+  }
+
   function prefillAndScroll(cat: string) {
     setSelectedCat(cat);
     setActiveNav("book");
@@ -234,40 +245,6 @@ export default function MobileApp() {
         </a>
       </div>
 
-      {/* ── LEDIGE VAGTER CHIP ── */}
-      <div className="px-5 pt-3 pb-1">
-        <a
-          href="/vagter"
-          className="flex items-center justify-between gap-3 px-4 py-[11px] rounded-[12px] no-underline transition-transform active:scale-[.98]"
-          style={{
-            background: "color-mix(in srgb, var(--color-yellow) 8%, transparent)",
-            border: "1px solid rgba(245,196,0,.28)",
-            color: "var(--color-cream)",
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <span
-              className="w-8 h-8 rounded-[9px] flex items-center justify-center"
-              style={{ background: "rgba(245,196,0,.15)" }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="5" width="18" height="16" rx="2"/>
-                <path d="M3 9h18M8 3v4M16 3v4"/>
-                <path d="M8 14l2 2 4-4"/>
-              </svg>
-            </span>
-            <div className="flex flex-col">
-              <strong className="font-condensed font-extrabold text-[13px] tracking-[.04em] uppercase leading-none">
-                {isDA ? "Ledige vagter" : "Open shifts"}
-              </strong>
-              <span className="text-[11px] text-muted mt-[2px] leading-none">
-                {isDA ? "Se alle åbne vagter" : "See all open shifts"}
-              </span>
-            </div>
-          </div>
-          <span className="text-yellow font-condensed font-bold text-[13px]">→</span>
-        </a>
-      </div>
 
       {/* ── SERVICE TILES CAROUSEL ── */}
       <section className="pt-6 pb-2" id="appServices">
@@ -294,15 +271,18 @@ export default function MobileApp() {
             return (
               <button
                 key={`${tile.cat}-${i}`}
-                onClick={() => prefillAndScroll(tile.cat)}
+                onClick={(e) => {
+                  centerBranchTile(e.currentTarget);
+                  // small delay so user sees the center animation before scrolling to booking
+                  setTimeout(() => prefillAndScroll(tile.cat), 320);
+                }}
                 className="app-service-tile flex-shrink-0 relative overflow-hidden rounded-[16px] text-left transition-all active:scale-[.96]"
                 style={{
                   width: "78vw",
                   maxWidth: 300,
                   height: 200,
                   border: "1px solid rgba(242,238,230,.07)",
-                  color: "var(--color-cream)",
-                  background: "var(--color-gray)",
+                  background: "#111110",
                 }}
               >
                 <div
@@ -319,17 +299,17 @@ export default function MobileApp() {
                       "linear-gradient(to top, rgba(12,12,10,.82) 0%, rgba(12,12,10,.3) 60%, transparent 100%)",
                   }}
                 />
-                <span className="absolute top-3 right-3 font-condensed font-bold text-[10px] tracking-[.16em] uppercase bg-yellow text-black px-[10px] py-[4px] rounded-full">
+                <span className="absolute top-3 right-3 font-condensed font-bold text-[10px] tracking-[.16em] uppercase bg-yellow px-[10px] py-[4px] rounded-full" style={{ color: "#0C0C0A" }}>
                   {isDA ? "Book →" : "Book →"}
                 </span>
-                <span className="absolute top-4 left-4 font-condensed font-bold text-[10px] tracking-[.2em] text-cream opacity-70">
+                <span className="absolute top-4 left-4 font-condensed font-bold text-[10px] tracking-[.2em]" style={{ color: "rgba(242,238,230,.85)" }}>
                   — 0{(i % 7) + 1}
                 </span>
                 <div className="relative h-full flex flex-col justify-end p-4">
-                  <h5 className="font-condensed font-extrabold text-[20px] tracking-[.02em] uppercase text-cream leading-[1.05] drop-shadow-sm">
+                  <h5 className="font-condensed font-extrabold text-[20px] tracking-[.02em] uppercase leading-[1.05]" style={{ color: "#F2EEE6", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
                     {t(tile.labelKey)}
                   </h5>
-                  <p className="text-[12px] text-muted mt-[4px]">{t(tile.subKey)}</p>
+                  <p className="text-[12px] mt-[4px]" style={{ color: "rgba(242,238,230,.7)", textShadow: "0 1px 3px rgba(0,0,0,.5)" }}>{t(tile.subKey)}</p>
                 </div>
               </button>
             );
