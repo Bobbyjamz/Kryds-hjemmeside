@@ -4,6 +4,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useState } from "react";
 
 const BRANCH_IMGS = [
   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
@@ -26,7 +27,19 @@ const CARDS = [
 ];
 
 export default function YdelserPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const [selected, setSelected] = useState<string[]>([]);
+
+  function toggle(num: string) {
+    setSelected((prev) =>
+      prev.includes(num) ? prev.filter((n) => n !== num) : [...prev, num]
+    );
+  }
+
+  const combinedHref =
+    selected.length > 0
+      ? `/#contract?brancher=${encodeURIComponent(selected.join(","))}`
+      : "/#contract";
 
   return (
     <>
@@ -81,13 +94,13 @@ export default function YdelserPage() {
                   }}
                 />
                 <div className="relative h-full flex flex-col justify-end p-5">
-                  <span className="font-condensed font-bold text-[11px] tracking-[.2em] uppercase text-cream opacity-70 mb-1">
+                  <span className="font-condensed font-bold text-[11px] tracking-[.2em] uppercase mb-1" style={{ color: "rgba(242,238,230,.85)" }}>
                     — {card.num}
                   </span>
-                  <h3 className="font-condensed font-extrabold text-[24px] uppercase tracking-[.02em] text-cream leading-[1.05] drop-shadow-sm">
+                  <h3 className="font-condensed font-extrabold text-[24px] uppercase tracking-[.02em] leading-[1.05]" style={{ color: "#F2EEE6", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
                     {t(card.nameKey)}
                   </h3>
-                  <p className="font-condensed font-semibold text-[11px] tracking-[.18em] text-yellow uppercase mt-[6px]">
+                  <p className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase mt-[6px]" style={{ color: "#F5C400", textShadow: "0 1px 4px rgba(0,0,0,.5)" }}>
                     {t(card.subKey)}
                   </p>
                 </div>
@@ -183,6 +196,125 @@ export default function YdelserPage() {
                 <p className="text-[14px] leading-[1.7] text-muted">{item.desc}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Combined services picker */}
+        <section className="max-w-[1100px] mx-auto mt-[90px]">
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-4">
+              {lang === "da" ? "Kombineret ydelse" : "Combined service"}
+            </div>
+            <h2 className="font-condensed font-black text-[clamp(30px,3.5vw,44px)] uppercase leading-[.95] tracking-[-.01em] text-cream mb-4">
+              {lang === "da" ? "Vælg " : "Pick "}
+              <span className="text-yellow">{lang === "da" ? "flere brancher" : "multiple trades"}</span>
+            </h2>
+            <p className="text-[15px] leading-[1.7] text-muted max-w-[560px] mx-auto">
+              {lang === "da"
+                ? "Kombiner de fag du har brug for — vi samler holdet og koordinerer arbejdet under én aftale."
+                : "Combine the trades you need — we assemble the crew and coordinate the work under one agreement."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-4 gap-[10px] max-[900px]:grid-cols-3 max-[560px]:grid-cols-2">
+            {CARDS.map((card, i) => {
+              const active = selected.includes(card.num);
+              return (
+                <button
+                  key={card.num}
+                  type="button"
+                  onClick={() => toggle(card.num)}
+                  className={`relative overflow-hidden rounded-[3px] border-2 text-left transition-all ${
+                    active
+                      ? "border-yellow"
+                      : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"
+                  }`}
+                  style={{ height: 120 }}
+                  aria-pressed={active}
+                >
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url('${BRANCH_IMGS[i]}')`,
+                      filter: `grayscale(${active ? 10 : 35}%) brightness(${active ? 0.7 : 0.5}) saturate(${active ? 1 : 0.85})`,
+                      transition: "filter 0.3s",
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: active
+                        ? "linear-gradient(to top, rgba(245,196,0,.35) 0%, rgba(12,12,10,.55) 100%)"
+                        : "linear-gradient(to top, rgba(12,12,10,.8) 0%, rgba(12,12,10,.3) 100%)",
+                    }}
+                  />
+                  {active && (
+                    <span className="absolute top-[8px] right-[8px] w-6 h-6 rounded-full bg-yellow flex items-center justify-center z-[2]">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </span>
+                  )}
+                  <div className="absolute left-0 right-0 bottom-0 p-3 z-[1]">
+                    <span className="font-condensed font-bold text-[10px] tracking-[.18em]" style={{ color: "rgba(242,238,230,.85)" }}>
+                      — {card.num}
+                    </span>
+                    <p className="font-condensed font-extrabold text-[13px] uppercase tracking-[.02em] leading-[1.1] mt-[2px]" style={{ color: "#F2EEE6", textShadow: "0 1px 4px rgba(0,0,0,.6)" }}>
+                      {t(card.nameKey)}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Live summary + CTA */}
+          <div
+            className="mt-8 p-6 rounded-[3px] border flex items-center gap-5 max-[700px]:flex-col max-[700px]:items-start"
+            style={{
+              background: selected.length > 0 ? "rgba(245,196,0,.06)" : "var(--color-gray)",
+              borderColor: selected.length > 0 ? "rgba(245,196,0,.3)" : "var(--border)",
+            }}
+          >
+            <div className="flex-1 min-w-0">
+              <p className="font-condensed font-bold text-[11px] tracking-[.18em] uppercase text-yellow mb-2">
+                {selected.length === 0
+                  ? (lang === "da" ? "Ingen valgt endnu" : "None selected yet")
+                  : lang === "da"
+                    ? `${selected.length} ${selected.length === 1 ? "branche" : "brancher"} valgt`
+                    : `${selected.length} ${selected.length === 1 ? "trade" : "trades"} selected`}
+              </p>
+              <p className="text-[14px] text-cream leading-[1.5]">
+                {selected.length === 0
+                  ? (lang === "da"
+                      ? "Klik på kortene ovenfor for at bygge din kombinerede ydelse."
+                      : "Click the cards above to build your combined service.")
+                  : selected
+                      .map((num) => t(CARDS.find((c) => c.num === num)!.nameKey))
+                      .join(" · ")}
+              </p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              {selected.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSelected([])}
+                  className="font-condensed font-bold text-[12px] tracking-[.12em] uppercase px-5 py-[11px] rounded-[2px] border border-[var(--border)] text-muted hover:text-cream hover:border-[rgba(242,238,230,.3)] transition-colors"
+                >
+                  {lang === "da" ? "Nulstil" : "Clear"}
+                </button>
+              )}
+              <Link
+                href={combinedHref}
+                className={`inline-flex items-center gap-2 font-condensed font-extrabold text-[13px] tracking-[.12em] uppercase px-6 py-[12px] rounded-[2px] no-underline transition-all ${
+                  selected.length > 0
+                    ? "bg-yellow text-black hover:bg-yellow2"
+                    : "border border-[var(--border)] text-muted pointer-events-none opacity-60"
+                }`}
+              >
+                {lang === "da" ? "Send kombineret forespørgsel" : "Send combined request"} →
+              </Link>
+            </div>
           </div>
         </section>
 

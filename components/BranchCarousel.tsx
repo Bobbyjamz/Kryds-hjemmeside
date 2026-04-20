@@ -272,16 +272,16 @@ export default function BranchCarousel() {
                 {lang === "da" ? "Book nu →" : "Book now →"}
               </span>
               {/* Number */}
-              <span className="absolute top-[18px] left-[20px] z-[2] font-condensed font-bold text-[11px] tracking-[.18em] text-cream opacity-70">
+              <span className="absolute top-[18px] left-[20px] z-[2] font-condensed font-bold text-[11px] tracking-[.18em]" style={{ color: "rgba(242,238,230,.85)" }}>
                 — {branch.num}
               </span>
               {/* Content */}
               <div className="absolute left-0 right-0 bottom-0 z-[2] flex items-end justify-between gap-3 p-6 text-left">
                 <div>
-                  <h4 className="font-condensed font-extrabold text-[24px] tracking-[.04em] uppercase text-cream leading-[1.05] drop-shadow-sm">
+                  <h4 className="font-condensed font-extrabold text-[24px] tracking-[.04em] uppercase leading-[1.05]" style={{ color: "#F2EEE6", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
                     {t(branch.nameKey)}
                   </h4>
-                  <small className="block font-condensed font-semibold text-[11px] tracking-[.18em] text-yellow uppercase mt-[6px]">
+                  <small className="block font-condensed font-semibold text-[11px] tracking-[.18em] uppercase mt-[6px]" style={{ color: "#F5C400", textShadow: "0 1px 4px rgba(0,0,0,.5)" }}>
                     {t(branch.subKey)}
                   </small>
                 </div>
