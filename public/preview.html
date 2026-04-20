@@ -1,318 +1,539 @@
 <!DOCTYPE html>
 <html lang="da" data-theme="dark">
-<!--
-  KrydsByg — Visuel preview & verifikationsside
-  Åbn i browser for at verificere layout, farver og typografi.
-  Stand-alone: ingen server krævet.
--->
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>KrydsByg — Preview</title>
+<title>KrydsByg — Systemoverblik & Verifikation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
   href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800;900&family=Barlow+Condensed:wght@400;500;600;700;800;900&display=swap"
   rel="stylesheet"
 />
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
   :root {
-    --color-black:  #0C0C0A;
-    --color-black2: #111110;
-    --color-gray:   #1E1E1C;
-    --color-gray2:  #2A2A28;
-    --color-yellow: #F5C400;
-    --color-cream:  #F2EEE6;
-    --color-muted:  #888880;
-    --border:       rgba(242,238,230,0.07);
+    --bg:        #0C0C0A;
+    --bg2:       #111110;
+    --surface:   #1E1E1C;
+    --surface2:  #2A2A28;
+    --yellow:    #F5C400;
+    --yellow2:   #FFD633;
+    --cream:     #F2EEE6;
+    --muted:     #888880;
+    --border:    rgba(242,238,230,0.09);
+    --ok:        #5fd39a;
+    --warn:      #ffb84d;
+    --danger:    #ff6b6b;
   }
   [data-theme="light"] {
-    --color-black:  #F4F0E8;
-    --color-black2: #ECE6DB;
-    --color-gray:   #E0DBD3;
-    --color-gray2:  #D3CDC4;
-    --color-yellow: #F5C400;
-    --color-cream:  #1A1918;
-    --color-muted:  #6B6760;
-    --border:       rgba(26,25,24,0.10);
+    --bg:        #F4F0E8;
+    --bg2:       #ECE6DB;
+    --surface:   #E0DBD3;
+    --surface2:  #D3CDC4;
+    --yellow:    #F5C400;
+    --yellow2:   #E0B300;
+    --cream:     #1A1918;
+    --muted:     #6B6760;
+    --border:    rgba(26,25,24,0.12);
+    --ok:        #1f9a5f;
+    --warn:      #b8741a;
+    --danger:    #b43a3a;
   }
+  * { box-sizing: border-box; }
   html, body {
-    background: var(--color-black);
-    color: var(--color-cream);
+    margin: 0;
+    background: var(--bg);
+    color: var(--cream);
     font-family: "Barlow", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
   }
-  .font-cond { font-family: "Barlow Condensed", system-ui, sans-serif; }
-  .bg-black     { background: var(--color-black); }
-  .bg-black2    { background: var(--color-black2); }
-  .bg-gray      { background: var(--color-gray); }
-  .bg-gray2     { background: var(--color-gray2); }
-  .bg-yellow    { background: var(--color-yellow); }
-  .text-cream   { color: var(--color-cream); }
-  .text-muted   { color: var(--color-muted); }
-  .text-yellow  { color: var(--color-yellow); }
-  .text-black   { color: var(--color-black); }
-  .border-theme { border-color: var(--border); }
+  .cond { font-family: "Barlow Condensed", system-ui, sans-serif; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 40px 28px 80px; }
+  header.page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 28px; border-bottom: 1px solid var(--border);
+    background: var(--bg2); position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(10px);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand svg { flex-shrink: 0; }
+  .brand .txt { display: flex; flex-direction: column; line-height: 1; }
+  .brand .title {
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 900; font-size: 22px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--cream);
+  }
+  .brand .title .y { color: var(--yellow); }
+  .brand .sub {
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 500; font-size: 10px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--muted); margin-top: 4px;
+  }
+  .header-tools { display: flex; gap: 10px; align-items: center; }
+  .btn-theme {
+    background: var(--surface); color: var(--cream); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 8px; cursor: pointer;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+    transition: all .2s;
+  }
+  .btn-theme:hover { border-color: var(--yellow); color: var(--yellow); }
 
-  .branch-card {
-    position: relative; overflow: hidden; border-radius: 3px;
-    height: 220px; border: 1px solid var(--border);
-    background-size: cover; background-position: center;
-    transition: transform .5s ease;
+  h1.page-title {
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: clamp(34px, 5vw, 52px); font-weight: 900;
+    letter-spacing: -.01em; line-height: .95; text-transform: uppercase;
+    margin: 0 0 14px; color: var(--cream);
   }
-  .branch-card::after {
-    content: ""; position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(12,12,10,.72) 0%, rgba(12,12,10,.25) 60%, transparent 100%);
-  }
-  .branch-card:hover { transform: translateY(-4px); }
-  .branch-card > .content { position: relative; z-index: 2; }
+  h1.page-title .y { color: var(--yellow); }
+  .lead { color: var(--muted); max-width: 640px; font-size: 16px; margin-bottom: 40px; }
 
-  .mobile-frame {
-    width: 390px; height: 780px;
-    border: 10px solid #2A2A28;
-    border-radius: 40px;
-    background: var(--color-black);
-    overflow: hidden;
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 26px 28px; margin-bottom: 22px;
     position: relative;
-    box-shadow: 0 40px 80px rgba(0,0,0,.4);
+  }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.info  { border-left: 3px solid var(--yellow); }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .card-head h2 {
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 800; font-size: 20px; letter-spacing: .04em;
+    text-transform: uppercase; margin: 0; color: var(--cream);
+  }
+  .status-pill {
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 700; font-size: 10px; letter-spacing: .18em;
+    text-transform: uppercase; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+  .status-pill.ok   { color: var(--ok);   background: rgba(95,211,154,.08);  border-color: rgba(95,211,154,.3); }
+  .status-pill.warn { color: var(--warn); background: rgba(255,184,77,.08);  border-color: rgba(255,184,77,.3); }
+  .muted { color: var(--muted); }
+  .row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px dashed var(--border); }
+  .row:last-child { border-bottom: none; }
+  .check { color: var(--ok); font-weight: 700; flex-shrink: 0; width: 18px; text-align: center; }
+  .cross { color: var(--warn); font-weight: 700; flex-shrink: 0; width: 18px; text-align: center; }
+  .path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; color: var(--cream); }
+  .tag {
+    display: inline-block;
+    font-family: "Barlow Condensed", sans-serif;
+    font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 3px; margin-left: 8px;
+    background: rgba(245,196,0,.1); color: var(--yellow); border: 1px solid rgba(245,196,0,.25);
+  }
+  .tag.gray { background: var(--surface2); color: var(--muted); border-color: var(--border); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 780px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  ol.flow-list { list-style: none; counter-reset: step; margin: 0; padding: 0; }
+  ol.flow-list li {
+    counter-increment: step; position: relative;
+    padding: 12px 0 12px 54px; border-bottom: 1px dashed var(--border);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  ol.flow-list li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(245,196,0,.1); color: var(--yellow);
+    border: 1px solid rgba(245,196,0,.3);
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800;
+    font-size: 15px; display: flex; align-items: center; justify-content: center;
+  }
+  ol.flow-list li:last-child { border-bottom: none; }
+  ol.flow-list .c { color: var(--ok); margin-right: 6px; }
+
+  table.data {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  table.data th, table.data td {
+    text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border);
+  }
+  table.data th {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  table.data td.mono { font-family: ui-monospace, monospace; color: var(--cream); }
+  table.data td .code {
+    font-family: ui-monospace, monospace;
+    background: var(--bg2); border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 3px; color: var(--yellow);
+    font-weight: 700; font-size: 12px;
+  }
+
+  .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .swatch {
+    flex: 1 1 140px; border: 1px solid var(--border); border-radius: 4px;
+    overflow: hidden; min-width: 130px;
+  }
+  .swatch .chip { height: 64px; }
+  .swatch .info {
+    padding: 8px 10px; background: var(--surface2);
+    font-family: ui-monospace, monospace; font-size: 11px;
+  }
+  .swatch .info b { display: block; color: var(--cream); font-family: "Barlow Condensed", sans-serif; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+  .swatch .info span { color: var(--muted); }
+
+  /* Mobile frame */
+  .phone {
+    width: 390px; max-width: 100%; margin: 0 auto;
+    border: 10px solid #1a1a1a; border-radius: 38px;
+    background: var(--bg); overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    position: relative;
+  }
+  .phone .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 120px; height: 24px; background: #1a1a1a;
+    border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; z-index: 2;
+  }
+  .phone-screen { padding: 40px 16px 0; min-height: 540px; position: relative; }
+  .phone-bottom {
+    position: sticky; bottom: 0;
+    background: var(--bg2); border-top: 1px solid var(--border);
+    padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex; gap: 6px;
+  }
+  .phone-nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 4px; border-radius: 10px; color: var(--muted);
+  }
+  .phone-nav-item.active { background: rgba(245,196,0,.08); color: var(--yellow); }
+  .phone-nav-item svg { width: 20px; height: 20px; }
+  .phone-nav-item span {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  }
+
+  /* Estimator demo */
+  .est {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px; position: relative; overflow: hidden;
+  }
+  .est::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--yellow);
+  }
+  .est h4 {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 800;
+    font-size: 15px; letter-spacing: .1em; text-transform: uppercase;
+    margin: 0 0 12px; color: var(--cream);
+  }
+  .est .slider-row { margin: 14px 0; }
+  .est .slider-row label {
+    display: flex; justify-content: space-between;
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .est .slider-row label b { color: var(--yellow); }
+  .est .track {
+    height: 6px; background: var(--bg2); border-radius: 3px; position: relative;
+    border: 1px solid var(--border);
+  }
+  .est .track .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--yellow); border-radius: 3px; }
+  .est .track .thumb {
+    position: absolute; top: 50%; transform: translate(-50%,-50%);
+    width: 16px; height: 16px; background: var(--yellow); border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  }
+  .est .total {
+    margin-top: 18px; padding: 14px; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 10px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .est .total .lbl {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 700;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+  }
+  .est .total .val {
+    font-family: "Barlow Condensed", sans-serif; font-weight: 900;
+    font-size: 28px; color: var(--yellow);
+  }
+
+  .warn-banner {
+    background: rgba(255,184,77,.08); border: 1px solid rgba(255,184,77,.3);
+    border-radius: 6px; padding: 14px 16px; margin-top: 14px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .warn-banner .icon { color: var(--warn); font-size: 18px; line-height: 1; margin-top: 2px; }
+  .warn-banner .txt { font-size: 13px; color: var(--cream); line-height: 1.55; }
+  .warn-banner .txt b { color: var(--warn); }
+
+  footer.page-footer {
+    text-align: center; padding: 40px 20px;
+    color: var(--muted); font-size: 12px;
+    border-top: 1px solid var(--border);
   }
 </style>
 </head>
 <body>
-
-<!-- Control bar -->
-<header class="flex items-center justify-between px-6 py-4 border-b border-theme sticky top-0 z-40" style="background:var(--color-black2);">
-  <div class="flex items-center gap-3">
-    <svg width="30" height="30" viewBox="0 0 90 90">
-      <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" stroke-width="18" stroke-linecap="round" />
-      <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" class="text-cream" stroke-width="18" stroke-linecap="round" />
-    </svg>
-    <div>
-      <p class="font-cond font-black text-[15px] uppercase tracking-widest text-cream leading-none">KRYDS — Preview</p>
-      <p class="font-cond text-[10px] tracking-widest uppercase text-muted leading-none mt-1">Visuel verifikation</p>
+  <header class="page-header">
+    <div class="brand">
+      <svg width="44" height="44" viewBox="0 0 90 90">
+        <line x1="18" y1="18" x2="72" y2="72" stroke="#F5C400" stroke-width="20" stroke-linecap="round"/>
+        <line x1="72" y1="18" x2="18" y2="72" stroke="currentColor" stroke-width="20" stroke-linecap="round" style="color: var(--cream)"/>
+      </svg>
+      <div class="txt">
+        <span class="title"><span class="y">K</span>RYDS</span>
+        <span class="sub">Systemoverblik · KrydsByg.com</span>
+      </div>
     </div>
-  </div>
-  <button id="themeToggle" class="font-cond font-bold text-[11px] tracking-[.16em] uppercase bg-yellow text-black px-4 py-2 rounded-sm">
-    Skift tema
-  </button>
-</header>
+    <div class="header-tools">
+      <button class="btn-theme" id="themeBtn" onclick="toggleTheme()">☾ Mørk</button>
+      <a class="btn-theme" href="/" style="text-decoration:none;">← Til forsiden</a>
+    </div>
+  </header>
 
-<main class="max-w-[1280px] mx-auto px-6 py-10 space-y-16">
+  <div class="container">
+    <h1 class="page-title">System<span class="y">verifikation</span></h1>
+    <p class="lead">
+      Et samlet overblik over KrydsByg-platformen — ruter, flows, testdata, e-mail-destinationer og design-tokens.
+      Brug denne side til at se, at alt hænger sammen før produktion.
+    </p>
 
-  <!-- Color palette -->
-  <section>
-    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">01 — Farvepalette</p>
-    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">CSS-variabler (begge temaer)</h2>
-    <div class="grid grid-cols-2 gap-6">
-      <div>
-        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-3">Dark (default)</p>
-        <div class="grid grid-cols-4 gap-3" data-swatches="dark">
-          <!-- populated via JS for consistency -->
+    <!-- ROUTES -->
+    <section class="card ok">
+      <div class="card-head">
+        <h2>Ruter — alle sider</h2>
+        <span class="status-pill ok">✓ OK</span>
+      </div>
+      <div class="grid-3">
+        <div>
+          <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 8px;">Offentlige</p>
+          <div class="row"><span class="check">✓</span><span class="path">/</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/om-os</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/ydelser</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/priser</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/vagter</span><span class="tag">NY</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/tilmeld</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/cookie-politik</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/privatpolitik</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/handelsbetingelser</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/medarbejder-privatpolitik</span></div>
+        </div>
+        <div>
+          <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 8px;">Admin</p>
+          <div class="row"><span class="check">✓</span><span class="path">/admin</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/admin/feed</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/admin/vagter</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/admin/medarbejdere</span></div>
+        </div>
+        <div>
+          <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 8px;">Medarbejder & debug</p>
+          <div class="row"><span class="check">✓</span><span class="path">/medarbejder</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/medarbejder/login</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/debug</span><span class="tag gray">intern</span></div>
+          <div class="row"><span class="check">✓</span><span class="path">/ghost</span><span class="tag gray">intern</span></div>
         </div>
       </div>
-      <div>
-        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-3">Light</p>
-        <div class="grid grid-cols-4 gap-3" data-swatches="light"></div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Typografi -->
-  <section>
-    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">02 — Typografi</p>
-    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">Skala (Barlow + Barlow Condensed)</h2>
-    <div class="bg-gray border border-theme rounded-sm p-8 space-y-4">
-      <p class="font-cond font-black text-[64px] leading-[.95] uppercase text-cream">Display / 64px / 900</p>
-      <p class="font-cond font-extrabold text-[44px] uppercase text-cream">H1 / 44px / 800</p>
-      <p class="font-cond font-extrabold text-[28px] uppercase text-cream">H2 / 28px / 800</p>
-      <p class="font-cond font-extrabold text-[22px] uppercase text-cream">H3 / 22px / 800</p>
-      <p class="font-cond font-bold text-[11px] tracking-[.22em] uppercase text-yellow">Eyebrow / 11px / 700 / tracked</p>
-      <p class="text-[17px] text-cream">Body lead / 17px / 400 — Vi dækker hele spektret fra renovering til events.</p>
-      <p class="text-[14px] text-muted">Body / 14px / 400 / muted — Sekundær tekst og beskrivelser.</p>
-    </div>
-  </section>
-
-  <!-- Branch cards -->
-  <section>
-    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">03 — Brancher</p>
-    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">Vores <span class="text-yellow">7 brancher</span></h2>
-    <div class="grid grid-cols-3 gap-4" id="branchGrid"></div>
-  </section>
-
-  <!-- Priser tiers -->
-  <section>
-    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">04 — Priser</p>
-    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">Timepriser pr. medarbejder</h2>
-    <div class="grid grid-cols-3 gap-5">
-      <div class="bg-gray border border-theme rounded-sm p-7">
-        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-2">Handyman</p>
-        <p class="font-cond font-extrabold text-4xl text-cream mb-1">275–295 <span class="text-[14px] text-muted">kr/t</span></p>
-        <p class="text-[13px] text-muted mb-4">Standardpersonale til praktiske opgaver.</p>
-        <ul class="text-[13px] text-cream space-y-1">
-          <li>Byggehjælpere &amp; handymen</li>
-          <li>Maling, oprydning, havearbejde</li>
-          <li>Fuldt forsikret personale</li>
-        </ul>
+    <!-- SYSTEM FLOWS -->
+    <section class="card info">
+      <div class="card-head">
+        <h2>Systemflows — ende-til-ende</h2>
+        <span class="status-pill ok">✓ OK</span>
       </div>
-      <div class="bg-gray border rounded-sm p-7 relative" style="border-color:var(--color-yellow);">
-        <span class="absolute -top-3 left-6 font-cond font-bold text-[10px] tracking-[.2em] uppercase bg-yellow text-black px-3 py-1 rounded-sm">Anbefalet</span>
-        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-yellow mb-2">Koordinator</p>
-        <p class="font-cond font-extrabold text-4xl text-cream mb-1">355–385 <span class="text-[14px] text-muted">kr/t</span></p>
-        <p class="text-[13px] text-muted mb-4">Kvalificeret personale med dokumenteret erfaring.</p>
-        <ul class="text-[13px] text-cream space-y-1">
-          <li>Min. 5 års erfaring</li>
-          <li>Projektledelse &amp; QA</li>
-          <li>Prioriteret mobilisering</li>
-        </ul>
-      </div>
-      <div class="bg-gray border border-theme rounded-sm p-7">
-        <p class="font-cond font-bold text-[11px] tracking-[.2em] uppercase text-muted mb-2">Mængde 3+</p>
-        <p class="font-cond font-extrabold text-4xl text-cream mb-1">255–275 <span class="text-[14px] text-muted">kr/t</span></p>
-        <p class="text-[13px] text-muted mb-4">Volumenpris ved 3+ handymen samtidig.</p>
-        <ul class="text-[13px] text-cream space-y-1">
-          <li>Samme kvalitet — lavere gebyr</li>
-          <li>Dedikeret kontaktperson</li>
-          <li>Samlet faktura pr. periode</li>
-        </ul>
-      </div>
-    </div>
-  </section>
+      <ol class="flow-list">
+        <li><span class="c">✓</span><span>Besøgende ser forsiden <span class="tag gray">tracked i analytics</span></span></li>
+        <li><span class="c">✓</span><span>Besøgende klikker branche → quick-book modal → sender forespørgsel (e-mail til <b>kontakt@krydsbyg.com</b>)</span></li>
+        <li><span class="c">✓</span><span>Besøgende tilmelder sig som medarbejder på <b>/tilmeld</b> (foto + CV som base64 i e-mail)</span></li>
+        <li><span class="c">✓</span><span>Admin logger ind på <b>/admin</b> og ser besøg + medarbejdere + vagter + feed</span></li>
+        <li><span class="c">✓</span><span>Admin bekræfter medarbejder → 6-cifret kode sendes via Resend</span></li>
+        <li><span class="c">✓</span><span>Medarbejder logger ind på <b>/medarbejder/login</b> med telefon + kode</span></li>
+        <li><span class="c">✓</span><span>Medarbejder ser feed + åbne vagter + tager en vagt</span></li>
+        <li><span class="c">✓</span><span>Admin opretter feed-besked → broadcast-e-mail til alle medarbejdere</span></li>
+      </ol>
+    </section>
 
-  <!-- Mobile frame mock -->
-  <section>
-    <p class="font-cond font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">05 — Mobile</p>
-    <h2 class="font-cond font-black text-4xl uppercase text-cream mb-6">App-preview (390px)</h2>
-    <div class="flex justify-center">
-      <div class="mobile-frame">
-        <div class="h-full overflow-y-auto" style="padding-bottom:78px;">
-          <header class="px-5 py-4 flex items-center justify-between border-b border-theme">
-            <div class="flex items-center gap-2">
-              <svg width="22" height="22" viewBox="0 0 90 90">
-                <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" stroke-width="18" stroke-linecap="round" />
-                <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" class="text-cream" stroke-width="18" stroke-linecap="round" />
+    <!-- TEST DATA -->
+    <section class="card ok">
+      <div class="card-head">
+        <h2>Testdata — seedede poster</h2>
+        <span class="status-pill ok">✓ OK</span>
+      </div>
+
+      <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px;">4 medarbejdere i <span class="path">data/employees.json</span></p>
+      <table class="data">
+        <thead>
+          <tr><th>Navn</th><th>Telefon</th><th>Kode</th><th>Fag</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Test Medarbejder</td><td class="mono">11111111</td><td><span class="code">865801</span></td><td>BYGGEHJAELPER</td><td>LEDIG</td></tr>
+          <tr><td>Test Medarbejder</td><td class="mono">+45 20 11 22 33</td><td class="muted">— (ikke bekræftet)</td><td>Renovering</td><td>LEDIG</td></tr>
+          <tr><td>Mikkel Sørensen</td><td class="mono">+45 31 22 44 77</td><td><span class="code">432198</span></td><td>Maling &amp; spartling</td><td>LEDIG</td></tr>
+          <tr><td>Lars Pedersen</td><td class="mono">+45 26 77 88 99</td><td><span class="code">781654</span></td><td>Flise &amp; anlæg</td><td>LEDIG</td></tr>
+        </tbody>
+      </table>
+
+      <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:24px 0 10px;">2 testvagter i <span class="path">data/shifts.json</span></p>
+      <table class="data">
+        <thead>
+          <tr><th>Titel</th><th>Fag</th><th>Lokation</th><th>Timeløn</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Byggepladshjælp — testvagt</td><td>HANDYMAN</td><td>Østerbro, København</td><td><b style="color:var(--yellow)">180 kr/t</b></td><td>OPEN</td></tr>
+          <tr><td>Malerhjælp — testvagt 2</td><td>Maling &amp; spartling</td><td>Nørrebro, København</td><td><b style="color:var(--yellow)">220 kr/t</b></td><td>OPEN</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- EMAIL -->
+    <section class="card warn">
+      <div class="card-head">
+        <h2>E-mail-destinationer</h2>
+        <span class="status-pill warn">⚠ Kræver handling</span>
+      </div>
+      <table class="data">
+        <thead>
+          <tr><th>Trigger</th><th>Modtager</th><th>Afsender</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Forespørgsel fra forsiden (quick-book)</td><td class="mono">kontakt@krydsbyg.com</td><td>Resend (sandbox)</td></tr>
+          <tr><td>Ny tilmelding på /tilmeld</td><td class="mono">kontakt@krydsbyg.com</td><td>Resend (sandbox)</td></tr>
+          <tr><td>Admin bekræfter medarbejder</td><td class="mono">medarbejderens egen e-mail</td><td>Resend — 6-cifret kode</td></tr>
+          <tr><td>Feed-broadcast fra /admin/feed</td><td class="mono">alle bekræftede medarbejdere</td><td>Resend — BCC</td></tr>
+        </tbody>
+      </table>
+      <div class="warn-banner">
+        <span class="icon">⚠</span>
+        <span class="txt"><b>Resend sandbox aktiv</b> — indtil <span class="path">krydsbyg.com</span> er verificeret i Resend, kan udgående e-mails kun leveres til verificerede modtagere. Tilføj DNS-records og verificér domænet før lancering.</span>
+      </div>
+    </section>
+
+    <!-- BRAND COLORS -->
+    <section class="card ok">
+      <div class="card-head">
+        <h2>Brand — farvepalette</h2>
+        <span class="status-pill ok">✓ OK</span>
+      </div>
+
+      <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px;">Mørkt tema (default)</p>
+      <div class="swatch-row" style="margin-bottom:18px;">
+        <div class="swatch"><div class="chip" style="background:#0C0C0A"></div><div class="info"><b>Black</b><span>#0C0C0A</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#1E1E1C"></div><div class="info"><b>Gray</b><span>#1E1E1C</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#F5C400"></div><div class="info"><b>Yellow</b><span>#F5C400</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#F2EEE6"></div><div class="info"><b>Cream</b><span>#F2EEE6</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#888880"></div><div class="info"><b>Muted</b><span>#888880</span></div></div>
+      </div>
+
+      <p class="muted cond" style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px;">Lyst tema</p>
+      <div class="swatch-row">
+        <div class="swatch"><div class="chip" style="background:#F4F0E8"></div><div class="info"><b>BG</b><span>#F4F0E8</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#E0DBD3"></div><div class="info"><b>Surface</b><span>#E0DBD3</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#F5C400"></div><div class="info"><b>Yellow</b><span>#F5C400</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#1A1918"></div><div class="info"><b>Text</b><span>#1A1918</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#6B6760"></div><div class="info"><b>Muted</b><span>#6B6760</span></div></div>
+      </div>
+    </section>
+
+    <!-- MOBILE FRAME + ESTIMATOR -->
+    <div class="grid-2">
+      <section class="card ok">
+        <div class="card-head">
+          <h2>Mobile — bottom nav</h2>
+          <span class="status-pill ok">✓ OK</span>
+        </div>
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="phone-screen">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <svg width="32" height="32" viewBox="0 0 90 90">
+                <line x1="18" y1="18" x2="72" y2="72" stroke="#F5C400" stroke-width="20" stroke-linecap="round"/>
+                <line x1="72" y1="18" x2="18" y2="72" stroke="#F2EEE6" stroke-width="20" stroke-linecap="round"/>
               </svg>
-              <span class="font-cond font-black text-[16px] uppercase text-cream"><span class="text-yellow">K</span>RYDS</span>
+              <div class="cond" style="font-weight:900;font-size:18px;letter-spacing:.04em;text-transform:uppercase;">
+                <span style="color:var(--yellow)">K</span><span style="color:var(--cream)">RYDS</span>
+              </div>
             </div>
-            <span class="font-cond text-[9px] tracking-widest uppercase text-muted">Preview</span>
-          </header>
-          <section class="px-5 pt-5 pb-3">
-            <p class="font-cond font-semibold text-[10px] tracking-widest uppercase text-yellow mb-2">Velkommen</p>
-            <h1 class="font-cond font-black text-[38px] leading-[.95] uppercase text-cream">Sæt et kryds<br><span class="text-yellow">i kalenderen</span></h1>
-          </section>
-          <section class="px-5 py-3 flex flex-col gap-3" id="mobileTiles"></section>
-          <section class="px-5 py-3">
-            <p class="font-cond font-extrabold text-[11px] tracking-[.2em] uppercase text-muted mb-2">Hurtig booking</p>
-            <div class="bg-gray border border-theme rounded-[12px] p-3">
-              <input type="tel" placeholder="Dit telefonnummer" class="w-full bg-black border border-theme rounded-[8px] px-3 py-2 text-cream text-[13px] outline-none mb-2" />
-              <button class="w-full bg-yellow text-black font-cond font-extrabold text-[13px] tracking-widest uppercase py-[11px] rounded-[10px]">Send forespørgsel →</button>
+            <h3 class="cond" style="font-size:28px;font-weight:900;text-transform:uppercase;line-height:.95;margin:20px 0 8px;color:var(--cream);">
+              Sæt et kryds<br><span style="color:var(--yellow)">i kalenderen</span>
+            </h3>
+            <p style="color:var(--muted);font-size:13px;margin:0 0 20px;">Erfarne byggefolk i København — klar til at tage fat.</p>
+            <div style="background:var(--yellow);color:#0C0C0A;padding:12px 14px;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:14px;letter-spacing:.04em;margin-bottom:10px;">
+              Bestil personale →
             </div>
-          </section>
+            <div style="background:rgba(245,196,0,.08);border:1px solid rgba(245,196,0,.28);color:var(--cream);padding:10px 14px;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;">
+              <span>Ledige vagter</span>
+              <span style="color:var(--yellow)">→</span>
+            </div>
+          </div>
+          <div class="phone-bottom">
+            <div class="phone-nav-item active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+              <span>Hjem</span>
+            </div>
+            <div class="phone-nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+              <span>Book</span>
+            </div>
+            <div class="phone-nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg>
+              <span>Ring</span>
+            </div>
+          </div>
         </div>
-        <!-- Bottom nav: 3 items -->
-        <nav class="absolute bottom-0 left-0 right-0 flex items-center border-t border-theme" style="background:var(--color-black2); height:62px;">
-          <div class="flex-1 flex flex-col items-center text-yellow">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
-            <span class="font-cond font-bold text-[9px] tracking-widest uppercase mt-1">Hjem</span>
-          </div>
-          <div class="flex-1 flex flex-col items-center text-muted">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
-            <span class="font-cond font-bold text-[9px] tracking-widest uppercase mt-1">Book</span>
-          </div>
-          <div class="flex-1 flex flex-col items-center text-muted">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg>
-            <span class="font-cond font-bold text-[9px] tracking-widest uppercase mt-1">Ring</span>
-          </div>
-        </nav>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <footer class="text-center text-[12px] text-muted pt-10 pb-4 border-t border-theme">
-    KrydsByg · Preview-side · Uden server-afhængigheder
-  </footer>
-</main>
+      <section class="card ok">
+        <div class="card-head">
+          <h2>Booking — Momondo-style estimator</h2>
+          <span class="status-pill ok">✓ OK</span>
+        </div>
+        <div class="est">
+          <h4>Estimér din opgave</h4>
+
+          <div class="slider-row">
+            <label><span>Antal folk</span><b>3 folk</b></label>
+            <div class="track"><div class="fill" style="width:30%"></div><div class="thumb" style="left:30%"></div></div>
+          </div>
+
+          <div class="slider-row">
+            <label><span>Varighed</span><b>5 dage</b></label>
+            <div class="track"><div class="fill" style="width:45%"></div><div class="thumb" style="left:45%"></div></div>
+          </div>
+
+          <div class="slider-row">
+            <label><span>Timer/dag</span><b>8 t</b></label>
+            <div class="track"><div class="fill" style="width:67%"></div><div class="thumb" style="left:67%"></div></div>
+          </div>
+
+          <div class="total">
+            <span class="lbl">Estimat</span>
+            <span class="val">~ 24.600 kr</span>
+          </div>
+          <p class="muted" style="font-size:11px;margin:10px 0 0;text-align:center;">
+            Inkl. Kryds-gebyr. Endelig pris bekræftes efter samtale.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <footer class="page-footer">
+      KrydsByg.com · Systemoverblik · Genereret statisk · Åbn /preview.html lokalt for at se.
+    </footer>
+  </div>
 
 <script>
-  // Swatch data
-  const darkColors = [
-    ["--color-black", "#0C0C0A"],
-    ["--color-black2", "#111110"],
-    ["--color-gray", "#1E1E1C"],
-    ["--color-gray2", "#2A2A28"],
-    ["--color-yellow", "#F5C400"],
-    ["--color-cream", "#F2EEE6"],
-    ["--color-muted", "#888880"],
-    ["--border", "rgba(242,238,230,.07)"],
-  ];
-  const lightColors = [
-    ["--color-black", "#F4F0E8"],
-    ["--color-black2", "#ECE6DB"],
-    ["--color-gray", "#E0DBD3"],
-    ["--color-gray2", "#D3CDC4"],
-    ["--color-yellow", "#F5C400"],
-    ["--color-cream", "#1A1918"],
-    ["--color-muted", "#6B6760"],
-    ["--border", "rgba(26,25,24,.10)"],
-  ];
-
-  function renderSwatches(target, list) {
-    const el = document.querySelector(`[data-swatches="${target}"]`);
-    if (!el) return;
-    el.innerHTML = list.map(([name, val]) => `
-      <div class="rounded-sm overflow-hidden border border-theme">
-        <div style="background:${val}; height:56px;"></div>
-        <div class="p-2 bg-gray">
-          <p class="font-cond font-bold text-[10px] tracking-widest uppercase text-cream">${name}</p>
-          <p class="text-[10px] text-muted font-mono">${val}</p>
-        </div>
-      </div>
-    `).join("");
-  }
-  renderSwatches("dark", darkColors);
-  renderSwatches("light", lightColors);
-
-  // Branch cards
-  const BRANCHES = [
-    ["01", "Byggeprojekter", "Renovering & byggeri",   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80"],
-    ["02", "Maling & spartling", "Maling & spartling", "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80"],
-    ["03", "Flytte & montere", "Flytning & montering", "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"],
-    ["04", "Havearbejde", "Have & anlægsgartneri",     "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80"],
-    ["05", "Events & scener", "Events & scene",        "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80"],
-    ["06", "Nedrivning & rydning", "Nedrivning",       "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80"],
-    ["07", "Flise & anlæg", "Fliser & anlæg",          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80"],
-  ];
-  const grid = document.getElementById("branchGrid");
-  grid.innerHTML = BRANCHES.map(([num, name, sub, img]) => `
-    <div class="branch-card" style="background-image:url('${img}'); filter:none;">
-      <div class="content h-full flex flex-col justify-between p-5">
-        <span class="font-cond font-bold text-[11px] tracking-widest text-cream opacity-70">— ${num}</span>
-        <div>
-          <h4 class="font-cond font-extrabold text-[22px] uppercase text-cream leading-tight drop-shadow">${name}</h4>
-          <p class="font-cond font-semibold text-[11px] tracking-widest uppercase text-yellow mt-1">${sub}</p>
-        </div>
-      </div>
-    </div>
-  `).join("");
-
-  // Mobile tiles (first 3 branches)
-  const mt = document.getElementById("mobileTiles");
-  mt.innerHTML = BRANCHES.slice(0,3).map(([num, name, sub, img]) => `
-    <div class="relative overflow-hidden rounded-[14px] border border-theme" style="height:140px; background-image:url('${img}'); background-size:cover; background-position:center;">
-      <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(12,12,10,.8), rgba(12,12,10,.2) 60%, transparent);"></div>
-      <span class="absolute top-3 right-3 font-cond font-bold text-[10px] tracking-widest uppercase bg-yellow text-black px-2 py-1 rounded-full">Book →</span>
-      <span class="absolute top-3 left-3 font-cond font-bold text-[10px] tracking-widest text-cream opacity-70">— ${num}</span>
-      <div class="absolute bottom-0 left-0 right-0 p-3">
-        <h5 class="font-cond font-extrabold text-[16px] uppercase text-cream leading-tight">${name}</h5>
-        <p class="text-[11px] text-muted">${sub}</p>
-      </div>
-    </div>
-  `).join("");
-
-  // Theme toggle
-  document.getElementById("themeToggle").addEventListener("click", () => {
+  function toggleTheme() {
     const html = document.documentElement;
-    html.dataset.theme = html.dataset.theme === "dark" ? "light" : "dark";
-  });
+    const btn = document.getElementById("themeBtn");
+    const curr = html.getAttribute("data-theme");
+    const next = curr === "dark" ? "light" : "dark";
+    html.setAttribute("data-theme", next);
+    btn.textContent = next === "dark" ? "☾ Mørk" : "☀ Lys";
+  }
 </script>
 </body>
 </html>

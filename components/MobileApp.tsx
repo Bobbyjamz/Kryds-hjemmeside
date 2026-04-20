@@ -211,6 +211,41 @@ export default function MobileApp() {
         </a>
       </div>
 
+      {/* ── LEDIGE VAGTER CHIP ── */}
+      <div className="px-5 pt-3 pb-1">
+        <a
+          href="/vagter"
+          className="flex items-center justify-between gap-3 px-4 py-[11px] rounded-[12px] no-underline transition-transform active:scale-[.98]"
+          style={{
+            background: "color-mix(in srgb, var(--color-yellow) 8%, transparent)",
+            border: "1px solid rgba(245,196,0,.28)",
+            color: "var(--color-cream)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span
+              className="w-8 h-8 rounded-[9px] flex items-center justify-center"
+              style={{ background: "rgba(245,196,0,.15)" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                <path d="M3 9h18M8 3v4M16 3v4"/>
+                <path d="M8 14l2 2 4-4"/>
+              </svg>
+            </span>
+            <div className="flex flex-col">
+              <strong className="font-condensed font-extrabold text-[13px] tracking-[.04em] uppercase leading-none">
+                {isDA ? "Ledige vagter" : "Open shifts"}
+              </strong>
+              <span className="text-[11px] text-muted mt-[2px] leading-none">
+                {isDA ? "Se alle åbne vagter" : "See all open shifts"}
+              </span>
+            </div>
+          </div>
+          <span className="text-yellow font-condensed font-bold text-[13px]">→</span>
+        </a>
+      </div>
+
       {/* ── SERVICE TILES CAROUSEL ── */}
       <section className="pt-6 pb-2" id="appServices">
         <div className="flex items-center justify-between px-5 mb-[14px]">
