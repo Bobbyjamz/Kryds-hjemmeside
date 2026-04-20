@@ -1,0 +1,30 @@
+[
+  {
+    "id": "testshift001",
+    "title": "Byggepladshjælp — testvagt",
+    "trade": "HANDYMAN",
+    "location": "Østerbro, København",
+    "startAt": "2026-04-20T07:00:00.000Z",
+    "endAt": "2026-04-20T15:00:00.000Z",
+    "hourlyRate": 180,
+    "description": "Oprydning og simpel byggepladshjælp. Kræver arbejdstøj og sikkerhedssko. Testvagt — bruges til at verificere flow fra admin til medarbejder.",
+    "signups": [],
+    "status": "OPEN",
+    "createdAt": "2026-04-14T00:00:00.000Z",
+    "updatedAt": "2026-04-14T00:00:00.000Z"
+  },
+  {
+    "id": "testshift002",
+    "title": "Malerhjælp — testvagt 2",
+    "trade": "Maling & spartling",
+    "location": "Nørrebro, København",
+    "startAt": "2026-04-22T07:00:00.000Z",
+    "endAt": "2026-04-22T15:00:00.000Z",
+    "hourlyRate": 220,
+    "description": "Malerhjælp på renoveringsprojekt. Spartling og vægmaling. Testvagt til flow-verificering.",
+    "signups": [],
+    "status": "OPEN",
+    "createdAt": "2026-04-19T12:00:00.000Z",
+    "updatedAt": "2026-04-19T12:00:00.000Z"
+  }
+]

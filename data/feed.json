@@ -1,0 +1,18 @@
+[
+  {
+    "id": "feed_welcome_001",
+    "title": "Velkommen til Kryds! 👋",
+    "body": "Hej og velkommen til Kryds-platformen. Her finder du alle åbne vagter og kan tilmelde dig dem, der passer din kalender. Vi sender også vigtige opdateringer i dette feed — hold øje med det regelmæssigt.\n\nHusk:\n• Mød altid op til tiden og i ordentligt arbejdstøj.\n• Meld afbud mindst 24 timer før, hvis du ikke kan møde.\n• Hav sikkerhedssko og egnet tøj klar til hver vagt.\n\nRing til Krystian på +45 42 70 01 20, hvis du har spørgsmål. Vi glæder os til at arbejde sammen!",
+    "authorName": "Kryds team",
+    "priority": "normal",
+    "createdAt": "2026-04-20T08:00:00.000Z"
+  },
+  {
+    "id": "feed_testshift_notice_002",
+    "title": "Ny testvagt på Nørrebro 🛠️",
+    "body": "Vi har åbnet en ny testvagt i Malerhjælp den 22. april 2026 (kl. 07:00–15:00) på Nørrebro. Løn 220 kr/t. Log ind og tag den, hvis du er ledig — først til mølle.",
+    "authorName": "Kryds team",
+    "priority": "urgent",
+    "createdAt": "2026-04-20T08:05:00.000Z"
+  }
+]

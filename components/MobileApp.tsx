@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -48,6 +48,29 @@ export default function MobileApp() {
   const [formState, setFormState] = useState<FormState>("idle");
   const [menuOpen, setMenuOpen] = useState(false);
   const bookRef = useRef<HTMLElement>(null);
+  const branchScrollRef = useRef<HTMLDivElement>(null);
+  const branchPausedRef = useRef(false);
+  const branchRafRef = useRef<number>(0);
+
+  // Infinite auto-scroll for branch tiles (mirrors desktop BranchCarousel)
+  useEffect(() => {
+    const view = branchScrollRef.current;
+    if (!view) return;
+    function tick() {
+      if (view && !branchPausedRef.current) {
+        const half = view.scrollWidth / 2;
+        if (half > 0) {
+          view.scrollLeft += 0.6;
+          if (view.scrollLeft >= half) {
+            view.scrollLeft -= half;
+          }
+        }
+      }
+      branchRafRef.current = requestAnimationFrame(tick);
+    }
+    branchRafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(branchRafRef.current);
+  }, []);
 
   // Compute duration
   const duration = (() => {
@@ -258,19 +281,25 @@ export default function MobileApp() {
             Swipe →
           </span>
         </div>
-        <div className="flex gap-3 overflow-x-auto px-5 pb-1" style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}>
-          {SERVICE_TILES.map((tile, i) => {
+        <div
+          ref={branchScrollRef}
+          className="flex gap-3 overflow-x-auto px-5 pb-1"
+          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+          onTouchStart={() => { branchPausedRef.current = true; }}
+          onTouchEnd={() => { branchPausedRef.current = false; }}
+          onTouchCancel={() => { branchPausedRef.current = false; }}
+        >
+          {[...SERVICE_TILES, ...SERVICE_TILES].map((tile, i) => {
             const img = BRANCH_IMGS[i % BRANCH_IMGS.length];
             return (
               <button
-                key={tile.cat}
+                key={`${tile.cat}-${i}`}
                 onClick={() => prefillAndScroll(tile.cat)}
                 className="app-service-tile flex-shrink-0 relative overflow-hidden rounded-[16px] text-left transition-all active:scale-[.96]"
                 style={{
-                  width: "90vw",
-                  maxWidth: 320,
+                  width: "78vw",
+                  maxWidth: 300,
                   height: 200,
-                  scrollSnapAlign: "start",
                   border: "1px solid rgba(242,238,230,.07)",
                   color: "var(--color-cream)",
                   background: "var(--color-gray)",
@@ -338,19 +367,38 @@ export default function MobileApp() {
             <>
               {/* Date range */}
               <div className="flex items-stretch rounded-[12px] overflow-hidden mb-3" style={{ background: "var(--color-black)", border: "1px solid var(--border)" }}>
-                <div className="flex-1 flex flex-col gap-1 p-[10px] px-3">
-                  <label className="font-condensed font-bold text-[9px] tracking-[.2em] uppercase text-yellow">{isDA ? "Fra" : "From"}</label>
-                  <input type="date" value={dateStart} onChange={e => setDateStart(e.target.value)}
-                    className="bg-transparent border-none text-cream font-sans text-[14px] outline-none p-0 appearance-none"
-                    style={{ colorScheme: theme === "dark" ? "dark" : "light" }} />
-                </div>
-                <div className="flex items-center justify-center px-[6px] text-yellow text-[16px]" style={{ borderLeft: "1px solid var(--border)", borderRight: "1px solid var(--border)" }}>→</div>
-                <div className="flex-1 flex flex-col gap-1 p-[10px] px-3">
-                  <label className="font-condensed font-bold text-[9px] tracking-[.2em] uppercase text-yellow">{isDA ? "Til" : "To"}</label>
-                  <input type="date" value={dateEnd} onChange={e => setDateEnd(e.target.value)}
-                    className="bg-transparent border-none text-cream font-sans text-[14px] outline-none p-0 appearance-none"
-                    style={{ colorScheme: theme === "dark" ? "dark" : "light" }} />
-                </div>
+                <label className="flex-1 flex flex-col gap-1 p-[10px] px-3 cursor-pointer relative">
+                  <span className="font-condensed font-bold text-[9px] tracking-[.2em] uppercase text-yellow pointer-events-none">{isDA ? "Fra" : "From"}</span>
+                  <input
+                    type="date"
+                    value={dateStart}
+                    onChange={e => setDateStart(e.target.value)}
+                    className="bg-transparent border-none text-cream font-sans text-[14px] outline-none w-full cursor-pointer"
+                    style={{
+                      colorScheme: theme === "dark" ? "dark" : "light",
+                      WebkitAppearance: "none",
+                      minHeight: 28,
+                      padding: 0,
+                    }}
+                  />
+                </label>
+                <div className="flex items-center justify-center px-[6px] text-yellow text-[16px] pointer-events-none" style={{ borderLeft: "1px solid var(--border)", borderRight: "1px solid var(--border)" }}>→</div>
+                <label className="flex-1 flex flex-col gap-1 p-[10px] px-3 cursor-pointer relative">
+                  <span className="font-condensed font-bold text-[9px] tracking-[.2em] uppercase text-yellow pointer-events-none">{isDA ? "Til" : "To"}</span>
+                  <input
+                    type="date"
+                    value={dateEnd}
+                    onChange={e => setDateEnd(e.target.value)}
+                    min={dateStart || undefined}
+                    className="bg-transparent border-none text-cream font-sans text-[14px] outline-none w-full cursor-pointer"
+                    style={{
+                      colorScheme: theme === "dark" ? "dark" : "light",
+                      WebkitAppearance: "none",
+                      minHeight: 28,
+                      padding: 0,
+                    }}
+                  />
+                </label>
               </div>
 
               {duration && (

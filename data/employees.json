@@ -1,0 +1,159 @@
+[
+  {
+    "id": "test0001",
+    "name": "Test Medarbejder",
+    "phone": "11111111",
+    "email": "krys00305@gmail.com",
+    "birthDate": "2001-01-01",
+    "trade": "BYGGEHJAELPER",
+    "skills": [
+      "Nedrivning",
+      "Oprydning",
+      "Håndlanger"
+    ],
+    "experience": "3 års erfaring som byggehjælper i København.",
+    "notes": "Testbruger oprettet til login-test.",
+    "references": [],
+    "status": "LEDIG",
+    "employeeType": "MEDARBEJDER",
+    "acceptedTerms": true,
+    "acceptedAt": "2026-04-11T00:00:00.000Z",
+    "contractVersion": "v1-2026-04",
+    "createdAt": "2026-04-11T00:00:00.000Z",
+    "updatedAt": "2026-04-13T05:37:22.678Z",
+    "confirmationCode": "865801",
+    "confirmed": true,
+    "confirmedAt": "2026-04-13T05:37:22.678Z"
+  },
+  {
+    "id": "9ea78f5af1c362b8",
+    "name": "Test Medarbejder",
+    "phone": "+45 20 11 22 33",
+    "email": "test.medarbejder@example.com",
+    "birthDate": "1995-06-15",
+    "trade": "Renovering",
+    "skills": [
+      "Nedrivning",
+      "Murerarbejde",
+      "Malerarbejde"
+    ],
+    "experience": "5+ års erfaring med renoveringsopgaver i hovedstadsområdet.",
+    "notes": "Kan møde på kort varsel. Har egen bil.",
+    "photoPath": "/uploads/photo/252b493504c51996.png",
+    "cvPath": "/uploads/cv/3eaa97c81764e049.pdf",
+    "references": [
+      {
+        "name": "Ole Olsen",
+        "phone": "+45 30 40 50 60",
+        "relation": "Tidligere formand"
+      }
+    ],
+    "status": "LEDIG",
+    "employeeType": "MEDARBEJDER",
+    "acceptedTerms": true,
+    "acceptedAt": "2026-04-16T08:09:46.131Z",
+    "contractVersion": "v1-2026-04",
+    "createdAt": "2026-04-16T08:09:46.131Z",
+    "updatedAt": "2026-04-16T08:09:46.131Z"
+  },
+  {
+    "id": "a1b2c3d4e5f60718",
+    "name": "Mikkel Sørensen",
+    "phone": "+45 31 22 44 77",
+    "email": "krys00305@gmail.com",
+    "birthDate": "1988-03-22",
+    "trade": "Maling & spartling",
+    "skills": [
+      "Vægmaling",
+      "Spartling",
+      "Loftmaling",
+      "Tapetsering"
+    ],
+    "experience": "8 års erfaring som maler i København og omegn. Vant til både private hjem og byggepladser.",
+    "notes": "Har eget stillads og malerværktøj. Kører selv til pladsen.",
+    "photoPath": "/uploads/photo/252b493504c51996.png",
+    "cvPath": "/uploads/cv/3eaa97c81764e049.pdf",
+    "references": [
+      {
+        "name": "Henrik Madsen",
+        "phone": "+45 28 55 66 77",
+        "company": "Madsen Malerfirma",
+        "relation": "Tidligere arbejdsgiver"
+      }
+    ],
+    "status": "LEDIG",
+    "employeeType": "MEDARBEJDER",
+    "acceptedTerms": true,
+    "acceptedAt": "2026-04-18T10:15:00.000Z",
+    "contractVersion": "v1-2026-04",
+    "createdAt": "2026-04-18T10:15:00.000Z",
+    "updatedAt": "2026-04-18T10:15:00.000Z",
+    "confirmationCode": "432198",
+    "confirmed": true,
+    "confirmedAt": "2026-04-18T10:20:00.000Z"
+  },
+  {
+    "id": "b7c8d9e0f1a2b3c4",
+    "name": "Lars Pedersen",
+    "phone": "+45 26 77 88 99",
+    "email": "krys00305@gmail.com",
+    "birthDate": "1992-11-08",
+    "trade": "Flise & anlæg",
+    "skills": [
+      "Flisemontering",
+      "Belægning",
+      "Terrasse",
+      "Drænarbejde"
+    ],
+    "experience": "6 års erfaring med fliselægning og havearbejde. Specialist i natursten og klinker.",
+    "notes": "Arbejder hurtigt og præcist. Tager gerne weekendvagter.",
+    "photoPath": "/uploads/photo/252b493504c51996.png",
+    "cvPath": "/uploads/cv/3eaa97c81764e049.pdf",
+    "references": [
+      {
+        "name": "Jens Nielsen",
+        "phone": "+45 22 33 44 55",
+        "company": "Nielsen Anlæg ApS",
+        "relation": "Kollega"
+      }
+    ],
+    "status": "LEDIG",
+    "employeeType": "MEDARBEJDER",
+    "acceptedTerms": true,
+    "acceptedAt": "2026-04-19T09:30:00.000Z",
+    "contractVersion": "v1-2026-04",
+    "createdAt": "2026-04-19T09:30:00.000Z",
+    "updatedAt": "2026-04-19T09:30:00.000Z",
+    "confirmationCode": "781654",
+    "confirmed": true,
+    "confirmedAt": "2026-04-19T09:35:00.000Z"
+  },
+  {
+    "id": "73c31110dc343dc2",
+    "name": "E2E Test Bruger",
+    "phone": "+45 99 99 99 99",
+    "email": "krys00305@gmail.com",
+    "birthDate": "1990-05-15",
+    "trade": "Renovering",
+    "skills": [
+      "Maling",
+      "Spartling"
+    ],
+    "experience": "5 års erfaring fra byggepladser i København.",
+    "notes": "E2E test note",
+    "references": [
+      {
+        "name": "Test Ref",
+        "company": "RefCo",
+        "phone": "+45 12 12 12 12"
+      }
+    ],
+    "status": "LEDIG",
+    "employeeType": "MEDARBEJDER",
+    "acceptedTerms": true,
+    "acceptedAt": "2026-04-20T07:16:01.431Z",
+    "contractVersion": "v1-2026-04",
+    "createdAt": "2026-04-20T07:16:01.431Z",
+    "updatedAt": "2026-04-20T07:16:01.431Z"
+  }
+]

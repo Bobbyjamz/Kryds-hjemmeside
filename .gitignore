@@ -34,7 +34,10 @@ dev.log
 .vercel
 
 # kryds data & uploads
-/data
+# /data — seeded JSON files are committed so prod dashboard has initial data.
+# On Vercel serverless filesystem is read-only post-deploy; for persistent
+# writes migrate to a real DB. Analytics grows, so that single file stays ignored.
+/data/analytics.json
 /public/uploads
 
 # typescript
