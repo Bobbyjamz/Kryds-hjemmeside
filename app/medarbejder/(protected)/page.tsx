@@ -61,14 +61,26 @@ export default function MedarbejderDashboard() {
 
   return (
     <div>
-      <div className="mb-10">
+      <div id="emp-home" className="mb-8 min-[700px]:mb-10 scroll-mt-[72px]">
         <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Dit dashboard</p>
-        <h1 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">Hej {data.employee.name.split(" ")[0]}</h1>
+        <h1 className="font-condensed font-black text-[34px] min-[700px]:text-[44px] uppercase tracking-[-.01em] text-cream leading-none">Hej {data.employee.name.split(" ")[0]}</h1>
         <p className="text-[14px] text-muted mt-2">Dit fag: <span className="text-cream">{tradeLabel}</span></p>
+
+        {/* Quick stats */}
+        <div className="grid grid-cols-2 gap-3 mt-5 min-[700px]:hidden">
+          <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[10px] p-4">
+            <p className="font-condensed font-semibold text-[10px] tracking-[.18em] uppercase text-muted">Mine vagter</p>
+            <p className="font-condensed font-black text-[28px] text-yellow leading-none mt-1">{data.mine.length}</p>
+          </div>
+          <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[10px] p-4">
+            <p className="font-condensed font-semibold text-[10px] tracking-[.18em] uppercase text-muted">Åbne vagter</p>
+            <p className="font-condensed font-black text-[28px] text-cream leading-none mt-1">{data.open.length}</p>
+          </div>
+        </div>
       </div>
 
       {feed.length > 0 && (
-        <section className="mb-10">
+        <section id="emp-feed" className="mb-10 scroll-mt-[72px]">
           <h2 className="font-condensed font-extrabold text-[18px] uppercase tracking-[.04em] text-cream mb-4">
             Beskeder fra Kryds
           </h2>
@@ -104,8 +116,8 @@ export default function MedarbejderDashboard() {
         </section>
       )}
 
-      <section className="mb-12">
-        <h2 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.04em] text-cream mb-4">Mine vagter</h2>
+      <section id="emp-mine" className="mb-12 scroll-mt-[72px]">
+        <h2 className="font-condensed font-extrabold text-[20px] min-[700px]:text-[22px] uppercase tracking-[.04em] text-cream mb-4">Mine vagter</h2>
         {data.mine.length === 0 ? (
           <p className="text-muted text-[14px]">Du har ikke budt ind på nogen vagter endnu.</p>
         ) : (
@@ -138,8 +150,8 @@ export default function MedarbejderDashboard() {
         )}
       </section>
 
-      <section>
-        <h2 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.04em] text-cream mb-4">Åbne vagter i dit fag</h2>
+      <section id="emp-open" className="scroll-mt-[72px]">
+        <h2 className="font-condensed font-extrabold text-[20px] min-[700px]:text-[22px] uppercase tracking-[.04em] text-cream mb-4">Åbne vagter i dit fag</h2>
         {data.open.length === 0 ? (
           <p className="text-muted text-[14px]">Der er ingen åbne vagter lige nu. Tjek tilbage senere.</p>
         ) : (

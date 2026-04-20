@@ -131,7 +131,7 @@ export default function VagterListPage() {
             <textarea className={inputClass + " min-h-[80px] resize-y"} value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           {error && <p className="text-red-400 text-[13px] mb-3">{error}</p>}
-          <button type="submit" disabled={creating} className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-6 py-3 rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-50">
+          <button type="submit" disabled={creating} className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-6 py-3 rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-50 max-[700px]:w-full" style={{ minHeight: 44 }}>
             {creating ? "Opretter..." : "Opret vagt"}
           </button>
         </form>

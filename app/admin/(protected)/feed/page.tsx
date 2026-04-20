@@ -90,9 +90,9 @@ export default function AdminFeedPage() {
 
   return (
     <div>
-      <div className="mb-10">
+      <div className="mb-10 max-[700px]:mb-6">
         <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Feed</p>
-        <h1 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">
+        <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[28px] uppercase tracking-[-.01em] text-cream leading-none break-words">
           Meddelelser til personalet
         </h1>
         <p className="text-[14px] text-muted mt-3 max-w-[540px]">
@@ -155,11 +155,12 @@ export default function AdminFeedPage() {
                 Send email til alle medarbejdere
               </label>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <button
                 type="submit"
                 disabled={status === "sending"}
                 className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-6 py-[11px] rounded-[2px] hover:bg-yellow2 disabled:opacity-40 transition-colors"
+                style={{ minHeight: 44 }}
               >
                 {status === "sending" ? "Sender..." : "Gem besked"}
               </button>

@@ -12,11 +12,12 @@ import {
 const BRANCHES = [
   { num: "01", nameKey: "branch_1_name", subKey: "branch_1_sub", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" },
   { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80" },
-  { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80" },
-  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
-  { num: "05", nameKey: "branch_5_name", subKey: "branch_5_sub", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80" },
-  { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", img: "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80" },
-  { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" },
+  { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
+  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1572297794422-b02f9eafd1b6?w=900&q=80" },
+  { num: "05", nameKey: "branch_5_name", subKey: "branch_5_sub", img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=900&q=80" },
+  { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" },
+  { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", img: "https://images.unsplash.com/photo-1590725121839-892b458a74fe?w=900&q=80" },
+  { num: "08", nameKey: "branch_8_name", subKey: "branch_8_sub", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&q=80" },
 ];
 
 // Double for seamless loop
@@ -36,6 +37,7 @@ const SCOPE_HOURS: Record<string, Record<Scope, number>> = {
   "05": { small: 10, medium: 32, large: 100 }, // Nedrivning
   "06": { small: 14, medium: 48, large: 140 }, // Flise
   "07": { small: 20, medium: 80, large: 240 }, // Byggepladsbehjælp
+  "08": { small: 20, medium: 60, large: 180 }, // Kombineret / andet
 };
 
 function estimateDuration(branchNum: string, scope: Scope, people: number) {

@@ -22,7 +22,7 @@ const CATEGORIES = [
   {
     id: "flytte",
     num: "02",
-    titleKey: "branch_3_name",
+    titleKey: "branch_4_name",
     descKey: "svc_4_desc",
     types: ["Flyttefolk", "Køkkenmontage", "Møbelmontage", "Inventarmontage", "Badeværelse", "Tunge løft"],
     opgavetype: "Flytte & montere",
@@ -31,7 +31,7 @@ const CATEGORIES = [
   {
     id: "events",
     num: "03",
-    titleKey: "branch_5_name",
+    titleKey: "branch_8_name",
     descKey: "svc_8_desc",
     types: ["Sceneopbygning", "Teltopsætning", "Eventhjælpere", "Lys & lyd support", "Nedtagning", "Transport"],
     opgavetype: "Events & scener",

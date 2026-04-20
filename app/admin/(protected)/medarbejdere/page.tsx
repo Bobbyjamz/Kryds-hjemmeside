@@ -63,8 +63,7 @@ export default function MedarbejdereListPage() {
         </div>
         <Link
           href="/tilmeld"
-          target="_blank"
-          className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:bg-yellow2 transition-colors"
+          className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:bg-yellow2 transition-colors inline-flex items-center justify-center"
           style={{ minHeight: 44 }}
         >
           + Ny tilmelding
