@@ -1,0 +1,450 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import type { SarahContact, SarahLog, SarahStatus } from "@/lib/types";
+
+const STATUS_LABELS: Record<SarahStatus, string> = {
+  pending: "Afventer",
+  emailed: "Email sendt",
+  followed_up: "Opfølgning",
+  replied: "Svar",
+  meeting: "Møde",
+  closed: "Lukket",
+};
+
+const STATUS_COLORS: Record<SarahStatus, string> = {
+  pending: "bg-white/10 text-cream/60",
+  emailed: "bg-blue-500/20 text-blue-300",
+  followed_up: "bg-yellow/20 text-yellow",
+  replied: "bg-green-500/20 text-green-300",
+  meeting: "bg-purple-500/20 text-purple-300",
+  closed: "bg-white/5 text-cream/30",
+};
+
+function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
+  return (
+    <div className={`rounded-[4px] border border-[rgba(242,238,230,.08)] p-5 ${color ?? "bg-black2"}`}>
+      <p className="text-[36px] font-condensed font-black text-cream leading-none">{value}</p>
+      <p className="text-[11px] font-condensed font-semibold tracking-[.15em] uppercase text-muted mt-2">{label}</p>
+    </div>
+  );
+}
+
+function Badge({ status }: { status: SarahStatus }) {
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-condensed font-bold tracking-[.1em] uppercase ${STATUS_COLORS[status]}`}>
+      {STATUS_LABELS[status]}
+    </span>
+  );
+}
+
+export default function SarahPage() {
+  const [tab, setTab] = useState<"overview" | "contacts" | "inbox" | "log">("overview");
+  const [contacts, setContacts] = useState<SarahContact[]>([]);
+  const [log, setLog] = useState<SarahLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [running, setRunning] = useState<string | null>(null);
+  const [runResult, setRunResult] = useState<string | null>(null);
+  const [uploadResult, setUploadResult] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [filterStatus, setFilterStatus] = useState<SarahStatus | "all">("all");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const load = async () => {
+    try {
+      const r = await fetch("/api/admin/sarah/run");
+      if (r.ok) {
+        const d = await r.json();
+        setContacts(d.contacts ?? []);
+        setLog(d.log ?? []);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const stats = {
+    pending: contacts.filter((c) => c.status === "pending").length,
+    emailed: contacts.filter((c) => c.status === "emailed").length,
+    followed_up: contacts.filter((c) => c.status === "followed_up").length,
+    replied: contacts.filter((c) => c.status === "replied").length,
+    meeting: contacts.filter((c) => c.status === "meeting").length,
+  };
+
+  const isActive = (() => {
+    const now = new Date();
+    return now.getDay() > 0 && now.getDay() < 6 && now.getHours() >= 8 && now.getHours() < 17;
+  })();
+
+  const uploadFile = async (file: File) => {
+    setUploadResult("Importerer...");
+    const fd = new FormData();
+    fd.append("file", file);
+    const r = await fetch("/api/admin/sarah/upload", { method: "POST", body: fd });
+    const d = await r.json();
+    if (d.ok) {
+      setUploadResult(`✓ ${d.imported} importeret, ${d.skipped} sprunget over`);
+      await load();
+    } else {
+      setUploadResult(`Fejl: ${d.error}`);
+    }
+  };
+
+  const runSarah = async (mode: string) => {
+    setRunning(mode);
+    setRunResult(null);
+    const r = await fetch("/api/admin/sarah/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode }),
+    });
+    const d = await r.json();
+    setRunning(null);
+    if (d.ok) {
+      setRunResult(
+        mode === "email"
+          ? `Sarah sendte ${d.emailsSent} emails`
+          : `${d.followUpsSent} opfølgninger sendt`
+      );
+      await load();
+    } else {
+      setRunResult(`Fejl: ${d.error}`);
+    }
+  };
+
+  const deleteContact = async (id: string) => {
+    if (!confirm("Slet denne kontakt?")) return;
+    await fetch("/api/admin/sarah/contacts", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  const proposeMeeting = async (contactId: string, proposedTime: string) => {
+    await fetch("/api/admin/sarah/meeting", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contactId, proposedTime }),
+    });
+    alert("Møde-forslag registreret");
+  };
+
+  const filtered = filterStatus === "all"
+    ? contacts
+    : contacts.filter((c) => c.status === filterStatus);
+
+  const TabBtn = ({ id, label, count }: { id: typeof tab; label: string; count?: number }) => (
+    <button
+      onClick={() => setTab(id)}
+      className={`font-condensed font-semibold text-[11px] tracking-[.18em] uppercase px-4 py-3 border-b-2 transition-colors ${
+        tab === id
+          ? "border-yellow text-cream"
+          : "border-transparent text-muted hover:text-cream"
+      }`}
+    >
+      {label}
+      {count !== undefined && count > 0 && (
+        <span className="ml-2 bg-yellow text-black text-[9px] font-black px-1.5 py-0.5 rounded-[2px]">
+          {count}
+        </span>
+      )}
+    </button>
+  );
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">
+            AI OUTREACH
+          </p>
+          <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[32px] uppercase tracking-[-.01em] text-cream leading-none">
+            Sarah ✦
+          </h1>
+          <p className="text-muted text-[13px] mt-2">Autonom outreach-assistent · Council-drevet</p>
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <span className={`inline-flex items-center gap-2 text-[11px] font-condensed font-bold tracking-[.12em] uppercase px-3 py-1.5 rounded-[2px] border ${
+            isActive
+              ? "border-green-500/30 bg-green-500/10 text-green-400"
+              : "border-white/10 bg-white/5 text-muted"
+          }`}>
+            <span className={`w-2 h-2 rounded-full ${isActive ? "bg-green-400 animate-pulse" : "bg-white/20"}`} />
+            {isActive ? "Aktiv" : "Inaktiv"}
+          </span>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-[rgba(242,238,230,.07)] mb-8">
+        <TabBtn id="overview" label="Oversigt" />
+        <TabBtn id="contacts" label="Kontakter" count={contacts.length} />
+        <TabBtn id="inbox" label="Indbakke" count={stats.replied} />
+        <TabBtn id="log" label="Log" count={log.length} />
+      </div>
+
+      {loading && (
+        <p className="text-muted text-[13px]">Indlæser...</p>
+      )}
+
+      {/* ── OVERSIGT ── */}
+      {!loading && tab === "overview" && (
+        <div className="space-y-6">
+          {/* Stats */}
+          <div className="grid grid-cols-5 max-[700px]:grid-cols-2 gap-3">
+            <StatCard label="Afventer" value={stats.pending} />
+            <StatCard label="Emails sendt" value={stats.emailed} color="bg-blue-500/5 border-blue-500/20" />
+            <StatCard label="Opfølgninger" value={stats.followed_up} color="bg-yellow/5 border-yellow/20" />
+            <StatCard label="Svar" value={stats.replied} color="bg-green-500/5 border-green-500/20" />
+            <StatCard label="Møder" value={stats.meeting} color="bg-purple-500/5 border-purple-500/20" />
+          </div>
+
+          {/* Upload */}
+          <div className="rounded-[4px] border border-[rgba(242,238,230,.08)] bg-black2 p-6">
+            <p className="font-condensed font-black text-[13px] tracking-[.15em] uppercase text-cream mb-4">
+              Importer kontakter
+            </p>
+            <div
+              className="border-2 border-dashed border-[rgba(242,238,230,.12)] rounded-[4px] p-10 text-center cursor-pointer hover:border-yellow/40 transition-colors"
+              onClick={() => fileRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) uploadFile(f); }}
+            >
+              <p className="text-[28px] mb-2">📊</p>
+              <p className="text-cream font-condensed font-semibold text-[13px]">Træk .xlsx hertil</p>
+              <p className="text-muted text-[12px] mt-1">
+                eller <span className="text-yellow cursor-pointer">klik for at vælge</span>
+              </p>
+              <p className="text-muted text-[11px] mt-3">
+                Sheet &quot;Partnere&quot; → type=partner · Sheet &quot;Medarbejdere&quot; → type=medarbejder<br />
+                Kolonner: Navn, Email, Firma, Fag
+              </p>
+              <input ref={fileRef} type="file" accept=".xlsx" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f); }} />
+            </div>
+            {uploadResult && (
+              <p className={`mt-3 text-[13px] font-condensed ${uploadResult.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>
+                {uploadResult}
+              </p>
+            )}
+          </div>
+
+          {/* Run buttons */}
+          <div className="rounded-[4px] border border-[rgba(242,238,230,.08)] bg-black2 p-6">
+            <p className="font-condensed font-black text-[13px] tracking-[.15em] uppercase text-cream mb-4">
+              Kør Sarah manuelt
+            </p>
+            <div className="flex gap-3 flex-wrap">
+              {[
+                { mode: "email", label: "✉ Send emails (maks 15)", style: "bg-yellow text-black hover:bg-yellow/90" },
+                { mode: "followup", label: "🔄 Send opfølgninger", style: "bg-black border border-[rgba(242,238,230,.15)] text-cream hover:bg-white/5" },
+              ].map(({ mode, label, style }) => (
+                <button
+                  key={mode}
+                  disabled={running !== null}
+                  onClick={() => runSarah(mode)}
+                  className={`font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] transition-colors disabled:opacity-50 ${style}`}
+                >
+                  {running === mode ? "Kører..." : label}
+                </button>
+              ))}
+            </div>
+            {runResult && (
+              <p className={`mt-3 text-[13px] font-condensed ${runResult.startsWith("Fejl") ? "text-red-400" : "text-green-400"}`}>
+                {runResult}
+              </p>
+            )}
+            <p className="text-muted text-[11px] mt-4">
+              Council rådgiver automatisk Sarah inden hver email · Kræver ANTHROPIC_API_KEY + RESEND_API_KEY
+            </p>
+          </div>
+
+          {/* Schedule */}
+          <div className="rounded-[4px] border border-[rgba(242,238,230,.08)] bg-black2 p-6">
+            <p className="font-condensed font-black text-[13px] tracking-[.15em] uppercase text-cream mb-4">
+              Dagsskema (Vercel Cron)
+            </p>
+            <div className="grid grid-cols-4 max-[700px]:grid-cols-2 gap-2">
+              {[
+                { tid: "08:00", opgave: "Emails til nye kontakter" },
+                { tid: "10:00", opgave: "Council forbedrer emails" },
+                { tid: "13:00", opgave: "Opfølgninger sendes" },
+                { tid: "16:00", opgave: "Daglig rapport" },
+              ].map(({ tid, opgave }) => (
+                <div key={tid} className="border border-[rgba(242,238,230,.06)] rounded-[2px] p-3 text-center">
+                  <p className="font-condensed font-black text-[18px] text-yellow">{tid}</p>
+                  <p className="text-[11px] text-muted mt-1">{opgave}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── KONTAKTER ── */}
+      {!loading && tab === "contacts" && (
+        <div>
+          {/* Filter */}
+          <div className="flex gap-2 mb-6 flex-wrap">
+            {(["all", "pending", "emailed", "followed_up", "replied", "meeting", "closed"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => setFilterStatus(s)}
+                className={`font-condensed font-semibold text-[10px] tracking-[.15em] uppercase px-3 py-1.5 rounded-[2px] border transition-colors ${
+                  filterStatus === s
+                    ? "border-yellow bg-yellow/10 text-yellow"
+                    : "border-[rgba(242,238,230,.1)] text-muted hover:text-cream"
+                }`}
+              >
+                {s === "all" ? "Alle" : STATUS_LABELS[s]}
+              </button>
+            ))}
+          </div>
+
+          {filtered.length === 0 ? (
+            <p className="text-muted text-[13px]">Ingen kontakter — upload et Excel-ark for at komme i gang.</p>
+          ) : (
+            <div className="space-y-1">
+              {filtered.map((c) => (
+                <div key={c.id}>
+                  <div
+                    className="flex items-center gap-4 p-4 rounded-[2px] border border-[rgba(242,238,230,.06)] bg-black2 hover:bg-white/[.02] cursor-pointer"
+                    onClick={() => setExpandedId(expandedId === c.id ? null : c.id)}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-condensed font-bold text-[13px] text-cream truncate">{c.name}</p>
+                      <p className="text-[11px] text-muted truncate">{c.company || c.email}</p>
+                    </div>
+                    <Badge status={c.status} />
+                    <span className={`text-[10px] font-condensed uppercase px-2 py-1 rounded-[2px] border border-[rgba(242,238,230,.08)] text-muted`}>
+                      {c.type === "partner" ? "Partner" : "Medarbejder"}
+                    </span>
+                    <p className="text-[11px] text-muted hidden min-[900px]:block">
+                      {c.emailSentAt ? new Date(c.emailSentAt).toLocaleDateString("da-DK") : "—"}
+                    </p>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deleteContact(c.id); }}
+                      className="text-[10px] text-muted hover:text-red-400 font-condensed uppercase tracking-widest ml-2 transition-colors"
+                    >
+                      Slet
+                    </button>
+                  </div>
+                  {expandedId === c.id && (
+                    <div className="border border-t-0 border-[rgba(242,238,230,.06)] bg-black p-4 rounded-b-[2px] grid grid-cols-2 max-[700px]:grid-cols-1 gap-4 text-[13px]">
+                      <div>
+                        <p className="text-[10px] font-condensed font-bold tracking-[.15em] uppercase text-muted mb-2">Email: {c.email}</p>
+                        {c.generatedEmail ? (
+                          <pre className="whitespace-pre-wrap text-cream/80 bg-white/[.03] p-3 rounded-[2px] text-[12px] leading-relaxed border border-[rgba(242,238,230,.05)]">
+                            {c.generatedEmail}
+                          </pre>
+                        ) : <p className="text-muted">Ingen email genereret endnu.</p>}
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-condensed font-bold tracking-[.15em] uppercase text-muted mb-2">Council-rådgivning</p>
+                        {c.councilAdvice ? (
+                          <div className="bg-yellow/5 border border-yellow/20 p-3 rounded-[2px] text-cream/80 text-[12px] leading-relaxed">
+                            {c.councilAdvice}
+                          </div>
+                        ) : <p className="text-muted">Ingen rådgivning endnu.</p>}
+                        {c.trade && <p className="text-muted text-[11px] mt-2">Fag: {c.trade}</p>}
+                        {c.notes && <p className="text-muted text-[11px] mt-1">{c.notes}</p>}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── INDBAKKE ── */}
+      {!loading && tab === "inbox" && (
+        <div>
+          <p className="text-muted text-[13px] mb-6">
+            Kontakter der har svaret — markér dem manuelt som &apos;replied&apos; via Kontakter-tabben, eller integrer webhook for auto-detektering.
+          </p>
+          {contacts.filter((c) => c.status === "replied").length === 0 ? (
+            <p className="text-muted text-[13px]">Ingen svar endnu.</p>
+          ) : (
+            <div className="space-y-3">
+              {contacts.filter((c) => c.status === "replied").map((c) => (
+                <MeetingRow key={c.id} contact={c} onPropose={proposeMeeting} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── LOG ── */}
+      {!loading && tab === "log" && (
+        <div>
+          {log.length === 0 ? (
+            <p className="text-muted text-[13px]">Loggen er tom endnu.</p>
+          ) : (
+            <div className="space-y-1">
+              {log.slice(0, 100).map((l) => (
+                <div key={l.id} className="flex items-start gap-4 p-3 border border-[rgba(242,238,230,.05)] rounded-[2px] bg-black2">
+                  <p className="text-[11px] text-muted whitespace-nowrap">
+                    {new Date(l.timestamp).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                  <span className={`text-[10px] font-condensed font-bold tracking-[.1em] uppercase px-2 py-0.5 rounded-[2px] shrink-0 ${
+                    l.action === "email_sent" ? "bg-blue-500/20 text-blue-300"
+                    : l.action === "followup_sent" ? "bg-yellow/20 text-yellow"
+                    : l.action === "reply_received" ? "bg-green-500/20 text-green-300"
+                    : l.action === "meeting_created" ? "bg-purple-500/20 text-purple-300"
+                    : "bg-white/10 text-cream/60"
+                  }`}>
+                    {l.action.replace("_", " ")}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[12px] text-cream truncate">{l.contactName}</p>
+                    {l.details && <p className="text-[11px] text-muted truncate">{l.details}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MeetingRow({ contact, onPropose }: { contact: SarahContact; onPropose: (id: string, time: string) => void }) {
+  const [time, setTime] = useState("");
+  const [sent, setSent] = useState(false);
+  return (
+    <div className="border border-[rgba(242,238,230,.08)] bg-black2 p-4 rounded-[2px]">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex-1">
+          <p className="font-condensed font-bold text-[13px] text-cream">{contact.name}</p>
+          <p className="text-[11px] text-muted">{contact.company} · {contact.email}</p>
+        </div>
+        <Badge status={contact.status} />
+      </div>
+      {!sent ? (
+        <div className="flex gap-2 items-center flex-wrap">
+          <input
+            type="datetime-local"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="bg-black border border-[rgba(242,238,230,.12)] text-cream text-[12px] px-3 py-2 rounded-[2px] font-condensed"
+          />
+          <button
+            onClick={() => { if (time) { onPropose(contact.id, time); setSent(true); } }}
+            className="bg-yellow text-black font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-4 py-2 rounded-[2px] hover:bg-yellow/90"
+          >
+            📅 Foreslå møde
+          </button>
+        </div>
+      ) : (
+        <p className="text-green-400 text-[12px] font-condensed">✓ Møde foreslået</p>
+      )}
+    </div>
+  );
+}

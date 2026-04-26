@@ -53,6 +53,29 @@ const TABS = [
       </svg>
     ),
   },
+  {
+    href: "/admin/sarah",
+    label: "Sarah",
+    match: (p: string) => p.startsWith("/admin/sarah"),
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-7 9-4-3-7-5-7-9a7 7 0 0 1 7-7z" />
+        <circle cx="12" cy="9" r="2" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/tilbud",
+    label: "Tilbud",
+    match: (p: string) => p.startsWith("/admin/tilbud"),
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="M8 2v4M16 2v4M3 10h18" />
+        <path d="M8 14h4M8 17h8" />
+      </svg>
+    ),
+  },
 ];
 
 export default function AdminBottomNav() {

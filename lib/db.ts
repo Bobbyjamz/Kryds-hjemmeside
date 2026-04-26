@@ -1,12 +1,17 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
-import type { Employee, Shift, FeedMessage } from "./types";
+import type { Employee, Shift, FeedMessage, CouncilSession, SarahContact, SarahLog, SarahRun, Tilbud } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const EMPLOYEES_FILE = path.join(DATA_DIR, "employees.json");
 const SHIFTS_FILE = path.join(DATA_DIR, "shifts.json");
 const FEED_FILE = path.join(DATA_DIR, "feed.json");
+const COUNCIL_FILE = path.join(DATA_DIR, "council.json");
+const SARAH_CONTACTS_FILE = path.join(DATA_DIR, "sarah-contacts.json");
+const SARAH_LOG_FILE = path.join(DATA_DIR, "sarah-log.json");
+const SARAH_RUNS_FILE = path.join(DATA_DIR, "sarah-runs.json");
+const TILBUD_FILE = path.join(DATA_DIR, "tilbud.json");
 
 async function ensureDir() {
   try {
@@ -53,6 +58,14 @@ export async function writeFeed(messages: FeedMessage[]): Promise<void> {
   return writeJson(FEED_FILE, messages);
 }
 
+export async function readCouncilSessions(): Promise<CouncilSession[]> {
+  return readJson<CouncilSession[]>(COUNCIL_FILE, []);
+}
+
+export async function writeCouncilSessions(sessions: CouncilSession[]): Promise<void> {
+  return writeJson(COUNCIL_FILE, sessions);
+}
+
 export function generateId(): string {
   return crypto.randomBytes(8).toString("hex");
 }
@@ -82,4 +95,34 @@ export async function findEmployeeByPhoneAndCode(phone: string, code: string): P
   return employees.find(
     (e) => normalizePhone(e.phone) === normalized && e.confirmationCode === code && e.confirmed === true
   ) ?? null;
+}
+
+// ── Sarah ──────────────────────────────────────────────────────────────────
+
+export async function readSarahContacts(): Promise<SarahContact[]> {
+  return readJson<SarahContact[]>(SARAH_CONTACTS_FILE, []);
+}
+export async function writeSarahContacts(contacts: SarahContact[]): Promise<void> {
+  return writeJson(SARAH_CONTACTS_FILE, contacts);
+}
+export async function readSarahLog(): Promise<SarahLog[]> {
+  return readJson<SarahLog[]>(SARAH_LOG_FILE, []);
+}
+export async function writeSarahLog(log: SarahLog[]): Promise<void> {
+  return writeJson(SARAH_LOG_FILE, log);
+}
+export async function readSarahRuns(): Promise<SarahRun[]> {
+  return readJson<SarahRun[]>(SARAH_RUNS_FILE, []);
+}
+export async function writeSarahRuns(runs: SarahRun[]): Promise<void> {
+  return writeJson(SARAH_RUNS_FILE, runs);
+}
+
+// ── Tilbud ─────────────────────────────────────────────────────────────────
+
+export async function readTilbud(): Promise<Tilbud[]> {
+  return readJson<Tilbud[]>(TILBUD_FILE, []);
+}
+export async function writeTilbud(tilbud: Tilbud[]): Promise<void> {
+  return writeJson(TILBUD_FILE, tilbud);
 }
