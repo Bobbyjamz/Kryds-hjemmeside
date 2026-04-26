@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
-import type { Employee, Shift, FeedMessage, CouncilSession, SarahContact, SarahLog, SarahRun, Tilbud } from "./types";
+import type { Employee, Shift, FeedMessage, CouncilSession, SarahContact, SarahLog, SarahRun, Tilbud, ResetToken, Customer } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const EMPLOYEES_FILE = path.join(DATA_DIR, "employees.json");
@@ -12,6 +12,8 @@ const SARAH_CONTACTS_FILE = path.join(DATA_DIR, "sarah-contacts.json");
 const SARAH_LOG_FILE = path.join(DATA_DIR, "sarah-log.json");
 const SARAH_RUNS_FILE = path.join(DATA_DIR, "sarah-runs.json");
 const TILBUD_FILE = path.join(DATA_DIR, "tilbud.json");
+const RESET_TOKENS_FILE = path.join(DATA_DIR, "reset-tokens.json");
+const CUSTOMERS_FILE = path.join(DATA_DIR, "customers.json");
 
 async function ensureDir() {
   try {
@@ -125,4 +127,22 @@ export async function readTilbud(): Promise<Tilbud[]> {
 }
 export async function writeTilbud(tilbud: Tilbud[]): Promise<void> {
   return writeJson(TILBUD_FILE, tilbud);
+}
+
+// ── Reset tokens ───────────────────────────────────────────────────────────
+
+export async function readResetTokens(): Promise<ResetToken[]> {
+  return readJson<ResetToken[]>(RESET_TOKENS_FILE, []);
+}
+export async function writeResetTokens(tokens: ResetToken[]): Promise<void> {
+  return writeJson(RESET_TOKENS_FILE, tokens);
+}
+
+// ── Customers ──────────────────────────────────────────────────────────────
+
+export async function readCustomers(): Promise<Customer[]> {
+  return readJson<Customer[]>(CUSTOMERS_FILE, []);
+}
+export async function writeCustomers(customers: Customer[]): Promise<void> {
+  return writeJson(CUSTOMERS_FILE, customers);
 }

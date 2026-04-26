@@ -28,6 +28,18 @@ export interface Employee {
   confirmedAt?: string;
   createdAt: string;
   updatedAt: string;
+  // Kompetence-profil
+  desiredTrades?: string[];
+  employmentType?: "fuldtid" | "deltid" | "begge";
+  hoursPerWeek?: number;
+  availableFrom?: string;
+  driverLicense?: boolean;
+  ownTools?: boolean;
+  languages?: string[];
+  certifications?: string[];
+  preferredAreas?: string[];
+  salaryExpectation?: number;
+  bio?: string;
 }
 
 export interface Shift {
@@ -126,6 +138,37 @@ export interface SarahRun {
   emailsSent: number;
   followUpsSent: number;
   status: "running" | "completed" | "error";
+}
+
+// ── Reset tokens – glemt kode ──────────────────────────────────────────────
+
+export interface ResetToken {
+  token: string;
+  email?: string;
+  phone?: string;
+  expiresAt: string;
+  used: boolean;
+  type: "admin" | "employee";
+  userId?: string;
+}
+
+// ── Customer – CRM ─────────────────────────────────────────────────────────
+
+export interface Customer {
+  id: string;
+  type: "privat" | "virksomhed";
+  name: string;
+  company?: string;
+  email?: string;
+  phone?: string;
+  cvr?: string;
+  address?: string;
+  trade?: string;
+  notes?: string;
+  status: "lead" | "aktiv" | "inaktiv";
+  createdAt: string;
+  lastContactedAt?: string;
+  source?: string;
 }
 
 // ── Tilbud – Council-assisteret ────────────────────────────────────────────

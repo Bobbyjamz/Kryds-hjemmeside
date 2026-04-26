@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
+import { promises as fs } from "fs";
+import path from "path";
 
 const ADMIN_COOKIE = "kryds-admin-session";
 const EMPLOYEE_COOKIE = "kryds-employee-session";
@@ -42,7 +44,14 @@ export async function verifyToken<T extends SessionPayload>(token: string): Prom
   }
 }
 
-function getAdminHash(): string | null {
+async function getAdminHash(): Promise<string | null> {
+  // Check data/admin-config.json first (set by forgot-password flow)
+  try {
+    const configPath = path.join(process.cwd(), "data", "admin-config.json");
+    const raw = await fs.readFile(configPath, "utf8");
+    const config = JSON.parse(raw) as { passwordHash?: string };
+    if (config.passwordHash) return config.passwordHash;
+  } catch {}
   // Prefer base64-encoded hash (workaround for Next.js dotenv-expand stripping $)
   const b64 = process.env.ADMIN_PASSWORD_HASH_B64;
   if (b64) {
@@ -57,7 +66,7 @@ function getAdminHash(): string | null {
 
 export async function verifyAdminPassword(username: string, password: string): Promise<boolean> {
   const expectedUser = process.env.ADMIN_USERNAME;
-  const expectedHash = getAdminHash();
+  const expectedHash = await getAdminHash();
   if (!expectedUser || !expectedHash) return false;
   if (username !== expectedUser) return false;
   return bcrypt.compare(password, expectedHash);

@@ -4,6 +4,8 @@ import { useState, FormEvent, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+type MedView = "login" | "forgot" | "success";
+
 export default function MedarbejderLoginPage() {
   const router = useRouter();
   const [phone, setPhone] = useState("");
@@ -18,6 +20,12 @@ export default function MedarbejderLoginPage() {
   const [adminError, setAdminError] = useState<string | null>(null);
   const [adminLoading, setAdminLoading] = useState(false);
   const adminRef = useRef<HTMLDivElement>(null);
+
+  // Forgot code state
+  const [medView, setMedView] = useState<MedView>("login");
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -81,6 +89,22 @@ export default function MedarbejderLoginPage() {
     }
   };
 
+  const handleForgot = async (e: FormEvent) => {
+    e.preventDefault();
+    setForgotError(null);
+    if (!forgotEmail.trim()) { setForgotError("Indtast din email"); return; }
+    setForgotLoading(true);
+    const res = await fetch("/api/auth/forgot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ method: "email", value: forgotEmail.trim(), type: "employee" }),
+    });
+    const data = await res.json();
+    setForgotLoading(false);
+    if (!res.ok) { setForgotError(data.error || "Kunne ikke sende kode"); return; }
+    setMedView("success");
+  };
+
   const inputClass =
     "w-full bg-[rgba(12,12,10,.5)] border border-[rgba(242,238,230,.15)] text-cream font-sans text-[18px] font-medium px-[18px] py-4 rounded-[2px] outline-none transition-colors focus:border-yellow placeholder:text-[rgba(242,238,230,.25)]";
 
@@ -105,7 +129,50 @@ export default function MedarbejderLoginPage() {
 
         {/* Medarbejder login card */}
         <div className="bg-gray p-8 border border-[rgba(242,238,230,0.08)] rounded-[2px]">
-          <form onSubmit={handleSubmit} noValidate>
+          {/* Forgot view */}
+          {medView === "forgot" && (
+            <form onSubmit={handleForgot} noValidate>
+              <p className="font-condensed font-black text-[18px] uppercase tracking-[-.01em] text-cream mb-1">
+                Ny adgangskode
+              </p>
+              <p className="text-[13px] text-muted mb-5">Vi sender en ny kode til din email.</p>
+              <div className="mb-5">
+                <label className="block font-condensed font-semibold text-[11px] tracking-[.2em] uppercase text-muted mb-2">
+                  Din email
+                </label>
+                <input
+                  type="email"
+                  className={inputClass}
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="din@email.dk"
+                  required
+                />
+              </div>
+              <button type="submit" disabled={forgotLoading} className="w-full bg-yellow text-black font-condensed font-extrabold text-[16px] tracking-[.12em] uppercase py-[18px] rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-60">
+                {forgotLoading ? "Sender..." : "Send ny kode"}
+              </button>
+              {forgotError && <p className="text-red-400 text-[13px] mt-4 text-center">{forgotError}</p>}
+              <button type="button" onClick={() => setMedView("login")} className="w-full mt-4 text-[12px] text-muted hover:text-cream font-condensed uppercase tracking-[.12em] transition-colors">
+                ← Tilbage til login
+              </button>
+            </form>
+          )}
+
+          {/* Success view */}
+          {medView === "success" && (
+            <div className="text-center py-4">
+              <div className="text-[40px] mb-3">✓</div>
+              <p className="font-condensed font-black text-[16px] uppercase text-yellow mb-2">Kode sendt!</p>
+              <p className="text-muted text-[13px] mb-5">Tjek din email og log ind med den nye kode.</p>
+              <button type="button" onClick={() => setMedView("login")} className="w-full bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase py-4 rounded-[2px]">
+                Tilbage til login
+              </button>
+            </div>
+          )}
+
+          {/* Normal login view */}
+          {medView === "login" && <form onSubmit={handleSubmit} noValidate>
             <div className="mb-5">
               <label className="block font-condensed font-semibold text-[11px] tracking-[.2em] uppercase text-muted mb-2">
                 Telefon
@@ -153,13 +220,20 @@ export default function MedarbejderLoginPage() {
                 <p className="text-red-400 text-[13px] text-center">{error}</p>
               </div>
             )}
-          </form>
-          <p className="text-[13px] text-muted text-center mt-6 pt-5 border-t border-[rgba(242,238,230,0.07)]">
-            Ikke oprettet?{" "}
-            <Link href="/tilmeld" className="text-yellow hover:underline font-semibold">
-              Tilmeld dig her
-            </Link>
-          </p>
+          </form>}
+          {medView === "login" && (
+            <p className="text-[13px] text-muted text-center mt-6 pt-5 border-t border-[rgba(242,238,230,0.07)]">
+              Glemt kode?{" "}
+              <button type="button" onClick={() => { setMedView("forgot"); setForgotError(null); }} className="text-yellow hover:underline font-semibold">
+                Få ny kode
+              </button>
+              {" · "}
+              Ikke oprettet?{" "}
+              <Link href="/tilmeld" className="text-yellow hover:underline font-semibold">
+                Tilmeld dig her
+              </Link>
+            </p>
+          )}
         </div>
 
         {/* Navigation + admin toggle */}

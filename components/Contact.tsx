@@ -11,12 +11,16 @@ import {
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
+const DURATIONS = ["Dagsvagt", "1 uge", "2–4 uger", "1–3 måneder", "Længerevarende"];
+
 export default function Contact() {
   const ref = useReveal();
   const { t } = useLanguage();
   const [formState, setFormState] = useState<FormState>("idle");
   const [accepted, setAccepted] = useState(false);
   const [customerName, setCustomerName] = useState("");
+  const [customerType, setCustomerType] = useState<"virksomhed" | "privat">("virksomhed");
+  const [urgent, setUrgent] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const contractPoints = getCustomerContractPoints(customerName);
 
@@ -35,17 +39,40 @@ export default function Contact() {
       opgavetype: fd.get("opgavetype"),
       antal: fd.get("antal"),
       startdato: fd.get("startdato"),
+      varighed: fd.get("varighed"),
       beskrivelse: fd.get("beskrivelse"),
       acceptedTerms: accepted,
       contractVersion: CUSTOMER_CONTRACT_VERSION,
+      type: customerType,
+      urgent,
     };
 
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+      // Send til begge endpoints parallelt
+      const [res] = await Promise.all([
+        fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }),
+        fetch("/api/help-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: String(fd.get("kontaktperson") || fd.get("virksomhed") || ""),
+            company: customerType === "virksomhed" ? String(fd.get("virksomhed") || "") : undefined,
+            email: String(fd.get("email") || ""),
+            phone: String(fd.get("telefon") || ""),
+            trade: String(fd.get("opgavetype") || ""),
+            workers: fd.get("antal") ? Number(fd.get("antal")) : undefined,
+            startDate: String(fd.get("startdato") || ""),
+            duration: String(fd.get("varighed") || ""),
+            description: String(fd.get("beskrivelse") || ""),
+            urgent,
+            type: customerType,
+          }),
+        }).catch(() => null),
+      ]);
       setFormState(res.ok ? "success" : "error");
     } catch {
       setFormState("error");
@@ -144,12 +171,22 @@ export default function Contact() {
                 {t("contact_form_title")}
               </h3>
               <form onSubmit={handleSubmit}>
+                {/* Type selector */}
+                <div className="flex gap-2 mb-[18px]">
+                  {(["virksomhed", "privat"] as const).map((tp) => (
+                    <button key={tp} type="button" onClick={() => setCustomerType(tp)}
+                      className={`flex-1 py-3 rounded-[2px] font-condensed font-bold text-[11px] tracking-[.12em] uppercase border transition-colors ${customerType === tp ? "bg-yellow text-black border-yellow" : "bg-transparent text-muted border-[rgba(242,238,230,.12)] hover:text-cream"}`}>
+                      {tp === "virksomhed" ? "🏢 Virksomhed" : "👤 Privat"}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="grid grid-cols-2 gap-[14px] mb-[18px] max-[900px]:grid-cols-1">
                   <div>
                     <label className="block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]">
-                      {t("contact_label_company")}
+                      {customerType === "virksomhed" ? t("contact_label_company") : "Navn"}
                     </label>
-                    <input name="virksomhed" type="text" placeholder={t("contact_placeholder_company")} className={inputClass}
+                    <input name="virksomhed" type="text" placeholder={customerType === "virksomhed" ? t("contact_placeholder_company") : "Dit fulde navn"} className={inputClass}
                       value={customerName} onChange={(e) => setCustomerName(e.target.value)} required />
                   </div>
                   <div>
@@ -201,10 +238,27 @@ export default function Contact() {
                 </div>
                 <div className="mb-[18px]">
                   <label className="block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]">
+                    Varighed
+                  </label>
+                  <select name="varighed" className={`${inputClass} cursor-pointer`}>
+                    <option value="">Vælg varighed</option>
+                    {DURATIONS.map((d) => <option key={d}>{d}</option>)}
+                  </select>
+                </div>
+                <div className="mb-[18px]">
+                  <label className="block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]">
                     {t("contact_label_desc")}
                   </label>
                   <textarea name="beskrivelse" placeholder={t("contact_placeholder_desc")} className={`${inputClass} resize-y min-h-[96px]`} />
                 </div>
+                {/* Urgent checkbox */}
+                <label className={`mb-[18px] flex items-start gap-3 border rounded-[2px] p-3 cursor-pointer transition-colors ${urgent ? "border-amber-400/50 bg-amber-400/5" : "border-[rgba(242,238,230,.1)] hover:border-[rgba(242,238,230,.2)]"}`}>
+                  <input type="checkbox" checked={urgent} onChange={(e) => setUrgent(e.target.checked)} className="sr-only" />
+                  <span className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center mt-[2px] transition-colors ${urgent ? "bg-amber-400/30 border-amber-400" : "bg-transparent border-[rgba(242,238,230,.3)]"}`} aria-hidden>
+                    {urgent && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                  </span>
+                  <span className="text-[13px] leading-[1.5] text-cream select-none">🚨 Det haster — jeg har brug for hjælp inden for 24 timer</span>
+                </label>
 
                 {/* Contract */}
                 <div className="mt-6 mb-4">
@@ -240,7 +294,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={formState === "submitting" || !accepted}
-                  className="w-full bg-yellow text-black font-condensed font-extrabold text-[16px] tracking-[.12em] uppercase py-[18px] border-none rounded-[2px] cursor-pointer mt-[6px] transition-colors hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full bg-yellow text-black font-condensed font-extrabold text-[16px] tracking-[.08em] uppercase py-[18px] border-none rounded-none cursor-pointer mt-[6px] transition-colors hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {formState === "submitting" ? t("contact_btn_sending") : t("contact_btn")}
                 </button>

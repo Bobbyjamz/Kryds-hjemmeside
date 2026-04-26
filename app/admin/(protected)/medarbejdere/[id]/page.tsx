@@ -225,6 +225,83 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
             </div>
           )}
 
+          {/* Kompetence-profil */}
+          <div className="mt-6 pt-6 border-t border-[rgba(242,238,230,0.07)]">
+            <p className="font-condensed font-black text-[11px] tracking-[.2em] uppercase text-yellow mb-4">
+              Ønsker & kompetencer
+            </p>
+            <div className="grid grid-cols-2 gap-4 mb-4 max-[700px]:grid-cols-1">
+              <div>
+                <label className={labelClass}>Ansættelsestype</label>
+                <select className={inputClass + " cursor-pointer"}
+                  value={employee.employmentType || ""}
+                  onChange={(e) => update({ employmentType: e.target.value as Employee["employmentType"] })}>
+                  <option value="">Ikke angivet</option>
+                  <option value="fuldtid">Fuldtid (37 t/uge)</option>
+                  <option value="deltid">Deltid</option>
+                  <option value="begge">Begge — fleksibel</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Tilgængelig fra</label>
+                <input type="date" className={inputClass} value={employee.availableFrom || ""}
+                  onChange={(e) => update({ availableFrom: e.target.value })} />
+              </div>
+              <div>
+                <label className={labelClass}>Timer/uge (ønsket)</label>
+                <input type="number" min="1" max="60" className={inputClass} value={employee.hoursPerWeek || ""}
+                  onChange={(e) => update({ hoursPerWeek: e.target.value ? Number(e.target.value) : undefined })} />
+              </div>
+              <div>
+                <label className={labelClass}>Forventet timeløn (kr)</label>
+                <input type="number" min="100" className={inputClass} value={employee.salaryExpectation || ""}
+                  onChange={(e) => update({ salaryExpectation: e.target.value ? Number(e.target.value) : undefined })} />
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className={labelClass}>Ønskede fagområder (komma-adskilt)</label>
+              <input className={inputClass}
+                value={(employee.desiredTrades || []).join(", ")}
+                onChange={(e) => update({ desiredTrades: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+                placeholder="Tømrer, Murer, Stillads..." />
+            </div>
+            <div className="mb-4">
+              <label className={labelClass}>Certifikater (komma-adskilt)</label>
+              <input className={inputClass}
+                value={(employee.certifications || []).join(", ")}
+                onChange={(e) => update({ certifications: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+                placeholder="Stilladscertifikat, Truckcertifikat..." />
+            </div>
+            <div className="mb-4">
+              <label className={labelClass}>Foretrukne områder (komma-adskilt)</label>
+              <input className={inputClass}
+                value={(employee.preferredAreas || []).join(", ")}
+                onChange={(e) => update({ preferredAreas: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+                placeholder="Indre by, Amager, Nordvest..." />
+            </div>
+            <div className="flex gap-6 mb-4">
+              <label className="flex items-center gap-2 cursor-pointer text-[13px] text-cream">
+                <input type="checkbox" checked={employee.driverLicense || false}
+                  onChange={(e) => update({ driverLicense: e.target.checked })}
+                  className="w-4 h-4 accent-yellow" />
+                Har kørekort (B)
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer text-[13px] text-cream">
+                <input type="checkbox" checked={employee.ownTools || false}
+                  onChange={(e) => update({ ownTools: e.target.checked })}
+                  className="w-4 h-4 accent-yellow" />
+                Har eget værktøj
+              </label>
+            </div>
+            <div className="mb-4">
+              <label className={labelClass}>Bio (kort om medarbejderen)</label>
+              <textarea className={inputClass + " min-h-[80px] resize-y"} maxLength={200}
+                value={employee.bio || ""}
+                onChange={(e) => update({ bio: e.target.value })}
+                placeholder="F.eks. 5 års erfaring som tømrer, specialiseret i renovering..." />
+            </div>
+          </div>
+
           <div className="flex items-center gap-4 mt-6">
             <button
               onClick={save}
