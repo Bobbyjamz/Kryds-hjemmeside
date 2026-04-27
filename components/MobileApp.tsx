@@ -134,8 +134,8 @@ export default function MobileApp() {
             <span className="font-condensed font-black text-[20px] tracking-[.02em] uppercase leading-none text-cream">
               <span className="text-yellow">K</span>RYDS
             </span>
-            <span className="font-condensed font-normal text-[9px] tracking-[.18em] uppercase text-muted leading-none mt-[3px]">
-              KrydsByg.com
+            <span className="font-condensed italic font-normal text-[12px] tracking-[.08em] text-muted leading-none mt-[4px]">
+              Sæt et kryds i kalenderen.
             </span>
           </div>
         </a>
@@ -307,17 +307,17 @@ export default function MobileApp() {
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(to top, rgba(12,12,10,.82) 0%, rgba(12,12,10,.3) 60%, transparent 100%)",
+                      "linear-gradient(to top, rgba(12,12,10,0.92) 0%, rgba(12,12,10,0.4) 60%, transparent 100%)",
                   }}
                 />
                 <span className="absolute top-3 right-3 font-condensed font-bold text-[10px] tracking-[.16em] uppercase bg-yellow px-[10px] py-[4px] rounded-full" style={{ color: "#0C0C0A" }}>
                   {isDA ? "Book →" : "Book →"}
                 </span>
-                <span className="absolute top-4 left-4 font-condensed font-bold text-[10px] tracking-[.2em]" style={{ color: "rgba(242,238,230,.85)" }}>
+                <span className="absolute top-4 left-4 text-yellow text-[11px] font-bold uppercase tracking-[.15em]">
                   — {tile.num}
                 </span>
                 <div className="relative h-full flex flex-col justify-end p-4">
-                  <h5 className="font-condensed font-extrabold text-[20px] tracking-[.02em] uppercase leading-[1.05]" style={{ color: "#F2EEE6", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
+                  <h5 className="font-condensed text-white font-black text-[20px] tracking-[.02em] uppercase leading-[1.05]" style={{ textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
                     {t(tile.labelKey)}
                   </h5>
                   <p className="text-[12px] mt-[4px]" style={{ color: "rgba(242,238,230,.7)", textShadow: "0 1px 3px rgba(0,0,0,.5)" }}>{t(tile.subKey)}</p>

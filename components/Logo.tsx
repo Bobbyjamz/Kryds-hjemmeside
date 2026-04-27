@@ -21,8 +21,8 @@ export default function Logo({ size = 38 }: LogoProps) {
         <span className="font-condensed font-black text-[26px] tracking-[.02em] text-cream uppercase leading-none">
           <span className="text-yellow">K</span>RYDS
         </span>
-        <span className="font-condensed font-normal text-[10px] tracking-[.22em] uppercase text-muted leading-none mt-[3px]">
-          Byggeprojekter · København
+        <span className="font-condensed italic font-normal text-[12px] tracking-[.08em] text-muted leading-none mt-[4px]">
+          Sæt et kryds i kalenderen.
         </span>
       </div>
     </Link>

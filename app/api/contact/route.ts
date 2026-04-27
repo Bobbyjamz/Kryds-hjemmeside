@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { virksomhed, kontaktperson, email, telefon, opgavetype, antal, startdato, beskrivelse, acceptedTerms, contractVersion } = body;
+  const { virksomhed, kontaktperson, email, telefon, opgavetype, antal, startdato, beskrivelse, acceptedTerms, contractVersion, acceptedPrivacyPolicy, acceptedMarketing } = body;
 
   // Must have opgavetype + at least one contact channel (email OR phone)
   if (!opgavetype || (!email && !telefon)) {
@@ -129,6 +129,7 @@ export async function POST(req: NextRequest) {
                   <td style="padding:10px 0;border-top:1px solid rgba(245,196,0,0.2);">
                     <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#F5C400;">✓ Kundevilkår accepteret</p>
                     <p style="margin:4px 0 0;font-size:13px;color:#F2EEE6;">Version ${safeContractVersion} — ${escapeHtml(acceptTimestamp)}</p>
+                    <p style="margin:8px 0 0;font-size:12px;color:#888880;">${acceptedPrivacyPolicy ? "✓" : "✗"} Handelsbetingelser + privatlivspolitik · ${acceptedMarketing ? "✓" : "✗"} Marketing-samtykke</p>
                   </td>
                 </tr>
               </table>

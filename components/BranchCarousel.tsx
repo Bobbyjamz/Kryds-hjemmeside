@@ -10,14 +10,14 @@ import {
 } from "@/lib/contract";
 
 const BRANCHES = [
-  { num: "01", nameKey: "branch_1_name", subKey: "branch_1_sub", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" },
-  { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80" },
-  { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80" },
-  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
-  { num: "05", nameKey: "branch_5_name", subKey: "branch_5_sub", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80" },
-  { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", img: "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80" },
-  { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" },
-  { num: "08", nameKey: "branch_8_name", subKey: "branch_8_sub", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&q=80" },
+  { num: "01", nameKey: "branch_1_name", subKey: "branch_1_sub", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80" },
+  { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" },
+  { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80" },
+  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80" },
+  { num: "05", nameKey: "branch_5_name", subKey: "branch_5_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
+  { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" },
+  { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80" },
+  { num: "08", nameKey: "branch_8_name", subKey: "branch_8_sub", img: "https://images.unsplash.com/photo-1542621334-a254cf47733d?w=900&q=80" },
 ];
 
 // Double for seamless loop
@@ -368,7 +368,7 @@ export default function BranchCarousel() {
                   <p className="text-[14px] text-muted mb-5">{t("contact_success_desc")}</p>
                   <button
                     onClick={() => setOpenBranch(null)}
-                    className="font-condensed font-bold text-[12px] tracking-[.14em] uppercase bg-yellow text-black px-6 py-[10px] rounded-[2px] hover:bg-yellow2 transition-colors"
+                    className="font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-[10px] rounded-none hover:bg-yellow2 transition-colors"
                   >
                     {lang === "da" ? "Luk" : "Close"}
                   </button>
@@ -612,7 +612,7 @@ export default function BranchCarousel() {
                   <button
                     type="submit"
                     disabled={formState === "submitting" || !accepted}
-                    className="w-full bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase py-[14px] rounded-[2px] hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.08em] uppercase py-[14px] rounded-none hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
                     {formState === "submitting"
                       ? t("contact_btn_sending")

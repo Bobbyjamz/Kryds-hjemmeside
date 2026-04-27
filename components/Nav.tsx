@@ -105,8 +105,8 @@ export default function Nav() {
         <ul className="flex gap-[28px] list-none items-center">
           {/* Desktop links */}
           <li className="max-[900px]:hidden">
-            <Link href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
-              {t("nav_om_os")}
+            <Link href="/" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+              {t("nav_forside")}
             </Link>
           </li>
           <li className="max-[900px]:hidden">
@@ -120,13 +120,8 @@ export default function Nav() {
             </Link>
           </li>
           <li className="max-[900px]:hidden">
-            <Link href="/tilmeld" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
-              {t("nav_tilmeld")}
-            </Link>
-          </li>
-          <li className="max-[900px]:hidden">
-            <Link href="/medarbejder/login" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
-              {t("nav_medarbejder")}
+            <Link href="/om-os" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+              {t("nav_om_os")}
             </Link>
           </li>
 
@@ -140,9 +135,9 @@ export default function Nav() {
             <a
               href={isHome ? "#contract" : "/#contract"}
               onClick={isHome ? handleBookNow : undefined}
-              className="font-condensed font-extrabold text-[13px] tracking-[.1em] uppercase bg-yellow text-black px-6 py-[10px] rounded-[2px] no-underline transition-colors hover:bg-yellow2"
+              className="font-condensed font-extrabold text-[13px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-[10px] rounded-none no-underline transition-colors hover:bg-yellow2"
             >
-              {t("nav_book")}
+              {t("nav_kontakt")}
             </a>
           </li>
 
@@ -151,9 +146,9 @@ export default function Nav() {
             <a
               href={isHome ? "#contract" : "/#contract"}
               onClick={isHome ? handleBookNow : undefined}
-              className="font-condensed font-extrabold text-[13px] tracking-[.1em] uppercase bg-yellow text-black px-5 py-[9px] rounded-[2px] no-underline transition-colors hover:bg-yellow2"
+              className="font-condensed font-extrabold text-[13px] tracking-[.08em] uppercase bg-yellow text-black px-5 py-[9px] rounded-none no-underline transition-colors hover:bg-yellow2"
             >
-              {t("nav_book")}
+              {t("nav_kontakt")}
             </a>
             <button
               aria-label={menuOpen ? t("nav_menu_close") : t("nav_menu_open")}
@@ -178,12 +173,13 @@ export default function Nav() {
           }}
         >
           {[
-            { href: "/om-os",           label: t("nav_om_os") },
+            { href: "/",                label: t("nav_forside") },
             { href: "/ydelser",         label: t("nav_ydelser") },
             { href: "/priser",          label: t("nav_priser") },
+            { href: "/om-os",           label: t("nav_om_os") },
+            { href: "/#contract",       label: t("nav_kontakt") },
             { href: "/tilmeld",         label: t("nav_tilmeld") },
             { href: "/medarbejder/login", label: t("nav_medarbejder_login") },
-            { href: "/#contract",       label: t("nav_book") },
           ].map(({ href, label }) => (
             <a
               key={href}

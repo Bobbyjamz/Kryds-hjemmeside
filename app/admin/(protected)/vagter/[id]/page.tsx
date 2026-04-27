@@ -22,6 +22,8 @@ export default function ShiftDetailPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [autoMatching, setAutoMatching] = useState(false);
+  const [matchResult, setMatchResult] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -58,6 +60,20 @@ export default function ShiftDetailPage({ params }: { params: Promise<{ id: stri
     if (res.ok) setMessage("Gemt");
     else setMessage("Kunne ikke gemme");
     setSaving(false);
+  };
+
+  const autoMatch = async () => {
+    setAutoMatching(true);
+    setMatchResult(null);
+    const res = await fetch("/api/admin/shifts/match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ shiftId: id }),
+    });
+    const data = await res.json();
+    setMatchResult(res.ok ? `Sendt til ${data.matched} medarbejdere` : "Fejl ved auto-match");
+    if (res.ok) setShift({ ...shift!, autoMatchSent: true, matchedEmployeeIds: data.names });
+    setAutoMatching(false);
   };
 
   const del = async () => {
@@ -144,7 +160,20 @@ export default function ShiftDetailPage({ params }: { params: Promise<{ id: stri
       </div>
 
       <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-6">
-        <h2 className="font-condensed font-extrabold text-[16px] uppercase tracking-[.04em] text-cream mb-3">Tilmeldte ({shift.signups.length})</h2>
+        <div className="flex items-center gap-4 mb-4 flex-wrap">
+          <h2 className="font-condensed font-extrabold text-[16px] uppercase tracking-[.04em] text-cream">Tilmeldte ({shift.signups.length})</h2>
+          <button
+            onClick={autoMatch}
+            disabled={autoMatching}
+            className="border border-yellow text-yellow font-condensed font-extrabold text-[11px] tracking-[.12em] uppercase px-5 py-2 rounded-[2px] hover:bg-[rgba(245,196,0,.1)] transition-colors disabled:opacity-50"
+          >
+            {autoMatching ? "Matcher..." : "Auto-match"}
+          </button>
+          {shift.autoMatchSent && (
+            <span className="text-[11px] text-muted">Tidligere sendt til {shift.matchedEmployeeIds?.length ?? 0}</span>
+          )}
+          {matchResult && <span className="text-[12px] text-muted">{matchResult}</span>}
+        </div>
         {shift.signups.length === 0 ? (
           <p className="text-muted text-[13px]">Ingen har budt ind endnu.</p>
         ) : (

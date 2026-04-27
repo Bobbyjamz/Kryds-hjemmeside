@@ -7,14 +7,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 
 const BRANCH_IMGS = [
-  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
-  "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80",
-  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80",
-  "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80",
-  "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80",
-  "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80",
+  "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80",
   "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80",
-  "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&q=80",
+  "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80",
+  "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80",
+  "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80",
+  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
+  "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80",
+  "https://images.unsplash.com/photo-1542621334-a254cf47733d?w=900&q=80",
 ];
 
 const CARDS = [
@@ -301,14 +301,14 @@ export default function YdelserPage() {
                 <button
                   type="button"
                   onClick={() => setSelected([])}
-                  className="font-condensed font-bold text-[12px] tracking-[.12em] uppercase px-5 py-[11px] rounded-[2px] border border-[var(--border)] text-muted hover:text-cream hover:border-[rgba(242,238,230,.3)] transition-colors"
+                  className="font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-5 py-[11px] rounded-none border border-[var(--border)] text-muted hover:text-cream hover:border-[rgba(242,238,230,.3)] transition-colors"
                 >
                   {lang === "da" ? "Nulstil" : "Clear"}
                 </button>
               )}
               <Link
                 href={combinedHref}
-                className={`inline-flex items-center gap-2 font-condensed font-extrabold text-[13px] tracking-[.12em] uppercase px-6 py-[12px] rounded-[2px] no-underline transition-all ${
+                className={`inline-flex items-center gap-2 font-condensed font-extrabold text-[13px] tracking-[.08em] uppercase px-6 py-[12px] rounded-none no-underline transition-all ${
                   selected.length > 0
                     ? "bg-yellow text-black hover:bg-yellow2"
                     : "border border-[var(--border)] text-muted pointer-events-none opacity-60"
@@ -328,7 +328,7 @@ export default function YdelserPage() {
           <p className="text-[15px] leading-[1.6] text-muted mb-6">{t("svc_cta_desc")}</p>
           <Link
             href="/#contract"
-            className="inline-block font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase bg-yellow text-black px-10 py-[14px] rounded-[2px] no-underline transition-all hover:bg-yellow2 hover:-translate-y-[1px]"
+            className="inline-block font-condensed font-extrabold text-[14px] tracking-[.08em] uppercase bg-yellow text-black px-10 py-[14px] rounded-none no-underline transition-all hover:bg-yellow2 hover:-translate-y-[1px]"
           >
             {t("svc_cta_btn")}
           </Link>

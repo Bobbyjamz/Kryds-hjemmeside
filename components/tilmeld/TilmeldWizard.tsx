@@ -46,8 +46,17 @@ export default function TilmeldWizard() {
   const [cvName, setCvName] = useState<string | null>(null);
   const [cvType, setCvType] = useState<string | null>(null);
   const [cvUploading, setCvUploading] = useState(false);
+  // Ansøgning (motivated letter / application) — base64 data URL + metadata
+  const [ansogningDataUrl, setAnsogningDataUrl] = useState<string | null>(null);
+  const [ansogningName, setAnsogningName] = useState<string | null>(null);
+  const [ansogningType, setAnsogningType] = useState<string | null>(null);
+  const [ansogningUploading, setAnsogningUploading] = useState(false);
   const [references, setReferences] = useState<Ref[]>([{ name: "", phone: "", company: "", relation: "" }]);
   const [notes, setNotes] = useState("");
+  // Step 2 (refs/notes) — vilkårs-accept til medarbejder
+  const [acceptedMedarbejderVilkaar, setAcceptedMedarbejderVilkaar] = useState(false);
+  const [acceptedGdpr, setAcceptedGdpr] = useState(false);
+  const [confirmedAge, setConfirmedAge] = useState(false);
 
   // Step 4
   const [accepted, setAccepted] = useState(false);
@@ -77,7 +86,7 @@ export default function TilmeldWizard() {
   const removeRef = (i: number) => setReferences(references.filter((_, idx) => idx !== i));
 
   /** Upload a file to /api/upload which returns a base64 data URL — no server-side filesystem writes. */
-  const uploadFile = async (file: File, kind: "photo" | "cv"): Promise<{ dataUrl: string; name: string; type: string } | null> => {
+  const uploadFile = async (file: File, kind: "photo" | "cv" | "ansogning"): Promise<{ dataUrl: string; name: string; type: string } | null> => {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("kind", kind);
@@ -118,10 +127,24 @@ export default function TilmeldWizard() {
     setCvUploading(false);
   };
 
+  const handleAnsogningChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    setAnsogningUploading(true);
+    const result = await uploadFile(file, "ansogning");
+    if (result) {
+      setAnsogningDataUrl(result.dataUrl);
+      setAnsogningName(result.name);
+      setAnsogningType(result.type);
+    }
+    setAnsogningUploading(false);
+  };
+
   const canContinue = (): boolean => {
     if (step === 0) return !!(name.trim() && phone.trim() && birthDate.trim());
     if (step === 1) return !!trade;
-    if (step === 2) return true;
+    if (step === 2) return acceptedMedarbejderVilkaar && acceptedGdpr;
     if (step === 3) return accepted;
     return false;
   };
@@ -149,7 +172,13 @@ export default function TilmeldWizard() {
           cvFile: cvDataUrl,
           cvName,
           cvType,
+          ansogningFile: ansogningDataUrl,
+          ansogningName,
+          ansogningType,
           references: references.filter((r) => r.name.trim()),
+          acceptedMedarbejderVilkaar,
+          acceptedGdpr,
+          confirmedAge,
           acceptedTerms: accepted,
         }),
       });
@@ -389,6 +418,35 @@ export default function TilmeldWizard() {
               </div>
             </div>
             <div className="mb-[22px]">
+              <label className={labelClass}>Ansøgning / motiveret brev (valgfri)</label>
+              <div className="flex items-center gap-4 flex-wrap">
+                <label className="cursor-pointer inline-block">
+                  <span className="inline-block bg-[rgba(245,196,0,.1)] border border-yellow text-yellow font-condensed font-semibold text-[12px] tracking-[.15em] uppercase px-5 py-3 rounded-[2px] hover:bg-[rgba(245,196,0,.2)] transition-colors">
+                    {ansogningUploading ? "Uploader..." : ansogningDataUrl ? "Skift ansøgning" : "Upload ansøgning"}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.jpg,.jpeg,.png,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
+                    className="hidden"
+                    onChange={handleAnsogningChange}
+                    disabled={ansogningUploading}
+                  />
+                </label>
+                {ansogningDataUrl && (
+                  <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 px-4 py-[9px] rounded-[2px]">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-[13px] text-green-400 font-condensed font-semibold tracking-[.05em]">Ansøgning registreret</span>
+                    <a href={ansogningDataUrl} target="_blank" rel="noopener noreferrer" className="text-yellow hover:underline text-[12px] font-condensed tracking-[.08em] uppercase ml-2">
+                      Se
+                    </a>
+                  </div>
+                )}
+              </div>
+              <p className="mt-1 text-[11px] text-muted">PDF, Word eller billede. Sendes med din profil til KrydsByg.</p>
+            </div>
+            <div className="mb-[22px]">
               <div className="flex items-center justify-between mb-2">
                 <label className={labelClass + " mb-0"}>{t("tw_s3_refs_label")}</label>
                 <button
@@ -419,7 +477,7 @@ export default function TilmeldWizard() {
                 </div>
               ))}
             </div>
-            <div>
+            <div className="mb-[22px]">
               <label className={labelClass}>{t("tw_s3_notes_label")}</label>
               <textarea
                 className={`${inputClass} resize-y min-h-[100px]`}
@@ -427,6 +485,39 @@ export default function TilmeldWizard() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t("tw_s3_notes_ph")}
               />
+            </div>
+
+            {/* Vilkårs-accept (medarbejder + GDPR + alder) */}
+            <div className="space-y-2">
+              <label className={`flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${acceptedMedarbejderVilkaar ? "border-[rgba(242,238,230,.35)]" : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"}`}>
+                <input type="checkbox" checked={acceptedMedarbejderVilkaar} onChange={(e) => setAcceptedMedarbejderVilkaar(e.target.checked)} className="sr-only" />
+                <span className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${acceptedMedarbejderVilkaar ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]" : "bg-transparent border-[rgba(242,238,230,.3)]"}`} aria-hidden>
+                  {acceptedMedarbejderVilkaar && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span className="text-[13px] leading-[1.5] text-cream select-none">
+                  Jeg har læst og accepterer{" "}
+                  <a href="/medarbejder-vilkaar" target="_blank" rel="noopener noreferrer" className="text-yellow underline" onClick={(e) => e.stopPropagation()}>medarbejdervilkårene</a>.
+                </span>
+              </label>
+
+              <label className={`flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${acceptedGdpr ? "border-[rgba(242,238,230,.35)]" : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"}`}>
+                <input type="checkbox" checked={acceptedGdpr} onChange={(e) => setAcceptedGdpr(e.target.checked)} className="sr-only" />
+                <span className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${acceptedGdpr ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]" : "bg-transparent border-[rgba(242,238,230,.3)]"}`} aria-hidden>
+                  {acceptedGdpr && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span className="text-[13px] leading-[1.5] text-cream select-none">
+                  Jeg samtykker til behandling af mine persondata jf.{" "}
+                  <a href="/medarbejder-privatpolitik" target="_blank" rel="noopener noreferrer" className="text-yellow underline" onClick={(e) => e.stopPropagation()}>medarbejder-privatlivspolitikken</a>.
+                </span>
+              </label>
+
+              <label className={`flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${confirmedAge ? "border-[rgba(242,238,230,.35)]" : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"}`}>
+                <input type="checkbox" checked={confirmedAge} onChange={(e) => setConfirmedAge(e.target.checked)} className="sr-only" />
+                <span className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${confirmedAge ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]" : "bg-transparent border-[rgba(242,238,230,.3)]"}`} aria-hidden>
+                  {confirmedAge && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>}
+                </span>
+                <span className="text-[13px] leading-[1.5] text-cream select-none">Jeg bekræfter at jeg er fyldt 18 år (valgfri).</span>
+              </label>
             </div>
           </div>
         )}

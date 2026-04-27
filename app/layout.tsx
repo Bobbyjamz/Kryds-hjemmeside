@@ -4,6 +4,8 @@ import "./globals.css";
 import BackToHome from "@/components/BackToHome";
 import CookieBanner from "@/components/CookieBanner";
 import PageTracker from "@/components/PageTracker";
+import ScrollToTop from "@/components/ScrollToTop";
+import { ToastProvider } from "@/components/Toast";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
@@ -24,11 +26,14 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   metadataBase: new URL("https://krydsbyg.com"),
   title: {
-    default: "Kryds — Stærke hænder til byggeprojekter i København",
+    default: "KrydsByg — Bemanding til byggeri i København",
     template: "%s — Kryds",
   },
   description:
-    "Kryds leverer erfarne byggefolk til renovering, maling, havearbejde, montering og byggepladsbemanding i København. Sæt et kryds i kalenderen.",
+    "Hurtig, kompetent bemanding til bygge- og anlægsprojekter. Tømrer, murer, stillads, VVS, el og mere. Ring +45 42 77 88 66.",
+  alternates: {
+    canonical: "https://krydsbyg.com",
+  },
   keywords: [
     "byggebemanding", "KrydsByg", "Kryds", "håndværkere København",
     "byggefolk", "renovering", "bemanding", "byggepladsbemanding",
@@ -104,10 +109,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <ThemeProvider>
           <LanguageProvider>
-            <BackToHome />
-            <PageTracker />
-            {children}
-            <CookieBanner />
+            <ToastProvider>
+              <BackToHome />
+              <PageTracker />
+              <div className="animate-fadeIn">{children}</div>
+              <ScrollToTop />
+              <CookieBanner />
+            </ToastProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

@@ -37,8 +37,14 @@ export async function POST(req: NextRequest) {
       cvFile,
       cvName,
       cvType,
+      ansogningFile,
+      ansogningName,
+      ansogningType,
       references,
       acceptedTerms,
+      acceptedMedarbejderVilkaar,
+      acceptedGdpr,
+      confirmedAge,
     } = body as {
       name?: string;
       phone?: string;
@@ -57,8 +63,14 @@ export async function POST(req: NextRequest) {
       cvFile?: string;
       cvName?: string;
       cvType?: string;
+      ansogningFile?: string;
+      ansogningName?: string;
+      ansogningType?: string;
       references?: Reference[];
       acceptedTerms?: boolean;
+      acceptedMedarbejderVilkaar?: boolean;
+      acceptedGdpr?: boolean;
+      confirmedAge?: boolean;
     };
 
     if (!name?.trim() || !phone?.trim() || !birthDate?.trim() || !trade?.trim()) {
@@ -95,6 +107,9 @@ export async function POST(req: NextRequest) {
       acceptedTerms: true,
       acceptedAt: now,
       contractVersion: CONTRACT_VERSION,
+      acceptedMedarbejderVilkaar: acceptedMedarbejderVilkaar === true,
+      acceptedGdpr: acceptedGdpr === true,
+      confirmedAge: confirmedAge === true,
       createdAt: now,
       updatedAt: now,
     };
@@ -156,6 +171,16 @@ export async function POST(req: NextRequest) {
           console.warn("[register] couldn't decode cv:", e);
         }
       }
+      if (ansogningFile) {
+        try {
+          const buf = decodeBase64(ansogningFile);
+          const ext = (ansogningType && ansogningType.split("/")[1]) || "pdf";
+          const filename = ansogningName || `ansoegning-${employee.id}.${ext}`;
+          attachments.push({ filename, content: buf });
+        } catch (e) {
+          console.warn("[register] couldn't decode ansogning:", e);
+        }
+      }
 
       try {
         const { data: emailData, error: emailError } = await resend.emails.send({
@@ -214,8 +239,9 @@ export async function POST(req: NextRequest) {
             <p style="margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#888880;">Vedhæftede filer</p>
             <p style="margin:4px 0 0;font-size:14px;color:#F2EEE6;">
               ${photoFile ? `📷 Foto: ${escapeHtml(photoName || "foto")} (vedhæftet)<br>` : ""}
-              ${cvFile ? `📄 CV: ${escapeHtml(cvName || "cv")} (vedhæftet)` : ""}
-              ${!photoFile && !cvFile ? "Ingen filer vedhæftet" : ""}
+              ${cvFile ? `📄 CV: ${escapeHtml(cvName || "cv")} (vedhæftet)<br>` : ""}
+              ${ansogningFile ? `✉️ Ansøgning: ${escapeHtml(ansogningName || "ansoegning")} (vedhæftet)` : ""}
+              ${!photoFile && !cvFile && !ansogningFile ? "Ingen filer vedhæftet" : ""}
             </p>
           </td></tr>
         </table></td></tr>

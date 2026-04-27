@@ -54,11 +54,11 @@ export default function Hero() {
           <div className="flex gap-[14px] items-center">
             <button
               onClick={scrollToContract}
-              className="bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.12em] uppercase px-10 py-4 rounded-[2px] no-underline inline-block transition-all hover:bg-yellow2 hover:-translate-y-[1px] cursor-pointer border-none"
+              className="bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.08em] uppercase px-10 py-4 rounded-none no-underline inline-block transition-all hover:bg-yellow2 hover:-translate-y-[1px] cursor-pointer border-none"
             >
               {t("hero_btn_book")}
             </button>
-            <Link href="/ydelser" className="border border-[var(--border)] text-cream font-condensed font-semibold text-[14px] tracking-[.1em] uppercase px-[30px] py-[15px] rounded-[2px] no-underline inline-block transition-colors hover:border-yellow hover:text-yellow">
+            <Link href="/ydelser" className="border border-[var(--border)] text-cream font-condensed font-bold text-[14px] tracking-[.08em] uppercase px-[30px] py-[15px] rounded-none no-underline inline-block transition-colors hover:border-yellow hover:text-yellow">
               {t("hero_btn_services")}
             </Link>
           </div>

@@ -55,15 +55,15 @@ export default function CookieBanner() {
         <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={decline}
-            className="font-condensed font-semibold text-[11px] tracking-[.15em] uppercase text-muted border border-[rgba(242,238,230,.15)] px-4 py-[9px] rounded-[2px] hover:text-cream hover:border-[rgba(242,238,230,.35)] transition-colors whitespace-nowrap"
+            className="font-condensed font-bold text-[11px] tracking-[.08em] uppercase text-muted border border-[var(--border)] px-4 py-[9px] rounded-none hover:text-cream hover:border-[rgba(242,238,230,.35)] transition-colors whitespace-nowrap"
           >
-            Kun nødvendige
+            Afvis
           </button>
           <button
             onClick={accept}
-            className="font-condensed font-extrabold text-[11px] tracking-[.15em] uppercase bg-yellow text-black px-5 py-[9px] rounded-[2px] hover:bg-yellow2 transition-colors whitespace-nowrap"
+            className="font-condensed font-extrabold text-[11px] tracking-[.08em] uppercase bg-yellow text-black px-5 py-[9px] rounded-none hover:bg-yellow2 transition-colors whitespace-nowrap"
           >
-            Accepter alle
+            Accepter
           </button>
         </div>
       </div>

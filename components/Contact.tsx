@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react";
 import { useReveal } from "@/hooks/useReveal";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/components/Toast";
 import {
   getCustomerContractPoints,
   CUSTOMER_CONTRACT_VERSION,
@@ -16,8 +17,11 @@ const DURATIONS = ["Dagsvagt", "1 uge", "2–4 uger", "1–3 måneder", "Længer
 export default function Contact() {
   const ref = useReveal();
   const { t } = useLanguage();
+  const { show: showToast } = useToast();
   const [formState, setFormState] = useState<FormState>("idle");
   const [accepted, setAccepted] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedMarketing, setAcceptedMarketing] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerType, setCustomerType] = useState<"virksomhed" | "privat">("virksomhed");
   const [urgent, setUrgent] = useState(false);
@@ -27,6 +31,7 @@ export default function Contact() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!accepted) { setErrorMsg(t("contact_error_terms")); return; }
+    if (!acceptedPrivacy) { setErrorMsg("Du skal acceptere handelsbetingelser og privatlivspolitik."); return; }
     setErrorMsg(null);
     setFormState("submitting");
 
@@ -42,6 +47,8 @@ export default function Contact() {
       varighed: fd.get("varighed"),
       beskrivelse: fd.get("beskrivelse"),
       acceptedTerms: accepted,
+      acceptedPrivacyPolicy: acceptedPrivacy,
+      acceptedMarketing,
       contractVersion: CUSTOMER_CONTRACT_VERSION,
       type: customerType,
       urgent,
@@ -73,9 +80,13 @@ export default function Contact() {
           }),
         }).catch(() => null),
       ]);
-      setFormState(res.ok ? "success" : "error");
+      const ok = res.ok;
+      setFormState(ok ? "success" : "error");
+      if (ok) showToast("Forespørgsel sendt! Vi vender tilbage inden for 2 timer.", "success");
+      else showToast("Noget gik galt. Prøv igen.", "error");
     } catch {
       setFormState("error");
+      showToast("Noget gik galt. Prøv igen.", "error");
     }
   };
 
@@ -216,8 +227,8 @@ export default function Contact() {
                   </label>
                   <select name="opgavetype" className={`${inputClass} cursor-pointer`} required>
                     <option value="">{t("contact_task_placeholder")}</option>
-                    {["contact_task_1","contact_task_2","contact_task_3","contact_task_4","contact_task_5",
-                      "contact_task_6","contact_task_7","contact_task_8","contact_task_9"].map((key) => (
+                    {["contact_task_1","contact_task_2","contact_task_3","contact_task_4",
+                      "contact_task_5","contact_task_6","contact_task_7","contact_task_8"].map((key) => (
                       <option key={key}>{t(key)}</option>
                     ))}
                   </select>
@@ -289,11 +300,42 @@ export default function Contact() {
                     </span>
                     <span className="text-[13px] leading-[1.5] text-cream select-none">{CUSTOMER_ACCEPT_LABEL}</span>
                   </label>
+
+                  {/* Privatlivspolitik (required) */}
+                  <label className={`mt-2 flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${acceptedPrivacy ? "border-[rgba(242,238,230,.35)]" : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"}`}>
+                    <input type="checkbox" checked={acceptedPrivacy} onChange={(e) => { setAcceptedPrivacy(e.target.checked); if (e.target.checked) setErrorMsg(null); }} className="sr-only" />
+                    <span className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${acceptedPrivacy ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]" : "bg-transparent border-[rgba(242,238,230,.3)]"}`} aria-hidden="true">
+                      {acceptedPrivacy && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-[13px] leading-[1.5] text-cream select-none">
+                      Jeg har læst og accepterer{" "}
+                      <a href="/handelsbetingelser" target="_blank" rel="noopener noreferrer" className="text-yellow underline" onClick={(e) => e.stopPropagation()}>handelsbetingelserne</a>
+                      {" "}og{" "}
+                      <a href="/privatpolitik" target="_blank" rel="noopener noreferrer" className="text-yellow underline" onClick={(e) => e.stopPropagation()}>privatlivspolitikken</a>.
+                    </span>
+                  </label>
+
+                  {/* Marketing (optional) */}
+                  <label className={`mt-2 flex items-start gap-3 bg-[rgba(242,238,230,.04)] border rounded-[2px] p-3 cursor-pointer transition-colors ${acceptedMarketing ? "border-[rgba(242,238,230,.35)]" : "border-[rgba(242,238,230,.12)] hover:border-[rgba(242,238,230,.25)]"}`}>
+                    <input type="checkbox" checked={acceptedMarketing} onChange={(e) => setAcceptedMarketing(e.target.checked)} className="sr-only" />
+                    <span className={`flex-shrink-0 w-5 h-5 rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[2px] ${acceptedMarketing ? "bg-[rgba(242,238,230,.2)] border-[rgba(242,238,230,.5)]" : "bg-transparent border-[rgba(242,238,230,.3)]"}`} aria-hidden="true">
+                      {acceptedMarketing && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="text-[13px] leading-[1.5] text-cream select-none">Ja tak — jeg vil gerne modtage tilbud og nyheder fra KrydsByg (kan til enhver tid afmeldes).</span>
+                  </label>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={formState === "submitting" || !accepted}
+                  disabled={formState === "submitting" || !accepted || !acceptedPrivacy}
                   className="w-full bg-yellow text-black font-condensed font-extrabold text-[16px] tracking-[.08em] uppercase py-[18px] border-none rounded-none cursor-pointer mt-[6px] transition-colors hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {formState === "submitting" ? t("contact_btn_sending") : t("contact_btn")}
