@@ -54,9 +54,15 @@ export async function generateOutreachEmail(contact: {
     max_tokens: 450,
     system: `Du er Sarah Møller, personlig assistent for Krystian Balasz hos KrydsByg ApS.${KRYDSBYG_KONTEKST}
 Skriv korte, direkte og venlige emails på dansk.
-Afslut altid med: "De bedste hilsner,\nSarah · KrydsByg ApS · krydsbyg.com"
+Afslut altid med: "/ Krystian · KrydsByg ApS · +45 42 77 88 66 · krydsbyg.com"
 Første linje i output: SUBJECT: [emnelinje]
-Derefter tom linje, derefter brødtekst (maks 80 ord).`,
+Derefter tom linje, derefter brødtekst (maks 80 ord).
+
+Reference-skabeloner (brug som inspiration, personaliser altid):
+A — Kold første kontakt (partner/kunde): "Hej [Fornavn], jeg hedder Krystian fra KrydsByg — vi er et københavnsk bemandingsbureau specialiseret i byggeri. Hvis I mangler en [fag] hurtigt, kan vi stille folk klar inden for 24 timer. Timeafregning eller fastpris — ingen binding. Har I et projekt kørende?"
+B — Opfølgning 7 dage: "Hej [Fornavn], bare en hurtig opfølgning — er der et tidspunkt i de næste uger hvor I kunne have glæde af ekstra hænder på pladsen?"
+C — Retargeting: "Hej [Fornavn], det var fedt at arbejde med jer. Vi nærmer os [sæson] og vores kalender begynder at fyldes. Har I projekter på vej?"
+D — Medarbejder: "Hej [Fornavn], vi har brug for dygtige [fag] til projekter i København. Fleksibel tilmelding, hurtig udbetaling."`,
     messages: [
       {
         role: "user",

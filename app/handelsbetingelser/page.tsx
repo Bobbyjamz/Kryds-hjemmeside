@@ -4,85 +4,55 @@ import type { Metadata } from "next";
 import LegalHeader from "./LegalHeader";
 
 export const metadata: Metadata = {
-  title: "Handelsbetingelser — Kryds",
-  description: "Læs Kryds' handelsbetingelser for leje af vikarer og mandskab til byggeprojekter, flytninger og events.",
+  title: "Handelsbetingelser — KrydsByg",
+  description: "Læs KrydsByg ApS' handelsbetingelser version 2.0 for vikarbemanding og entrepriseydelser til byggeprojekter i København.",
 };
 
 const sections = [
   {
     num: "1",
-    title: "Parter og aftalens omfang",
-    body: "Disse handelsbetingelser gælder for alle aftaler om levering af vikarer og mandskab indgået mellem Kryds ApS, CVR-nr. 46369947, Kontakt@KrydsByg.com (herefter \"Kryds\") og den bestillende virksomhed eller privatperson (herefter \"Kunden\"). Betingelserne gælder, medmindre andet udtrykkeligt er aftalt skriftligt.",
+    title: "Aftalens parter og omfang",
+    body: "Disse handelsbetingelser regulerer aftaleforholdet mellem KrydsByg ApS (herefter \"KrydsByg\") og enhver virksomhed eller privatperson (herefter \"Kunden\") der bestiller ydelser hos KrydsByg. KrydsByg leverer vikarbemanding, entrepriseydelser og specialiserede faglærte og ufaglærte medarbejdere til byggeprojekter, renoveringer, events og relaterede opgaver inden for ni fagområder: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg samt generel byggepladshjælp.",
   },
   {
     num: "2",
-    title: "Ydelsens karakter",
-    body: "Kryds stiller kvalificeret mandskab til rådighed for Kunden til udførelse af konkrete opgaver i et aftalt tidsrum. Vikarerne er ansat af Kryds og forbliver ansat af Kryds under opgaven. Der opstår intet ansættelsesforhold mellem Kunden og den enkelte vikar. Kunden har instruktionsbeføjelse over det daglige arbejde på stedet og bærer ansvaret for, at arbejdsmiljølovens regler overholdes.",
+    title: "Bestilling og bekræftelse",
+    body: "2.1 En bindende aftale opstår, når KrydsByg har sendt en skriftlig ordrebekræftelse til Kunden pr. e-mail. 2.2 Mundtlige aftaler er ikke bindende for KrydsByg, medmindre de efterfølgende bekræftes skriftligt. 2.3 Kunden er ansvarlig for at alle oplysninger afgivet ved bestilling er korrekte, herunder projektadresse, opgavebeskrivelse, krav til faglige kompetencer samt ønsket tidshorisont. 2.4 KrydsByg forbeholder sig ret til at afvise eller modificere en ordre, hvis de angivne betingelser ikke kan opfyldes.",
   },
   {
     num: "3",
-    title: "Bestilling og bekræftelse",
-    body: "Bestillinger kan afgives via krydsbyg.com, email eller telefon. En bestilling er bindende, når den er skriftligt bekræftet af Kryds. Kryds forbeholder sig ret til at afvise bestillinger uden begrundelse. Ændringer i antal, startdato eller opgavetype skal meddeles Kryds skriftligt og er kun gældende, når de er bekræftet af Kryds.",
+    title: "Prismodel og fakturering",
+    body: "KrydsByg tilbyder to prismodeller. Timebaseret model: Timepris fra kr. 295,– ekskl. moms pr. medarbejder pr. time. Minimumsopgave: 4 timer pr. dag pr. medarbejder. Overtid (efter 8 timer): +50% tillæg. Weekend og helligdage: +75% tillæg. Natarbejde (22:00–06:00): +75% tillæg. Projektbaseret (fastpris) model: Fast pris aftales skriftligt inden opgavestart. Eventuelle tillægsydelser udenfor aftalens scope faktureres særskilt. Alle priser er eksklusiv moms (25%), medmindre andet er angivet skriftligt. Fakturaer forfalder til betaling netto 8 dage fra fakturadato, medmindre andet er skriftligt aftalt. Ved forsinket betaling beregnes morarenter på 2% pr. påbegyndt måned fra forfaldsdato, samt et rykkergebyr på kr. 100,– pr. rykker. KrydsByg forbeholder sig ret til at regulere timepriser med op til 5% pr. kalenderår med 30 dages skriftligt varsel.",
   },
   {
     num: "4",
-    title: "Priser og betaling",
-    body: "Alle priser er i danske kroner ekskl. moms, medmindre andet er angivet. Timepriser fremgår af det fremsendte tilbud og/eller Kryds' gældende prisliste på krydsbyg.com/priser. Faktura udstedes efter endt uge eller ved opgavens afslutning med en betalingsfrist på 8 dage netto. Ved forsinket betaling påløber morarenter svarende til Nationalbankens referencerente + 8 pct. p.a. samt et rykkergebyr på kr. 100 pr. rykker.",
+    title: "Arbejdstid, fravær og erstatningsmedarbejdere",
+    body: "4.1 Arbejdstiden aftales konkret ved bestilling. Standardvagter er hverdage kl. 07:00–15:30. 4.2 Fravær pga. sygdom: KrydsByg bestræber sig på at stille erstatningsmedarbejder til rådighed senest 2 timer efter meddelelse om fravær. Kunden faktureres ikke for faktisk fravær. 4.3 KrydsByg garanterer ikke tilgængelighed af specifikke navngivne medarbejdere, men sikrer at afsendt personale besidder de aftalte kompetencer. 4.4 Kunden er ansvarlig for at anviste medarbejdere har adgang til arbejdspladsen og de nødvendige arbejdsredskaber, medmindre andet er aftalt.",
   },
   {
     num: "5",
-    title: "Afbestilling og ændringer",
-    body: "Afbestilling eller reduktion af bestilt mandskab skal ske skriftligt. Afbestilling mere end 24 timer før aftalte mødetidspunkt er gratis. Afbestilling 2–24 timer før faktureres med 50 % af den aftalte dagspris. Afbestilling samme dag som mødetidspunktet faktureres fuldt ud. Kryds forbeholder sig ret til at ombooke mandskab ved uforudsete omstændigheder.",
+    title: "Kundens forpligtelser",
+    body: "5.1 Kunden er ansvarlig for at arbejdsmiljølovgivningen overholdes på arbejdspladsen, herunder APV, PSS og nødvendige sikkerhedsforanstaltninger. 5.2 Kunden skal meddele KrydsByg eventuelle særlige risici, krav til sikkerhedsudstyr eller certificeringer senest ved bestillingens afgørelse. 5.3 Kunden er ansvarlig for at KrydsByg's medarbejdere behandles i overensstemmelse med dansk arbejdsret og ikke udsættes for chikane, diskrimination eller usikre arbejdsforhold. 5.4 Kunden må ikke ansætte eller engagere KrydsByg's medarbejdere direkte uden KrydsByg's skriftlige samtykke i en periode på 12 måneder fra sidste udlejning af den pågældende medarbejder. Overtrædelse medfører et konventionalbod svarende til 3 måneders bruttoløn for den pågældende medarbejder.",
   },
   {
     num: "6",
-    title: "Kundens ansvar — arbejdsmiljø og instruktion",
-    body: "Kunden er som arbejdsstedsansvarlig forpligtet til at sikre, at de arbejdsmiljøretlige regler overholdes på stedet, herunder at stille nødvendigt sikkerhedsudstyr til rådighed og instruere vikaren i arbejdsstedets særlige forhold. Kunden hæfter for skader, der skyldes mangelfuld instruktion eller usikre arbejdsforhold.",
+    title: "Aflysning og ændringer",
+    body: "Aflysning mere end 48 timer før opgavestart: Intet gebyr. Aflysning 24–48 timer før opgavestart: 50% af estimeret dagssats. Aflysning under 24 timer eller no-show: 100% af estimeret dagssats. Ændring af omfang undervejs faktureres efter faktisk forbrug.",
   },
   {
     num: "7",
-    title: "Værktøj og materialer",
-    body: "Kryds' vikarer medbringer alment håndværktøj, medmindre andet er aftalt ved bestillingen. Specialværktøj, maskiner, stilladser, lift, materialer og forbrugsstoffer stilles til rådighed af Kunden. Kunden hæfter for tab eller beskadigelse af eget udstyr, medmindre tabet er forvoldt ved vikarens forsætlige eller groft uagtsomme adfærd.",
+    title: "Ansvar og forsikring",
+    body: "7.1 KrydsByg's ansvar for direkte tab er begrænset til fakturabeløbet for den aktuelle opgave. KrydsByg hæfter ikke for indirekte tab, driftstab eller følgeskader. 7.2 KrydsByg er ansvarsforsikret. Kopi af forsikringsbevis fremsendes på forespørgsel. 7.3 Kunden er ansvarlig for skader forårsaget af Kundens egne fejlspecifikationer, mangelfuld APV eller ukorrekte bygningsoplysninger. 7.4 Force majeure (strejke, lockout, ekstraordinære vejrforhold, pandemi, myndighedspåbud mv.) fritager KrydsByg for ansvar, såfremt opfyldelse af aftalen hindres herved.",
   },
   {
     num: "8",
-    title: "Kryds' ansvar og forsikring",
-    body: "Kryds har tegnet lovpligtig arbejdsskadeforsikring for alle vikarer samt erhvervsansvarsforsikring, der dækker skader forvoldt af vikaren under udførelse af arbejdet. Kryds' erstatningsansvar er begrænset til direkte tab og kan maksimalt udgøre det fakturerede beløb for den konkrete opgave. Kryds hæfter ikke for indirekte tab, herunder driftstab, avancetab, tidstab eller dagbodsforpligtelser.",
+    title: "Fortrolighed og GDPR",
+    body: "8.1 Begge parter forpligter sig til at behandle den anden parts forretningsmæssige oplysninger fortroligt. 8.2 KrydsByg behandler persondata i overensstemmelse med GDPR og databeskyttelsesloven. KrydsByg's fulde privatlivspolitik er tilgængelig på krydsbyg.com/privatpolitik. 8.3 Kundens kontaktoplysninger og projektdata opbevares af KrydsByg i op til 5 år til brug for fakturering, reference og lovpligtig bogføring.",
   },
   {
     num: "9",
-    title: "Reklamation",
-    body: "Reklamation over udført arbejde eller mandskabets adfærd skal ske skriftligt til Kontakt@KrydsByg.com senest 3 hverdage efter den dag, forholdet opstod. Berettigede reklamationer afhjælpes ved omlevering af mandskab eller et forholdsmæssigt afslag i prisen efter Kryds' valg.",
-  },
-  {
-    num: "10",
-    title: "Solohvervningsforbud",
-    body: "Kunden må ikke — i en periode på 6 måneder regnet fra den pågældende vikars seneste arbejdsdag hos Kunden — indgå direkte ansættelses- eller samarbejdsaftaler med en vikar, som Kryds har stillet til rådighed, uden forudgående skriftlig aftale med Kryds. Overtrædelse udløser en konventionalbod på kr. 50.000 pr. overtrædelse, dog mindst svarende til 3 måneders fakturerede ydelser beregnet ud fra vikarens gennemsnitlige timeforbrug.",
-  },
-  {
-    num: "11",
-    title: "Tavshedspligt og fortrolighed",
-    body: "Begge parter forpligter sig til at behandle den anden parts forretningsmæssige og tekniske oplysninger fortroligt. Fortrolighedspligten gælder også efter aftalens ophør. Kryds videregiver kun nødvendige oplysninger om vikaren (navn og kontaktoplysninger) til Kunden med henblik på den konkrete opgaves udførelse.",
-  },
-  {
-    num: "12",
-    title: "Behandling af personoplysninger",
-    body: "Kryds behandler Kundens kontakt- og virksomhedsoplysninger med henblik på opfyldelse af ordren og fakturering, jf. GDPR art. 6(1)(b). Oplysningerne opbevares i 5 år iht. bogføringsloven og slettes derefter. Se vores fulde privatlivspolitik på krydsbyg.com/privatpolitik.",
-  },
-  {
-    num: "13",
-    title: "Force majeure",
-    body: "Ingen af parterne er ansvarlige for manglende opfyldelse af aftalen som følge af omstændigheder uden for partens rimelige kontrol, herunder men ikke begrænset til: strejker, lockout, brand, oversvømmelse, epidemi, pandemi, krig, terror, myndighedsindgreb eller andre ekstraordinære begivenheder. Den forhindrede part skal straks underrette den anden part.",
-  },
-  {
-    num: "14",
-    title: "Lovvalg og værneting",
-    body: "Aftalen er i alle henseender underlagt dansk ret. Enhver tvist, der måtte opstå i forbindelse med aftalen og ikke kan løses i mindelighed, skal afgøres ved Københavns Byret som første instans.",
-  },
-  {
-    num: "15",
-    title: "Ikrafttræden og ændringer",
-    body: "Disse betingelser er gældende fra april 2026 (version v1-2026-04). Kryds forbeholder sig ret til at ændre betingelserne med 30 dages varsel. Den til enhver tid gældende version fremgår af krydsbyg.com/handelsbetingelser.",
+    title: "Tvister og lovvalg",
+    body: "9.1 Nærværende handelsbetingelser er underlagt dansk ret. 9.2 Eventuelle tvister søges løst i mindelighed. Kan enighed ikke opnås, afgøres tvisten ved Retten i København som aftalt værneting.",
   },
 ];
 

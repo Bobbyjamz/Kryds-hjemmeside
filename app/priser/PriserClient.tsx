@@ -310,6 +310,46 @@ export default function PriserClient() {
           </div>
         </div>
 
+        {/* ── Retainer-model ── */}
+        <div className="max-w-[900px] mx-auto mb-[100px]">
+          <div className="text-center mb-10">
+            <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-4">Faste kunder</p>
+            <h2 className="font-condensed font-black text-[clamp(28px,3.5vw,44px)] uppercase leading-[.95] tracking-[-.01em] text-cream mb-3">
+              Retainer <span className="text-yellow">— spar op til 10%</span>
+            </h2>
+            <p className="text-[15px] text-muted max-w-[500px] mx-auto">
+              Reservér et fast antal medarbejderdage om måneden og få prioriteret respons og rabat.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1 max-[900px]:max-w-[440px] max-[900px]:mx-auto">
+            {[
+              { name: "Bronze", days: "5 dage/md", price: "kr. 9.500", discount: "5% rabat", color: "#CD7F32", features: ["Prioriteret booking", "Dedikeret kontaktperson", "5% rabat på løbende vagter"] },
+              { name: "Sølv", days: "10 dage/md", price: "kr. 17.500", discount: "8% rabat", color: "#C0C0C0", features: ["Alt i Bronze", "Prioriteret respons", "8% rabat på løbende vagter", "Garanti på erstatning inden 2t"] },
+              { name: "Guld", days: "20+ dage/md", price: "Individuel aftale", discount: "10% rabat", color: "#F5C400", features: ["Alt i Sølv", "Dedikeret koordinator", "10% rabat på alle vagter", "Månedlig statusrapport"] },
+            ].map((tier) => (
+              <div key={tier.name} className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-8 hover:border-[rgba(245,196,0,.25)] transition-colors">
+                <p className="font-condensed font-black text-[22px] uppercase tracking-[.02em] mb-1" style={{ color: tier.color }}>{tier.name}</p>
+                <p className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-muted mb-4">{tier.days}</p>
+                <p className="font-condensed font-black text-[26px] text-cream mb-1">{tier.price}</p>
+                <p className="font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-yellow mb-6">{tier.discount}</p>
+                <ul className="space-y-3 mb-8">
+                  {tier.features.map((f) => (
+                    <li key={f} className="flex items-center gap-3 text-[13px] text-muted">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/#contract" className="block text-center font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase border border-[rgba(242,238,230,.2)] text-cream hover:border-yellow hover:text-yellow px-4 py-3 rounded-[2px] no-underline transition-colors">
+                  Kom i gang
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* ── Enterprise ── */}
         <div className="max-w-[700px] mx-auto text-center bg-gray p-10 rounded-[2px] border border-[rgba(242,238,230,0.07)] mb-[80px]">
           <p className="font-condensed font-bold text-[11px] tracking-[.22em] uppercase text-yellow mb-3">
