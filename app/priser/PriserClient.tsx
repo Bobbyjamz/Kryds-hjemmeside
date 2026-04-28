@@ -25,7 +25,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Hvad er inkluderet i timeprisen?",
-    a: "Arbejdskraft og koordinering. Vi medbringer basalt håndværktøj som standard. Materialer, lift og stilladser faktureres særskilt. Har du behov for specialværktøj ud over normen, er du velkommen til at give besked på forhånd — vi afklarer om det er muligt.",
+    a: "Arbejdskraft og koordinering. Vi medbringer basalt håndværktøj som standard. Bygherren/kunden står selv for arbejdsskadeforsikring, materialer, lift og stilladser — vi leverer kun personalet. Har du behov for specialværktøj ud over normen, er du velkommen til at give besked på forhånd, så afklarer vi om det er muligt.",
   },
   {
     q: "Hvad sker der hvis jeg aflyser?",
@@ -76,15 +76,15 @@ export default function PriserClient() {
                 <tbody>
                   <tr className="border-b border-[rgba(242,238,230,0.07)]">
                     <td className="py-3 text-muted">Handyman</td>
-                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 295/t</td>
+                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 320/t</td>
                   </tr>
                   <tr className="border-b border-[rgba(242,238,230,0.07)]">
                     <td className="py-3 text-muted">Faglært håndværker</td>
-                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 375/t</td>
+                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 410/t</td>
                   </tr>
                   <tr>
                     <td className="py-3 text-muted">Specialist</td>
-                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 475/t</td>
+                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 525/t</td>
                   </tr>
                 </tbody>
               </table>
