@@ -33,6 +33,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
               { href: "/admin/council", label: "Council" },
               { href: "/admin/kunder", label: "Kunder" },
               { href: "/admin/sarah", label: "Sarah ✦" },
+              { href: "/admin/leads", label: "Leads ◆" },
               { href: "/admin/tilbud", label: "Tilbud" },
             ].map((l) => (
               <li key={l.href}>

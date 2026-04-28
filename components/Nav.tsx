@@ -125,6 +125,12 @@ export default function Nav() {
             </Link>
           </li>
 
+          <li className="max-[900px]:hidden">
+            <Link href="/medarbejder/registrer" className="font-condensed font-semibold text-[13px] tracking-[.12em] uppercase text-muted no-underline transition-colors hover:text-yellow">
+              {lang === "da" ? "Bliv medarbejder" : "Join us"}
+            </Link>
+          </li>
+
           {/* Toggle switches — desktop */}
           <li className="max-[900px]:hidden flex items-center gap-[8px]">
             <ThemeToggle />

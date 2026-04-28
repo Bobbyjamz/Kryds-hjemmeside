@@ -76,6 +76,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_8_desc:
       "Sammensat hold til blandede opgaver — vi kombinerer fag og erfaring i ét hold.",
     svc_8_tags: "Kombineret · Fleksibelt · Skræddersyet",
+    svc_9_title: "Events & Scener",
+    svc_9_desc:
+      "Hold til sceneopbygning, teltopsætning, eventhjælp og nedtagning — klar til at sætte op og rydde op.",
+    svc_9_tags: "Scener · Events · Teltopsætning · Nedtagning",
 
     // BRANCH CAROUSEL
     branches_eyebrow: "Vores brancher",
@@ -101,6 +105,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     branch_7_sub: "Logistik, materialer & oprydning",
     branch_8_name: "Kombineret / Andet",
     branch_8_sub: "Sammensat hold til blandede opgaver",
+    branch_9_name: "Events & Scener",
+    branch_9_sub: "Sceneopbygning, event & nedtagning",
 
     // HOW IT WORKS
     how_eyebrow: "Processen",
@@ -188,6 +194,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_task_6: "Mindre Håndværk",
     contact_task_7: "Byggepladsbehjælp",
     contact_task_8: "Kombineret / Andet",
+    contact_task_9: "Events & Scener",
     contact_label_antal: "Antal personer",
     contact_label_startdato: "Startdato",
     contact_label_desc: "Beskriv projektet",
@@ -620,6 +627,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_8_desc:
       "Mixed team for varied tasks — we combine trades and experience into one crew.",
     svc_8_tags: "Combined · Flexible · Tailored",
+    svc_9_title: "Events & Stages",
+    svc_9_desc:
+      "Crews for stage building, tent setup, event support and takedown — ready to set up and clean up.",
+    svc_9_tags: "Stages · Events · Tent setup · Takedown",
 
     // BRANCH CAROUSEL
     branches_eyebrow: "Our branches",
@@ -644,6 +655,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     branch_7_sub: "Logistics, materials & cleanup",
     branch_8_name: "Combined / Other",
     branch_8_sub: "Mixed team for varied tasks",
+    branch_9_name: "Events & Stages",
+    branch_9_sub: "Stage setup, events & takedown",
 
     // HOW IT WORKS
     how_eyebrow: "The process",
@@ -731,6 +744,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_task_6: "Minor Trades",
     contact_task_7: "Site Assistance",
     contact_task_8: "Combined / Other",
+    contact_task_9: "Events & Stages",
     contact_label_antal: "Number of people",
     contact_label_startdato: "Start date",
     contact_label_desc: "Describe the project",

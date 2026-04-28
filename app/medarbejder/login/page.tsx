@@ -8,7 +8,7 @@ type MedView = "login" | "forgot" | "success";
 
 export default function MedarbejderLoginPage() {
   const router = useRouter();
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -31,8 +31,8 @@ export default function MedarbejderLoginPage() {
     e.preventDefault();
     setError(null);
 
-    if (!phone.trim()) {
-      setError("Telefonnummer mangler");
+    if (!email.trim()) {
+      setError("Email mangler");
       return;
     }
     if (!code.trim()) {
@@ -45,7 +45,7 @@ export default function MedarbejderLoginPage() {
       const res = await fetch("/api/medarbejder/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.trim(), code: code.trim() }),
+        body: JSON.stringify({ email: email.trim(), code: code.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -124,7 +124,7 @@ export default function MedarbejderLoginPage() {
           <h1 className="font-condensed font-black text-[32px] uppercase tracking-[.02em] text-cream mt-4 text-center">
             Log ind
           </h1>
-          <p className="text-[14px] text-muted mt-1 text-center">Telefon + adgangskode</p>
+          <p className="text-[14px] text-muted mt-1 text-center">Email + adgangskode</p>
         </div>
 
         {/* Medarbejder login card */}
@@ -175,16 +175,15 @@ export default function MedarbejderLoginPage() {
           {medView === "login" && <form onSubmit={handleSubmit} noValidate>
             <div className="mb-5">
               <label className="block font-condensed font-semibold text-[11px] tracking-[.2em] uppercase text-muted mb-2">
-                Telefon
+                Email
               </label>
               <input
-                type="tel"
-                inputMode="tel"
+                type="email"
                 className={inputClass}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="42 77 98 66"
-                autoComplete="tel"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="din@email.dk"
+                autoComplete="email"
                 required
               />
             </div>

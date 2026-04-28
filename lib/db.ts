@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
-import type { Employee, Shift, FeedMessage, CouncilSession, SarahContact, SarahLog, SarahRun, Tilbud, ResetToken, Customer } from "./types";
+import type { Employee, Shift, FeedMessage, CouncilSession, SarahContact, SarahLog, SarahRun, Tilbud, ResetToken, Customer, EmailVerificationToken, Lead } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const EMPLOYEES_FILE = path.join(DATA_DIR, "employees.json");
@@ -14,6 +14,8 @@ const SARAH_RUNS_FILE = path.join(DATA_DIR, "sarah-runs.json");
 const TILBUD_FILE = path.join(DATA_DIR, "tilbud.json");
 const RESET_TOKENS_FILE = path.join(DATA_DIR, "reset-tokens.json");
 const CUSTOMERS_FILE = path.join(DATA_DIR, "customers.json");
+const EMAIL_TOKENS_FILE = path.join(DATA_DIR, "email-tokens.json");
+const LEADS_FILE = path.join(DATA_DIR, "leads.json");
 
 async function ensureDir() {
   try {
@@ -99,6 +101,14 @@ export async function findEmployeeByPhoneAndCode(phone: string, code: string): P
   ) ?? null;
 }
 
+export async function findEmployeeByEmailAndCode(email: string, code: string): Promise<Employee | null> {
+  const employees = await readEmployees();
+  const normalizedEmail = email.toLowerCase().trim();
+  return employees.find(
+    (e) => e.email?.toLowerCase().trim() === normalizedEmail && e.confirmationCode === code && e.confirmed === true
+  ) ?? null;
+}
+
 // ── Sarah ──────────────────────────────────────────────────────────────────
 
 export async function readSarahContacts(): Promise<SarahContact[]> {
@@ -145,4 +155,22 @@ export async function readCustomers(): Promise<Customer[]> {
 }
 export async function writeCustomers(customers: Customer[]): Promise<void> {
   return writeJson(CUSTOMERS_FILE, customers);
+}
+
+// ── Email verification tokens ──────────────────────────────────────────────
+
+export async function readEmailTokens(): Promise<EmailVerificationToken[]> {
+  return readJson<EmailVerificationToken[]>(EMAIL_TOKENS_FILE, []);
+}
+export async function writeEmailTokens(tokens: EmailVerificationToken[]): Promise<void> {
+  return writeJson(EMAIL_TOKENS_FILE, tokens);
+}
+
+// ── Leads ──────────────────────────────────────────────────────────────────
+
+export async function readLeads(): Promise<Lead[]> {
+  return readJson<Lead[]>(LEADS_FILE, []);
+}
+export async function writeLeads(leads: Lead[]): Promise<void> {
+  return writeJson(LEADS_FILE, leads);
 }

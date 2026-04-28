@@ -10,6 +10,7 @@ export interface Employee {
   name: string;
   phone: string;
   email?: string;
+  emailVerified?: boolean;
   birthDate: string; // YYYY-MM-DD
   trade: string;
   skills: string[];
@@ -18,7 +19,7 @@ export interface Employee {
   photoPath?: string;
   cvPath?: string;
   references: Reference[];
-  status: "LEDIG" | "UDSENDT" | "INAKTIV";
+  status: "LEDIG" | "UDSENDT" | "INAKTIV" | "AFVENTER_BEKRÆFTELSE";
   employeeType: "MEDARBEJDER" | "KOORDINATOR";
   acceptedTerms: boolean;
   acceptedAt?: string;
@@ -172,6 +173,80 @@ export interface Customer {
   createdAt: string;
   lastContactedAt?: string;
   source?: string;
+}
+
+// ── Email verification ─────────────────────────────────────────────────────
+
+export interface EmailVerificationToken {
+  token: string;
+  email: string;
+  employeeId: string;
+  expiresAt: string;
+  used: boolean;
+  createdAt: string;
+}
+
+// ── Leads – Sarah & Council ────────────────────────────────────────────────
+
+export type LeadStatus =
+  | "New"
+  | "Analyzed"
+  | "Drafted"
+  | "Approved"
+  | "Sent"
+  | "Rejected"
+  | "Needs Review";
+
+export interface CouncilAnalysis {
+  leadScore: number;
+  customerType: string;
+  recommendedAngle: string;
+  tone: string;
+  risks: string[];
+  salesAdvice: string;
+  brandAdvice: string;
+  operationsAdvice: string;
+  financeAdvice: string;
+  finalRecommendation: string;
+  analyzedAt: string;
+}
+
+export interface ExcelColumnMapping {
+  companyName?: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  industry?: string;
+  city?: string;
+  website?: string;
+  notes?: string;
+  serviceType?: string;
+  personalAngle?: string;
+}
+
+export interface Lead {
+  id: string;
+  companyName: string;
+  contactName?: string;
+  email: string;
+  phone?: string;
+  industry?: string;
+  city?: string;
+  website?: string;
+  notes?: string;
+  serviceType?: string;
+  personalAngle?: string;
+  status: LeadStatus;
+  councilScore?: number;
+  councilAnalysis?: CouncilAnalysis;
+  draftSubject?: string;
+  draftBody?: string;
+  draftCreatedAt?: string;
+  approvedAt?: string;
+  sentAt?: string;
+  sourceFile?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ── Tilbud – Council-assisteret ────────────────────────────────────────────

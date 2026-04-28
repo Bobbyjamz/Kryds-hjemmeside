@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
       photoPath: photoPath || undefined,
       cvPath: cvPath || undefined,
       references: Array.isArray(references) ? references.filter((r) => r && r.name?.trim()) : [],
-      status: "LEDIG",
+      status: email?.trim() ? "AFVENTER_BEKRÆFTELSE" : "LEDIG",
       employeeType: "MEDARBEJDER",
       acceptedTerms: true,
       acceptedAt: now,
@@ -116,6 +116,16 @@ export async function POST(req: NextRequest) {
 
     employees.push(employee);
     await writeEmployees(employees);
+
+    // Send email verification if employee has email
+    if (email?.trim() && process.env.RESEND_API_KEY) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://krydsbyg.com";
+      fetch(`${siteUrl}/api/auth/send-verification`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), employeeId: employee.id }),
+      }).catch((e) => console.warn("[register] send-verification fejl:", e));
+    }
 
     // Send email notification (best-effort — don't fail registration if email fails)
     if (process.env.RESEND_API_KEY) {
@@ -265,7 +275,10 @@ export async function POST(req: NextRequest) {
       console.warn("[register] RESEND_API_KEY mangler — springer email over");
     }
 
-    return NextResponse.json({ ok: true, id: employee.id }, { status: 201 });
+    const message = email?.trim()
+      ? "Tjek din email og klik på bekræftelseslinket for at aktivere din konto."
+      : "Tilmelding modtaget — du hører fra os snart.";
+    return NextResponse.json({ ok: true, id: employee.id, message }, { status: 201 });
   } catch (err) {
     console.error("[register] error:", err);
     return NextResponse.json({ error: "Registrering fejlede" }, { status: 500 });

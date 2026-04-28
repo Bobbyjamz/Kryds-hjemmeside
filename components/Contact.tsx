@@ -228,7 +228,7 @@ export default function Contact() {
                   <select name="opgavetype" className={`${inputClass} cursor-pointer`} required>
                     <option value="">{t("contact_task_placeholder")}</option>
                     {["contact_task_1","contact_task_2","contact_task_3","contact_task_4",
-                      "contact_task_5","contact_task_6","contact_task_7","contact_task_8"].map((key) => (
+                      "contact_task_5","contact_task_6","contact_task_7","contact_task_9","contact_task_8"].map((key) => (
                       <option key={key}>{t(key)}</option>
                     ))}
                   </select>

@@ -9,15 +9,35 @@ import {
   CUSTOMER_ACCEPT_LABEL,
 } from "@/lib/contract";
 
-const BRANCHES = [
+type Branch = {
+  num: string;
+  nameKey: string;
+  subKey: string;
+  img: string;
+  crossImages?: string[];
+};
+
+const BRANCHES: Branch[] = [
   { num: "01", nameKey: "branch_1_name", subKey: "branch_1_sub", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80" },
-  { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80" },
+  { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "/gallery/flyttearbejde.webp" },
   { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80" },
-  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80" },
+  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=900&q=80" },
   { num: "05", nameKey: "branch_5_name", subKey: "branch_5_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
   { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" },
   { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80" },
-  { num: "08", nameKey: "branch_8_name", subKey: "branch_8_sub", img: "https://images.unsplash.com/photo-1542621334-a254cf47733d?w=900&q=80" },
+  { num: "08", nameKey: "branch_9_name", subKey: "branch_9_sub", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80" },
+  {
+    num: "09",
+    nameKey: "branch_8_name",
+    subKey: "branch_8_sub",
+    img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80",
+    crossImages: [
+      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=450&q=80",
+      "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=450&q=80",
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=450&q=80",
+      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=450&q=80",
+    ],
+  },
 ];
 
 // Double for seamless loop
@@ -28,25 +48,24 @@ type Billing = "hourly" | "fixed";
 type CustomerType = "company" | "private";
 type Scope = "small" | "medium" | "large";
 
-// Hours per branch (approximate, per scope) — used for Momondo-style estimate
 const SCOPE_HOURS: Record<string, Record<Scope, number>> = {
-  "01": { small: 16, medium: 60, large: 180 }, // Renovering
-  "02": { small: 12, medium: 40, large: 120 }, // Maling
-  "03": { small: 8,  medium: 24, large: 80  }, // Havearbejde
-  "04": { small: 4,  medium: 16, large: 48  }, // Montering
-  "05": { small: 10, medium: 32, large: 100 }, // Nedrivning
-  "06": { small: 14, medium: 48, large: 140 }, // Flise
-  "07": { small: 20, medium: 80, large: 240 }, // Byggepladsbehjælp
-  "08": { small: 20, medium: 60, large: 180 }, // Kombineret / andet
+  "01": { small: 16, medium: 60, large: 180 },
+  "02": { small: 12, medium: 40, large: 120 },
+  "03": { small: 8,  medium: 24, large: 80  },
+  "04": { small: 4,  medium: 16, large: 48  },
+  "05": { small: 10, medium: 32, large: 100 },
+  "06": { small: 14, medium: 48, large: 140 },
+  "07": { small: 20, medium: 80, large: 240 },
+  "08": { small: 8,  medium: 24, large: 72  },
+  "09": { small: 20, medium: 60, large: 180 },
 };
 
 function estimateDuration(branchNum: string, scope: Scope, people: number) {
   const hours = SCOPE_HOURS[branchNum]?.[scope] ?? 24;
   const workers = Math.max(1, people);
-  const totalHours = hours;
-  const perWorkerHours = totalHours / workers;
+  const perWorkerHours = hours / workers;
   const days = Math.max(1, Math.ceil(perWorkerHours / 8));
-  return { hours: totalHours, days, perWorker: Math.ceil(perWorkerHours) };
+  return { hours, days, perWorker: Math.ceil(perWorkerHours) };
 }
 
 function addBusinessDays(startIso: string, days: number): string {
@@ -65,11 +84,11 @@ export default function BranchCarousel() {
   const { t, lang } = useLanguage();
   const revealRef = useReveal();
   const viewRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const pausedRef = useRef(false);
   const rafRef = useRef<number>(0);
 
-  // Quick-book popover state
-  const [openBranch, setOpenBranch] = useState<typeof BRANCHES[number] | null>(null);
+  const [openBranch, setOpenBranch] = useState<Branch | null>(null);
   const [customerType, setCustomerType] = useState<CustomerType>("company");
   const [billing, setBilling] = useState<Billing>("hourly");
   const [companyName, setCompanyName] = useState("");
@@ -107,22 +126,28 @@ export default function BranchCarousel() {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  // Close popover on Escape
+  // Scroll panel into view when branch opens
   useEffect(() => {
-    if (!openBranch) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpenBranch(null);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    if (openBranch) {
+      setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
+    }
   }, [openBranch]);
 
-  // Reset form state when modal closes
+  // Reset form when branch changes
   useEffect(() => {
-    if (!openBranch) {
-      setFormState("idle");
-      setErrorMsg(null);
-    }
+    setFormState("idle");
+    setErrorMsg(null);
+    setCompanyName("");
+    setContactPerson("");
+    setEmail("");
+    setPhone("");
+    setAntal("");
+    setStartdato("");
+    setBeskrivelse("");
+    setScope("medium");
+    setAccepted(false);
+    setCustomerType("company");
+    setBilling("hourly");
   }, [openBranch]);
 
   function centerTile(tileEl: HTMLElement) {
@@ -147,18 +172,21 @@ export default function BranchCarousel() {
     setFormState("submitting");
 
     const isCompany = customerType === "company";
-    const billingLabel = billing === "hourly" ? (lang === "da" ? "Timelønnet" : "Hourly") : (lang === "da" ? "Færdigt arbejde / fast pris" : "Fixed price / finished work");
-    const customerLabel = isCompany ? (lang === "da" ? "Virksomhed" : "Company") : (lang === "da" ? "Privatperson" : "Private");
+    const billingLabel = billing === "hourly"
+      ? (lang === "da" ? "Timelønnet" : "Hourly")
+      : (lang === "da" ? "Færdigt arbejde / fast pris" : "Fixed price / finished work");
+    const customerLabel = isCompany
+      ? (lang === "da" ? "Virksomhed" : "Company")
+      : (lang === "da" ? "Privatperson" : "Private");
 
     const peopleNum = parseInt(antal || "1", 10) || 1;
     const est = estimateDuration(openBranch.num, scope, peopleNum);
     const endDate = startdato ? addBusinessDays(startdato, est.days) : "";
-    const scopeLabel =
-      scope === "small"
-        ? (lang === "da" ? "Lille opgave" : "Small task")
-        : scope === "medium"
-          ? (lang === "da" ? "Mellem opgave" : "Medium task")
-          : (lang === "da" ? "Stor opgave" : "Large task");
+    const scopeLabel = scope === "small"
+      ? (lang === "da" ? "Lille opgave" : "Small task")
+      : scope === "medium"
+        ? (lang === "da" ? "Mellem opgave" : "Medium task")
+        : (lang === "da" ? "Stor opgave" : "Large task");
     const estimateLine = lang === "da"
       ? `Estimeret omfang: ${scopeLabel} · ~${est.hours} timer total · ~${est.days} arbejdsdage med ${peopleNum} person${peopleNum > 1 ? "er" : ""}${endDate ? ` · forventet færdig ${endDate}` : ""}`
       : `Estimated scope: ${scopeLabel} · ~${est.hours} total hours · ~${est.days} working days with ${peopleNum} worker${peopleNum > 1 ? "s" : ""}${endDate ? ` · expected finish ${endDate}` : ""}`;
@@ -190,7 +218,7 @@ export default function BranchCarousel() {
 
   const contractPoints = getCustomerContractPoints(companyName || contactPerson);
 
-  const popoverInputClass =
+  const inputClass =
     "w-full bg-black border border-[var(--border)] text-cream font-sans text-[15px] font-light px-[14px] py-[10px] rounded-[2px] outline-none transition-colors focus:border-yellow appearance-none placeholder:text-muted";
 
   return (
@@ -208,7 +236,7 @@ export default function BranchCarousel() {
         </p>
       </div>
 
-      {/* Scrollable viewport */}
+      {/* Scrollable carousel */}
       <div className="relative">
         <div
           className="absolute top-0 bottom-0 left-0 w-[120px] z-10 pointer-events-none"
@@ -231,401 +259,430 @@ export default function BranchCarousel() {
           onMouseEnter={() => { pausedRef.current = true; }}
           onMouseLeave={() => { pausedRef.current = false; }}
         >
-          {TILES.map((branch, i) => (
-            <button
-              key={i}
-              type="button"
-              className="branch-tile flex-shrink-0 relative overflow-hidden rounded-[3px] cursor-pointer group"
-              style={{
-                width: 360,
-                height: 240,
-                background: "var(--color-black2)",
-                border: "1px solid var(--border)",
-              }}
-              onMouseEnter={(e) => {
-                pausedRef.current = true;
-                centerTile(e.currentTarget);
-              }}
-              onClick={() => setOpenBranch(branch)}
-              aria-label={`${lang === "da" ? "Book" : "Book"} — ${t(branch.nameKey)}`}
-            >
-              {/* Background image */}
-              <div
-                className="branch-tile-img absolute inset-0 bg-cover bg-center"
+          {TILES.map((branch, i) => {
+            const isActive = openBranch?.num === branch.num;
+            return (
+              <button
+                key={i}
+                type="button"
+                className="branch-tile flex-shrink-0 relative overflow-hidden rounded-[3px] cursor-pointer group"
                 style={{
-                  backgroundImage: `url('${branch.img}')`,
-                  filter: "grayscale(30%) brightness(0.58) saturate(0.9)",
-                  transform: "scale(1.0)",
-                  transition: "filter 0.5s, transform 0.6s ease",
+                  width: 360,
+                  height: 240,
+                  background: "var(--color-black2)",
+                  border: isActive ? "2px solid #F5C400" : "1px solid var(--border)",
+                  transition: "border-color 0.2s",
                 }}
-              />
-              {/* Gradient overlay */}
-              <div
-                className="absolute inset-0 z-[1]"
-                style={{
-                  background:
-                    "linear-gradient(to top, rgba(12,12,10,.72) 0%, rgba(12,12,10,.25) 60%, transparent 100%)",
+                onMouseEnter={(e) => {
+                  pausedRef.current = true;
+                  centerTile(e.currentTarget);
                 }}
-              />
-              {/* Book-now chip (shows on hover) */}
-              <span
-                className="absolute top-[16px] right-[16px] z-[3] font-condensed font-bold text-[10px] tracking-[.16em] uppercase bg-yellow text-black px-3 py-[5px] rounded-full opacity-0 translate-y-[-6px] transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+                onClick={() => setOpenBranch(isActive ? null : branch)}
+                aria-label={`${lang === "da" ? "Book" : "Book"} — ${t(branch.nameKey)}`}
               >
-                {lang === "da" ? "Book nu →" : "Book now →"}
-              </span>
-              {/* Number */}
-              <span className="absolute top-[18px] left-[20px] z-[2] font-condensed font-bold text-[11px] tracking-[.18em]" style={{ color: "rgba(242,238,230,.85)" }}>
-                — {branch.num}
-              </span>
-              {/* Content */}
-              <div className="absolute left-0 right-0 bottom-0 z-[2] flex items-end justify-between gap-3 p-6 text-left">
-                <div>
-                  <h4 className="font-condensed font-extrabold text-[24px] tracking-[.04em] uppercase leading-[1.05]" style={{ color: "#F2EEE6", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
-                    {t(branch.nameKey)}
-                  </h4>
-                  <small className="block font-condensed font-semibold text-[11px] tracking-[.18em] uppercase mt-[6px]" style={{ color: "#F5C400", textShadow: "0 1px 4px rgba(0,0,0,.5)" }}>
-                    {t(branch.subKey)}
-                  </small>
-                </div>
+                {/* Background: cross (08) or single image */}
+                {branch.crossImages ? (
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "3px",
+                      background: "#F5C400",
+                    }}
+                  >
+                    {branch.crossImages.map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-cover bg-center"
+                        style={{
+                          backgroundImage: `url('${src}')`,
+                          filter: "grayscale(30%) brightness(0.58) saturate(0.9)",
+                          transition: "filter 0.5s",
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    className="branch-tile-img absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url('${branch.img}')`,
+                      filter: "grayscale(30%) brightness(0.58) saturate(0.9)",
+                      transform: "scale(1.0)",
+                      transition: "filter 0.5s, transform 0.6s ease",
+                    }}
+                  />
+                )}
+
+                {/* Gradient overlay */}
                 <div
-                  className="branch-tile-arrow w-[40px] h-[40px] flex-shrink-0 rounded-full flex items-center justify-center border border-[rgba(245,196,0,.35)] transition-all duration-300"
-                  style={{ background: "transparent" }}
+                  className="absolute inset-0 z-[1]"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(12,12,10,.72) 0%, rgba(12,12,10,.25) 60%, transparent 100%)",
+                  }}
+                />
+
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute top-0 left-0 right-0 h-[3px] bg-yellow z-[3]" />
+                )}
+
+                {/* Book-now chip */}
+                <span
+                  className="absolute top-[16px] right-[16px] z-[3] font-condensed font-bold text-[10px] tracking-[.16em] uppercase bg-yellow text-black px-3 py-[5px] rounded-full opacity-0 translate-y-[-6px] transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
+                  {isActive ? (lang === "da" ? "Luk ↑" : "Close ↑") : (lang === "da" ? "Book nu →" : "Book now →")}
+                </span>
+
+                {/* Number */}
+                <span className="absolute top-[18px] left-[20px] z-[2] font-condensed font-bold text-[11px] tracking-[.18em]" style={{ color: "rgba(242,238,230,.85)" }}>
+                  — {branch.num}
+                </span>
+
+                {/* Title */}
+                <div className="absolute left-0 right-0 bottom-0 z-[2] flex items-end justify-between gap-3 p-6 text-left">
+                  <div>
+                    <h4 className="font-condensed font-extrabold text-[24px] tracking-[.04em] uppercase leading-[1.05]" style={{ color: "#F2EEE6", textShadow: "0 2px 8px rgba(0,0,0,.6)" }}>
+                      {t(branch.nameKey)}
+                    </h4>
+                    <small className="block font-condensed font-semibold text-[11px] tracking-[.18em] uppercase mt-[6px]" style={{ color: "#F5C400", textShadow: "0 1px 4px rgba(0,0,0,.5)" }}>
+                      {t(branch.subKey)}
+                    </small>
+                  </div>
+                  <div
+                    className="branch-tile-arrow w-[40px] h-[40px] flex-shrink-0 rounded-full flex items-center justify-center border border-[rgba(245,196,0,.35)] transition-all duration-300"
+                    style={{ background: "transparent" }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* ── QUICK-BOOK MODAL ── */}
+      {/* ── INLINE BOOKING PANEL ── */}
       {openBranch && (
         <div
-          className="fixed inset-0 z-[300] flex items-center justify-center p-5 overflow-y-auto"
-          style={{ background: "color-mix(in srgb, var(--color-black) 80%, rgba(0,0,0,.6))", backdropFilter: "blur(6px)" }}
-          onClick={() => setOpenBranch(null)}
+          ref={panelRef}
+          className="mx-[52px] mt-[32px] rounded-[4px] overflow-hidden max-[700px]:mx-4"
+          style={{
+            background: "var(--color-black2)",
+            border: "1px solid var(--border)",
+            boxShadow: "0 8px 40px rgba(0,0,0,.35)",
+          }}
         >
+          {/* Yellow top accent */}
+          <div className="h-[3px] bg-yellow" />
+
+          {/* Panel header with branch image strip */}
           <div
-            className="relative w-full max-w-[620px] my-auto rounded-[4px] overflow-hidden"
-            style={{ background: "var(--color-gray)", border: "1px solid var(--border)", boxShadow: "0 30px 80px rgba(0,0,0,.45)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Yellow top accent */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-yellow z-10" />
+            className="relative h-[100px] bg-cover bg-center"
+            style={{
+              backgroundImage: `url('${openBranch.crossImages ? openBranch.crossImages[0] : openBranch.img}')`,
+              filter: "brightness(.45) saturate(.9)",
+            }}
+          />
+          <div
+            className="absolute top-0 left-0 right-0 pointer-events-none"
+            style={{
+              marginTop: "3px",
+              height: "103px",
+              background: "linear-gradient(to bottom, transparent 0%, var(--color-black2) 100%)",
+              position: "relative",
+              marginBottom: "-100px",
+            }}
+          />
 
-            {/* Close button */}
-            <button
-              onClick={() => setOpenBranch(null)}
-              className="absolute top-[14px] right-[14px] z-20 w-9 h-9 rounded-full border border-[var(--border)] flex items-center justify-center text-cream hover:text-yellow hover:border-yellow transition-colors"
-              aria-label={lang === "da" ? "Luk" : "Close"}
-              style={{ background: "color-mix(in srgb, var(--color-black) 50%, transparent)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+          <div className="px-8 pt-6 pb-8 max-[700px]:px-5">
+            {/* Header row */}
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <p className="font-condensed font-semibold text-[10px] tracking-[.22em] uppercase text-yellow mb-[4px]">
+                  — {openBranch.num} · {lang === "da" ? "Book hurtigt" : "Quick booking"}
+                </p>
+                <h3 className="font-condensed font-black text-[28px] uppercase tracking-[-.01em] text-cream leading-[.95]">
+                  {t(openBranch.nameKey)}
+                </h3>
+                <p className="text-[13px] text-muted mt-1">{t(openBranch.subKey)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpenBranch(null)}
+                className="flex-shrink-0 w-9 h-9 rounded-full border border-[var(--border)] flex items-center justify-center text-cream hover:text-yellow hover:border-yellow transition-colors mt-1"
+                aria-label={lang === "da" ? "Luk" : "Close"}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
 
-            {/* Hero / header image strip */}
-            <div
-              className="relative h-[130px] bg-cover bg-center"
-              style={{
-                backgroundImage: `url('${openBranch.img}')`,
-                filter: "brightness(.55) saturate(.95)",
-              }}
-            />
-            <div
-              className="absolute top-0 left-0 right-0 h-[130px] pointer-events-none"
-              style={{ background: "linear-gradient(to bottom, rgba(12,12,10,.15) 0%, var(--color-gray) 100%)" }}
-            />
-
-            {/* Body */}
-            <div className="relative px-7 pt-5 pb-7 max-h-[80vh] overflow-y-auto">
-              <p className="font-condensed font-semibold text-[10px] tracking-[.22em] uppercase text-yellow mb-[6px]">
-                — {openBranch.num} · {lang === "da" ? "Book hurtigt" : "Quick booking"}
-              </p>
-              <h3 className="font-condensed font-black text-[28px] uppercase tracking-[-.01em] text-cream leading-[.95] mb-[6px]">
-                {t(openBranch.nameKey)}
-              </h3>
-              <p className="text-[14px] text-muted mb-6 leading-[1.55]">
-                {t(openBranch.subKey)}
-              </p>
-
-              {formState === "success" ? (
-                <div className="text-center py-8">
-                  <div className="w-14 h-14 rounded-full bg-yellow mx-auto mb-4 flex items-center justify-center">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  </div>
-                  <h4 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.04em] text-cream mb-2">
-                    {t("contact_success_title")}
-                  </h4>
-                  <p className="text-[14px] text-muted mb-5">{t("contact_success_desc")}</p>
-                  <button
-                    onClick={() => setOpenBranch(null)}
-                    className="font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-[10px] rounded-none hover:bg-yellow2 transition-colors"
-                  >
-                    {lang === "da" ? "Luk" : "Close"}
-                  </button>
+            {formState === "success" ? (
+              <div className="text-center py-10">
+                <div className="w-14 h-14 rounded-full bg-yellow mx-auto mb-4 flex items-center justify-center">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0C0C0A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit}>
-                  {/* Customer type */}
-                  <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
-                    {lang === "da" ? "Hvem er du?" : "Who are you?"}
-                  </p>
-                  <div className="grid grid-cols-2 gap-[10px] mb-[18px]">
-                    {(["company", "private"] as CustomerType[]).map((key) => {
-                      const active = customerType === key;
-                      const label =
-                        key === "company"
+                <h4 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.04em] text-cream mb-2">
+                  {t("contact_success_title")}
+                </h4>
+                <p className="text-[14px] text-muted mb-5">{t("contact_success_desc")}</p>
+                <button
+                  onClick={() => setOpenBranch(null)}
+                  className="font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-[10px] rounded-none hover:bg-yellow2 transition-colors"
+                >
+                  {lang === "da" ? "Luk" : "Close"}
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2 gap-x-10 gap-y-0 max-[700px]:grid-cols-1">
+
+                  {/* LEFT COLUMN */}
+                  <div>
+                    {/* Customer type */}
+                    <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
+                      {lang === "da" ? "Hvem er du?" : "Who are you?"}
+                    </p>
+                    <div className="grid grid-cols-2 gap-[8px] mb-[16px]">
+                      {(["company", "private"] as CustomerType[]).map((key) => {
+                        const active = customerType === key;
+                        const label = key === "company"
                           ? (lang === "da" ? "Virksomhed" : "Company")
                           : (lang === "da" ? "Privatperson" : "Private");
-                      const sub =
-                        key === "company"
+                        const sub = key === "company"
                           ? (lang === "da" ? "ApS, byggefirma, etc." : "Ltd, contractor, etc.")
                           : (lang === "da" ? "Hjem, privat projekt" : "Home, private project");
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => setCustomerType(key)}
-                          className={`text-left p-[12px] rounded-[3px] border-2 transition-colors ${
-                            active
-                              ? "border-yellow bg-[rgba(245,196,0,.08)]"
-                              : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"
-                          }`}
-                        >
-                          <span className="font-condensed font-extrabold text-[14px] tracking-[.04em] uppercase text-cream block">{label}</span>
-                          <span className="text-[11px] text-muted">{sub}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setCustomerType(key)}
+                            className={`text-left p-[10px] rounded-[3px] border-2 transition-colors ${active ? "border-yellow bg-[rgba(245,196,0,.08)]" : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"}`}
+                          >
+                            <span className="font-condensed font-extrabold text-[13px] tracking-[.04em] uppercase text-cream block">{label}</span>
+                            <span className="text-[10px] text-muted">{sub}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
 
-                  {/* Billing type */}
-                  <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
-                    {lang === "da" ? "Hvordan vil du betale?" : "How do you want to pay?"}
-                  </p>
-                  <div className="grid grid-cols-2 gap-[10px] mb-[18px]">
-                    {(["hourly", "fixed"] as Billing[]).map((key) => {
-                      const active = billing === key;
-                      const label =
-                        key === "hourly"
+                    {/* Billing type */}
+                    <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
+                      {lang === "da" ? "Betaling" : "Payment"}
+                    </p>
+                    <div className="grid grid-cols-2 gap-[8px] mb-[16px]">
+                      {(["hourly", "fixed"] as Billing[]).map((key) => {
+                        const active = billing === key;
+                        const label = key === "hourly"
                           ? (lang === "da" ? "Timelønnet" : "Hourly")
                           : (lang === "da" ? "Færdigt arbejde" : "Fixed price");
-                      const sub =
-                        key === "hourly"
-                          ? (lang === "da" ? "Du betaler pr. time" : "Pay per hour")
-                          : (lang === "da" ? "Fast pris for opgaven" : "Flat rate for the task");
-                      return (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => setBilling(key)}
-                          className={`text-left p-[12px] rounded-[3px] border-2 transition-colors ${
-                            active
-                              ? "border-yellow bg-[rgba(245,196,0,.08)]"
-                              : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"
-                          }`}
-                        >
-                          <span className="font-condensed font-extrabold text-[14px] tracking-[.04em] uppercase text-cream block">{label}</span>
-                          <span className="text-[11px] text-muted">{sub}</span>
-                        </button>
-                      );
-                    })}
+                        const sub = key === "hourly"
+                          ? (lang === "da" ? "Pr. time" : "Per hour")
+                          : (lang === "da" ? "Fast pris" : "Flat rate");
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setBilling(key)}
+                            className={`text-left p-[10px] rounded-[3px] border-2 transition-colors ${active ? "border-yellow bg-[rgba(245,196,0,.08)]" : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"}`}
+                          >
+                            <span className="font-condensed font-extrabold text-[13px] tracking-[.04em] uppercase text-cream block">{label}</span>
+                            <span className="text-[10px] text-muted">{sub}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Contact fields */}
+                    <div className="grid grid-cols-2 gap-[8px] mb-[8px]">
+                      <input
+                        type="text"
+                        required
+                        placeholder={customerType === "company"
+                          ? (lang === "da" ? "Virksomhedsnavn" : "Company name")
+                          : (lang === "da" ? "Dit fulde navn" : "Your full name")}
+                        className={inputClass}
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        placeholder={lang === "da" ? "Kontaktperson" : "Contact person"}
+                        className={inputClass}
+                        value={contactPerson}
+                        onChange={(e) => setContactPerson(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-[8px] mb-[8px]">
+                      <input
+                        type="email"
+                        required
+                        placeholder="din@mail.dk"
+                        className={inputClass}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      <input
+                        type="tel"
+                        placeholder="+45 00 00 00 00"
+                        className={inputClass}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-[8px] mb-[8px]">
+                      <input
+                        type="number"
+                        min="1"
+                        placeholder={lang === "da" ? "Antal personer" : "Number of people"}
+                        className={inputClass}
+                        value={antal}
+                        onChange={(e) => setAntal(e.target.value)}
+                      />
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={startdato}
+                        onChange={(e) => setStartdato(e.target.value)}
+                      />
+                    </div>
                   </div>
 
-                  {/* Contact fields */}
-                  <div className="grid grid-cols-2 gap-[10px] mb-[10px] max-[600px]:grid-cols-1">
-                    <input
-                      type="text"
-                      required
-                      placeholder={customerType === "company" ? (lang === "da" ? "Virksomhedsnavn" : "Company name") : (lang === "da" ? "Dit fulde navn" : "Your full name")}
-                      className={popoverInputClass}
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      placeholder={lang === "da" ? "Kontaktperson" : "Contact person"}
-                      className={popoverInputClass}
-                      value={contactPerson}
-                      onChange={(e) => setContactPerson(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-[10px] mb-[10px] max-[600px]:grid-cols-1">
-                    <input
-                      type="email"
-                      required
-                      placeholder="din@mail.dk"
-                      className={popoverInputClass}
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <input
-                      type="tel"
-                      placeholder="+45 00 00 00 00"
-                      className={popoverInputClass}
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-[10px] mb-[14px] max-[600px]:grid-cols-1">
-                    <input
-                      type="number"
-                      min="1"
-                      placeholder={lang === "da" ? "Antal personer" : "Number of people"}
-                      className={popoverInputClass}
-                      value={antal}
-                      onChange={(e) => setAntal(e.target.value)}
-                    />
-                    <input
-                      type="date"
-                      className={popoverInputClass}
-                      value={startdato}
-                      onChange={(e) => setStartdato(e.target.value)}
-                    />
-                  </div>
-
-                  {/* ── Momondo-style duration estimator ── */}
-                  <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
-                    {lang === "da" ? "Omfang af opgaven" : "Scope of task"}
-                  </p>
-                  <div className="grid grid-cols-3 gap-[8px] mb-[12px]">
-                    {(["small", "medium", "large"] as Scope[]).map((key) => {
-                      const active = scope === key;
-                      const label =
-                        key === "small"
+                  {/* RIGHT COLUMN */}
+                  <div>
+                    {/* Scope */}
+                    <p className="font-condensed font-bold text-[10px] tracking-[.2em] uppercase text-muted mb-[8px]">
+                      {lang === "da" ? "Omfang af opgaven" : "Scope of task"}
+                    </p>
+                    <div className="grid grid-cols-3 gap-[6px] mb-[12px]">
+                      {(["small", "medium", "large"] as Scope[]).map((key) => {
+                        const active = scope === key;
+                        const label = key === "small"
                           ? (lang === "da" ? "Lille" : "Small")
                           : key === "medium"
                             ? (lang === "da" ? "Mellem" : "Medium")
                             : (lang === "da" ? "Stor" : "Large");
-                      const sub =
-                        key === "small"
+                        const sub = key === "small"
                           ? (lang === "da" ? "1–2 dage" : "1–2 days")
                           : key === "medium"
                             ? (lang === "da" ? "3–10 dage" : "3–10 days")
                             : (lang === "da" ? "2+ uger" : "2+ weeks");
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setScope(key)}
+                            className={`text-center py-[10px] px-[4px] rounded-[3px] border-2 transition-colors ${active ? "border-yellow bg-[rgba(245,196,0,.08)]" : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"}`}
+                          >
+                            <span className="font-condensed font-extrabold text-[12px] tracking-[.04em] uppercase text-cream block">{label}</span>
+                            <span className="text-[10px] text-muted">{sub}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Duration estimate */}
+                    {(() => {
+                      const peopleNum = parseInt(antal || "1", 10) || 1;
+                      const est = estimateDuration(openBranch.num, scope, peopleNum);
+                      const endDate = startdato ? addBusinessDays(startdato, est.days) : "";
                       return (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => setScope(key)}
-                          className={`text-center py-[10px] px-[6px] rounded-[3px] border-2 transition-colors ${
-                            active
-                              ? "border-yellow bg-[rgba(245,196,0,.08)]"
-                              : "border-[var(--border)] hover:border-[rgba(245,196,0,.4)]"
-                          }`}
+                        <div
+                          className="mb-[12px] p-[12px] rounded-[3px] border flex items-center gap-[10px]"
+                          style={{ background: "rgba(245,196,0,.06)", borderColor: "rgba(245,196,0,.25)" }}
                         >
-                          <span className="font-condensed font-extrabold text-[13px] tracking-[.04em] uppercase text-cream block">{label}</span>
-                          <span className="text-[10px] text-muted">{sub}</span>
-                        </button>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                          </svg>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-condensed font-bold text-[10px] tracking-[.18em] uppercase text-yellow">
+                              {lang === "da" ? "Estimeret varighed" : "Estimated duration"}
+                            </p>
+                            <p className="text-[13px] text-cream leading-[1.35] mt-[2px]">
+                              <strong>~{est.days}</strong> {lang === "da" ? "arbejdsdage" : "working days"}
+                              <span className="text-muted"> · ~{est.hours} {lang === "da" ? "timer" : "hours"}</span>
+                            </p>
+                            {endDate && (
+                              <p className="text-[11px] text-muted mt-[2px]">
+                                {lang === "da" ? "Forventet færdig" : "Expected finish"}: <span className="text-cream">{endDate}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       );
-                    })}
+                    })()}
+
+                    <textarea
+                      placeholder={lang === "da" ? "Kort beskrivelse af opgaven..." : "Short description of the task..."}
+                      className={`${inputClass} resize-y min-h-[72px] mb-[10px]`}
+                      value={beskrivelse}
+                      onChange={(e) => setBeskrivelse(e.target.value)}
+                    />
+
+                    {/* Terms */}
+                    <label
+                      className={`flex items-start gap-3 p-[10px] border rounded-[2px] cursor-pointer transition-colors mb-[10px] ${accepted ? "border-[rgba(242,238,230,.3)]" : "border-[var(--border)] hover:border-[rgba(242,238,230,.2)]"}`}
+                      style={{ background: "rgba(242,238,230,.03)" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={accepted}
+                        onChange={(e) => {
+                          setAccepted(e.target.checked);
+                          if (e.target.checked) setErrorMsg(null);
+                        }}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`flex-shrink-0 w-[18px] h-[18px] rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[1px] ${accepted ? "bg-[rgba(242,238,230,.15)] border-[rgba(242,238,230,.4)]" : "border-[rgba(242,238,230,.3)]"}`}
+                      >
+                        {accepted && (
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="text-[12px] leading-[1.45] text-cream select-none">
+                        {CUSTOMER_ACCEPT_LABEL}{" "}
+                        <span className="text-muted">— v{CUSTOMER_CONTRACT_VERSION}, {contractPoints.length} {lang === "da" ? "punkter" : "points"}</span>
+                      </span>
+                    </label>
+
+                    {errorMsg && <p className="text-red-400 text-[13px] mb-[8px]">{errorMsg}</p>}
+                    {formState === "error" && (
+                      <p className="text-red-400 text-[13px] mb-[8px]">{t("contact_error_general")}</p>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={formState === "submitting" || !accepted}
+                      className="w-full bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.08em] uppercase py-[14px] rounded-none hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {formState === "submitting"
+                        ? t("contact_btn_sending")
+                        : lang === "da"
+                          ? "Send forespørgsel →"
+                          : "Send request →"}
+                    </button>
+                    <p className="text-[11px] text-muted text-center mt-2">
+                      {lang === "da" ? "Vi svarer typisk inden for 2 timer." : "We usually reply within 2 hours."}
+                    </p>
                   </div>
 
-                  {/* Live estimate preview (Momondo-style) */}
-                  {(() => {
-                    const peopleNum = parseInt(antal || "1", 10) || 1;
-                    const est = estimateDuration(openBranch.num, scope, peopleNum);
-                    const endDate = startdato ? addBusinessDays(startdato, est.days) : "";
-                    return (
-                      <div
-                        className="mb-[14px] p-[12px] rounded-[3px] border flex items-center gap-[12px]"
-                        style={{ background: "rgba(245,196,0,.06)", borderColor: "rgba(245,196,0,.25)" }}
-                      >
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12 6 12 12 16 14" />
-                        </svg>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-condensed font-bold text-[10px] tracking-[.18em] uppercase text-yellow">
-                            {lang === "da" ? "Estimeret varighed" : "Estimated duration"}
-                          </p>
-                          <p className="text-[14px] text-cream leading-[1.35] mt-[2px]">
-                            <strong className="font-bold">~{est.days}</strong> {lang === "da" ? `arbejdsdage` : `working days`}
-                            <span className="text-muted"> · ~{est.hours} {lang === "da" ? "timer" : "hours"} total</span>
-                          </p>
-                          {endDate && (
-                            <p className="text-[12px] text-muted mt-[2px]">
-                              {lang === "da" ? "Forventet færdig" : "Expected finish"}: <span className="text-cream">{endDate}</span>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
-
-                  <textarea
-                    placeholder={lang === "da" ? "Kort beskrivelse af opgaven..." : "Short description of the task..."}
-                    className={`${popoverInputClass} resize-y min-h-[80px] mb-[10px]`}
-                    value={beskrivelse}
-                    onChange={(e) => setBeskrivelse(e.target.value)}
-                  />
-
-                  {/* Terms mini */}
-                  <label
-                    className={`flex items-start gap-3 p-[10px] border rounded-[2px] cursor-pointer transition-colors mb-[12px] ${
-                      accepted ? "border-[rgba(242,238,230,.3)]" : "border-[var(--border)] hover:border-[rgba(242,238,230,.2)]"
-                    }`}
-                    style={{ background: "rgba(242,238,230,.03)" }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={accepted}
-                      onChange={(e) => {
-                        setAccepted(e.target.checked);
-                        if (e.target.checked) setErrorMsg(null);
-                      }}
-                      className="sr-only"
-                    />
-                    <span
-                      className={`flex-shrink-0 w-[18px] h-[18px] rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[1px] ${
-                        accepted ? "bg-[rgba(242,238,230,.15)] border-[rgba(242,238,230,.4)]" : "border-[rgba(242,238,230,.3)]"
-                      }`}
-                    >
-                      {accepted && (
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                    </span>
-                    <span className="text-[12px] leading-[1.45] text-cream select-none">
-                      {CUSTOMER_ACCEPT_LABEL}{" "}
-                      <span className="text-muted">
-                        — v{CUSTOMER_CONTRACT_VERSION}, {contractPoints.length} {lang === "da" ? "punkter" : "points"}
-                      </span>
-                    </span>
-                  </label>
-
-                  {errorMsg && <p className="text-red-400 text-[13px] mb-[10px] text-center">{errorMsg}</p>}
-                  {formState === "error" && (
-                    <p className="text-red-400 text-[13px] mb-[10px] text-center">{t("contact_error_general")}</p>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={formState === "submitting" || !accepted}
-                    className="w-full bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.08em] uppercase py-[14px] rounded-none hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {formState === "submitting"
-                      ? t("contact_btn_sending")
-                      : lang === "da"
-                        ? "Send forespørgsel →"
-                        : "Send request →"}
-                  </button>
-                  <p className="text-[11px] text-muted text-center mt-3">
-                    {lang === "da" ? "Vi svarer typisk inden for 2 timer." : "We usually reply within 2 hours."}
-                  </p>
-                </form>
-              )}
-            </div>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
