@@ -8,6 +8,12 @@ const nextConfig = {
       },
     ],
   },
+  // Allow large request bodies for base64 file uploads (photo + CV + application)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
 };
 
 export default nextConfig;
