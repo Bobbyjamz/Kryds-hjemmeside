@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { readLeads, writeLeads, generateId } from "@/lib/db";
+import { getAdminSession } from "@/lib/auth";
 import type { Lead, ExcelColumnMapping } from "@/lib/types";
 
 export const runtime = "nodejs";
 
 async function isAdmin() {
-  return (await cookies()).get("kryds-admin")?.value === "authenticated";
+  return (await getAdminSession()) !== null;
 }
 
 function detectColumn(headers: string[], ...candidates: string[]): string | undefined {

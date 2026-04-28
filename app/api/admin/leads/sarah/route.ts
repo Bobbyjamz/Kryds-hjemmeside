@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { readLeads, writeLeads } from "@/lib/db";
+import { getAdminSession } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const runtime = "nodejs";
 
 async function isAdmin() {
-  return (await cookies()).get("kryds-admin")?.value === "authenticated";
+  return (await getAdminSession()) !== null;
 }
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
