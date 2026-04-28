@@ -16,7 +16,7 @@ const EMAIL_TYPE_LABELS: Record<EmailType, string> = {
   welcome: "velkomstemail til ny medarbejder/kunde",
 };
 
-const KRYDSBYG_KONTEKST = `KrydsByg ApS — dansk bemandingsbureau i København. Leverer faglærte og ufaglærte til byggeprojekter: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg. Grundlægger: Krystian Balasz. krydsbyg.com`;
+const KRYDSBYG_KONTEKST = `KrydsByg ApS — dansk bemandingsbureau i København. Leverer faglærte og handymen til byggeprojekter: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg. Grundlægger: Krystian Balasz. krydsbyg.com`;
 
 export async function POST(req: NextRequest) {
   const session = await getAdminSession();

@@ -1,41 +1,40 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
+/** Flydende cirkel-tilbage-knap — vises på alle sider undtagen forsiden og admin/medarbejder */
 export default function BackToHome() {
   const pathname = usePathname();
-  if (pathname === "/") return null;
+  const router = useRouter();
+
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/medarbejder")
+  ) {
+    return null;
+  }
 
   return (
-    <Link
-      href="/"
-      title="Tilbage til forsiden"
-      className="fixed left-0 top-1/2 -translate-y-1/2 z-[400] group"
+    <button
+      onClick={() => router.push("/")}
       aria-label="Tilbage til forsiden"
+      className="fixed bottom-8 left-8 z-[400] w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-[0_0_0_2px_#F5C400] max-[900px]:bottom-6 max-[900px]:left-4"
+      style={{ background: "#111", border: "1px solid rgba(242,238,230,0.15)" }}
     >
-      <div className="flex flex-col items-center gap-[6px] bg-[rgba(12,12,10,.88)] backdrop-blur-sm border border-l-0 border-[rgba(242,238,230,.1)] rounded-r-[3px] px-[10px] py-4 transition-all duration-300 group-hover:border-[rgba(245,196,0,.35)] group-hover:bg-[rgba(12,12,10,.98)] group-hover:px-[13px]">
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#888880"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="group-hover:stroke-[#F5C400] transition-colors flex-shrink-0"
-        >
-          <path d="M19 12H5" />
-          <polyline points="12 19 5 12 12 5" />
-        </svg>
-        <span
-          className="font-condensed font-semibold text-[9px] tracking-[.22em] uppercase text-muted group-hover:text-yellow transition-colors whitespace-nowrap"
-          style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-        >
-          Forsiden
-        </span>
-      </div>
-    </Link>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#F5C400"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+    </button>
   );
 }

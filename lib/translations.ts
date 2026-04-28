@@ -34,7 +34,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // STATS
     stats_1: "Aktive byggefolk",
     stats_2: "Gennemsnitlig responstid",
-    stats_3: "Forsikret personale",
+    stats_3: "Screenet personale",
     stats_4: "I branchen",
 
     // SERVICES (7 ydelser matching branches)
@@ -132,9 +132,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     why_1_title: "Klar til at tage fat",
     why_1_desc:
       "Vores folk er vant til fysisk arbejde og møder forberedte. Ingen indkøringsperiode — de er produktive fra dag ét.",
-    why_2_title: "Forsikret & screenet",
+    why_2_title: "Screenet & verificeret",
     why_2_desc:
-      "Alt personale er ansvarsforsikret, har ren straffeattest og er grundigt onboardet. Du arbejder trygt på pladsen.",
+      "Alt personale er verificeret med ren straffeattest og grundigt onboardet inden første arbejdsdag. Du arbejder trygt på pladsen.",
     why_3_title: "Klare kontrakter",
     why_3_desc:
       "Ingen overraskelser. Tydelige kontrakter med faste timepriser, definerede opgaver og klare vilkår fra start.",
@@ -165,7 +165,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_inc_1: "Personlig kontaktperson fra dag ét",
     contact_inc_2: "Skræddersyet bemandingsplan til projektet",
     contact_inc_3: "Kontrakt med klare vilkår og timepriser",
-    contact_inc_4: "Ansvarsforsikret og screenet personale",
+    contact_inc_4: "Verificeret og screenet personale",
     contact_inc_5: "Fleksibel op- og nedskalering undervejs",
     contact_inc_6: "Samlet faktura pr. periode",
     contact_prices_title: "Timepriser (vejledende)",
@@ -326,7 +326,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     priser_tier1_feat_1: "Byggehjælpere & handymen",
     priser_tier1_feat_2: "Maling, oprydning, havearbejde",
     priser_tier1_feat_3: "Flytning, montering & nedrivning",
-    priser_tier1_feat_4: "Fuldt forsikret personale",
+    priser_tier1_feat_4: "Verificeret og screenet personale",
     priser_tier1_feat_5: "Ingen minimumsbooking",
     priser_tier1_cta: "Book handyman",
 
@@ -585,7 +585,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // STATS
     stats_1: "Active construction workers",
     stats_2: "Average response time",
-    stats_3: "Insured staff",
+    stats_3: "Screened staff",
     stats_4: "In the industry",
 
     // SERVICES DESKTOP
@@ -682,9 +682,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     why_1_title: "Ready to get started",
     why_1_desc:
       "Our people are used to physical work and arrive prepared. No settling-in period — they are productive from day one.",
-    why_2_title: "Insured & screened",
+    why_2_title: "Screened & verified",
     why_2_desc:
-      "All staff are liability insured, have a clean criminal record and are thoroughly onboarded. You work safely on site.",
+      "All staff are verified with a clean criminal record and thoroughly onboarded before their first day. You work safely on site.",
     why_3_title: "Clear contracts",
     why_3_desc:
       "No surprises. Clear contracts with fixed hourly rates, defined tasks and clear terms from the start.",
@@ -715,7 +715,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_inc_1: "Personal contact person from day one",
     contact_inc_2: "Tailored staffing plan for the project",
     contact_inc_3: "Contract with clear terms and hourly rates",
-    contact_inc_4: "Liability insured and screened staff",
+    contact_inc_4: "Verified and screened staff",
     contact_inc_5: "Flexible up- and downscaling during the project",
     contact_inc_6: "Consolidated invoice per period",
     contact_prices_title: "Hourly rates (indicative)",
@@ -876,7 +876,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     priser_tier1_feat_1: "Construction assistants & handymen",
     priser_tier1_feat_2: "Painting, cleanup, garden work",
     priser_tier1_feat_3: "Moving, mounting & demolition",
-    priser_tier1_feat_4: "Fully insured staff",
+    priser_tier1_feat_4: "Verified and screened staff",
     priser_tier1_feat_5: "No minimum booking",
     priser_tier1_cta: "Book handyman",
 

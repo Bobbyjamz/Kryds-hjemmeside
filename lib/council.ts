@@ -9,7 +9,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const KRYDSBYG_KONTEKST = `
 KrydsByg ApS er et dansk vikarbureau i København, specialiseret i byggeri og håndværk.
-Vi matcher faglærte og ufaglærte med byggeprojekter: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg.
+Vi matcher faglærte og handymen med byggeprojekter: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg.
 Grundlægger: Krystian Balasz, uddannet bygningskonstruktør.
 Hjemmeside: krydsbyg.com
 `;

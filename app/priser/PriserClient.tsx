@@ -25,7 +25,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Hvad er inkluderet i timeprisen?",
-    a: "Arbejdskraft, koordinering og forsikring. Materialer, specialværktøj, lift og stilladser faktureres særskilt.",
+    a: "Arbejdskraft og koordinering. Vi medbringer basalt håndværktøj som standard. Materialer, lift og stilladser faktureres særskilt. Har du behov for specialværktøj ud over normen, er du velkommen til at give besked på forhånd — vi afklarer om det er muligt.",
   },
   {
     q: "Hvad sker der hvis jeg aflyser?",
@@ -75,7 +75,7 @@ export default function PriserClient() {
               <table className="w-full mb-6 text-[14px]">
                 <tbody>
                   <tr className="border-b border-[rgba(242,238,230,0.07)]">
-                    <td className="py-3 text-muted">Ufaglært hjælper</td>
+                    <td className="py-3 text-muted">Handyman</td>
                     <td className="py-3 text-right font-condensed font-bold text-cream">kr. 295/t</td>
                   </tr>
                   <tr className="border-b border-[rgba(242,238,230,0.07)]">

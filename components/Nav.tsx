@@ -178,6 +178,20 @@ export default function Nav() {
             background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
           }}
         >
+          {/* Tilbage-til-forsiden cirkelknap — kun vist på undersider */}
+          {!isHome && (
+            <button
+              onClick={() => { closeMenu(); window.location.href = "/"; }}
+              aria-label="Tilbage til forsiden"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_0_2px_#F5C400] mb-2"
+              style={{ background: "#111", border: "1px solid rgba(242,238,230,0.2)" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" />
+                <polyline points="12 19 5 12 12 5" />
+              </svg>
+            </button>
+          )}
           {[
             { href: "/",                label: t("nav_forside") },
             { href: "/ydelser",         label: t("nav_ydelser") },
