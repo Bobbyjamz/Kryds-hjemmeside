@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TRADES, SKILL_SUGGESTIONS } from "@/lib/constants";
 import ContractBox from "./ContractBox";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { compressImage } from "@/lib/image-compress";
 
 type Ref = { name: string; phone: string; company: string; relation: string };
 
@@ -13,7 +14,7 @@ const inputClass =
 const labelClass = "block font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-[7px]";
 
 export default function TilmeldWizard() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const steps = [
     t("tw_step_1"),
@@ -104,7 +105,9 @@ export default function TilmeldWizard() {
     if (!file) return;
     setError(null);
     setPhotoUploading(true);
-    const result = await uploadFile(file, "photo");
+    // Compress on client to keep total registration payload under Vercel's 4.5 MB limit
+    const compressed = await compressImage(file, { maxDim: 1280, quality: 0.82 });
+    const result = await uploadFile(compressed, "photo");
     if (result) {
       setPhotoDataUrl(result.dataUrl);
       setPhotoName(result.name);
@@ -153,34 +156,48 @@ export default function TilmeldWizard() {
     setError(null);
     setSubmitting(true);
     try {
+      const body = JSON.stringify({
+        name,
+        phone,
+        email,
+        birthDate,
+        trade,
+        skills,
+        experience,
+        notes,
+        // Base64 file attachments — sent to server and emailed as attachments
+        photoFile: photoDataUrl,
+        photoName,
+        photoType,
+        cvFile: cvDataUrl,
+        cvName,
+        cvType,
+        ansogningFile: ansogningDataUrl,
+        ansogningName,
+        ansogningType,
+        references: references.filter((r) => r.name.trim()),
+        acceptedMedarbejderVilkaar,
+        acceptedGdpr,
+        confirmedAge,
+        acceptedTerms: accepted,
+      });
+
+      // Vercel hard limit on API request body is 4.5 MB. Catch oversize before submit
+      // so the user gets a clear error instead of a silent FUNCTION_PAYLOAD_TOO_LARGE.
+      if (body.length > 4_300_000) {
+        setError(
+          lang === "da"
+            ? "Dine vedhæftede filer er for store tilsammen (max ~4 MB). Prøv at uploade et mindre billede eller en mindre PDF."
+            : "Your attached files are too large together (max ~4 MB). Try a smaller photo or PDF."
+        );
+        setSubmitting(false);
+        return;
+      }
+
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          phone,
-          email,
-          birthDate,
-          trade,
-          skills,
-          experience,
-          notes,
-          // Base64 file attachments — sent to server and emailed as attachments
-          photoFile: photoDataUrl,
-          photoName,
-          photoType,
-          cvFile: cvDataUrl,
-          cvName,
-          cvType,
-          ansogningFile: ansogningDataUrl,
-          ansogningName,
-          ansogningType,
-          references: references.filter((r) => r.name.trim()),
-          acceptedMedarbejderVilkaar,
-          acceptedGdpr,
-          confirmedAge,
-          acceptedTerms: accepted,
-        }),
+        body,
       });
       const data = await res.json();
       if (!res.ok) {
