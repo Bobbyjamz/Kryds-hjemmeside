@@ -64,6 +64,15 @@ export const services = [
   },
   {
     num: "08",
+    slug: "events",
+    title: "Events & Scener",
+    subtitle: "Sceneopbygning, event & nedtagning",
+    desc: "Erfarne folk til opsætning og nedtagning af scener, telte, messer og events.",
+    tags: ["Scene", "Event", "Opsætning", "Nedtagning"],
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
+  },
+  {
+    num: "09",
     slug: "kombineret",
     title: "Kombineret / Andet",
     subtitle: "Sammensat hold til blandede opgaver",

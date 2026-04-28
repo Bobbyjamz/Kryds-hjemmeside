@@ -7,9 +7,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 const BRANCH_IMGS = [
   "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80",
-  "/gallery/flyttearbejde.webp",
+  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=80",
   "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80",
-  "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=900&q=80",
+  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80",
   "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80",
   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80",
   "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80",
@@ -17,7 +17,16 @@ const BRANCH_IMGS = [
   "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80",
 ];
 
-const CARDS = [
+type Card = {
+  num: string;
+  nameKey: string;
+  subKey: string;
+  descKey: string;
+  tagsKey: string;
+  crossImages?: string[];
+};
+
+const CARDS: Card[] = [
   { num: "01", nameKey: "branch_1_name", subKey: "branch_1_sub", descKey: "svc_1_desc", tagsKey: "svc_1_tags" },
   { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", descKey: "svc_2_desc", tagsKey: "svc_2_tags" },
   { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", descKey: "svc_3_desc", tagsKey: "svc_3_tags" },
@@ -26,7 +35,19 @@ const CARDS = [
   { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", descKey: "svc_6_desc", tagsKey: "svc_6_tags" },
   { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", descKey: "svc_7_desc", tagsKey: "svc_7_tags" },
   { num: "08", nameKey: "branch_9_name", subKey: "branch_9_sub", descKey: "svc_9_desc", tagsKey: "svc_9_tags" },
-  { num: "09", nameKey: "branch_8_name", subKey: "branch_8_sub", descKey: "svc_8_desc", tagsKey: "svc_8_tags" },
+  {
+    num: "09",
+    nameKey: "branch_8_name",
+    subKey: "branch_8_sub",
+    descKey: "svc_8_desc",
+    tagsKey: "svc_8_tags",
+    crossImages: [
+      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=450&q=80",
+      "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=450&q=80",
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=450&q=80",
+      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=450&q=80",
+    ],
+  },
 ];
 
 export default function YdelserPage() {
@@ -70,13 +91,36 @@ export default function YdelserPage() {
             >
               {/* Image header */}
               <div className="relative h-[200px] overflow-hidden">
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-[600ms] group-hover:scale-105"
-                  style={{
-                    backgroundImage: `url('${BRANCH_IMGS[i]}')`,
-                    filter: "grayscale(25%) brightness(0.7) saturate(0.9)",
-                  }}
-                />
+                {card.crossImages ? (
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "3px",
+                      background: "#F5C400",
+                    }}
+                  >
+                    {card.crossImages.map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-cover bg-center"
+                        style={{
+                          backgroundImage: `url('${src}')`,
+                          filter: "grayscale(25%) brightness(0.7) saturate(0.9)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-[600ms] group-hover:scale-105"
+                    style={{
+                      backgroundImage: `url('${BRANCH_IMGS[i]}')`,
+                      filter: "grayscale(25%) brightness(0.7) saturate(0.9)",
+                    }}
+                  />
+                )}
                 <div
                   className="absolute inset-0"
                   style={{
