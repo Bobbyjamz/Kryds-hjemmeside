@@ -6,7 +6,7 @@ import type { ResetToken } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 
 function generateCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();

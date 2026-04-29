@@ -6,7 +6,7 @@ import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 
 export async function POST(req: NextRequest) {
   const session = await getAdminSession();

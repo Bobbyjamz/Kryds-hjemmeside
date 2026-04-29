@@ -7,7 +7,7 @@ import type { Tilbud } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 const FROM = process.env.RESEND_FROM ?? "Krystian <onboarding@resend.dev>";
 const VAT = 0.25;
 

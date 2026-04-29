@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 // Outreach-kald tager tid — øg timeout til 5 min (Vercel Pro) eller brug Edge kø
 export const maxDuration = 300;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 const FROM = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
 
 async function sendEmail(to: string, subject: string, body: string): Promise<boolean> {

@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 // Allow large payloads — base64-encoded photo + CV + application can exceed the 4 MB default
 export const maxDuration = 30;
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 
 function escapeHtml(str: string): string {
   return str

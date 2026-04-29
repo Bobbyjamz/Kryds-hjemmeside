@@ -6,7 +6,7 @@ import { readEmployees, writeEmployees } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 
 function escapeHtml(str: string): string {
   return str

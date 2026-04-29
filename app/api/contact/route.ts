@@ -1,8 +1,6 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -18,6 +16,8 @@ export async function POST(req: NextRequest) {
     console.warn("[contact] RESEND_API_KEY ikke sat — forespørgsel modtaget men email ikke sendt");
     return NextResponse.json({ ok: true });
   }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const body = await req.json();
   const { virksomhed, kontaktperson, email, telefon, opgavetype, antal, startdato, beskrivelse, acceptedTerms, contractVersion, acceptedPrivacyPolicy, acceptedMarketing } = body;
