@@ -130,13 +130,17 @@ export async function POST(req: NextRequest) {
           // Også lav en Sarah-outreach kontakt så hun kan emaile dem direkte
           if (email && email.includes("@") && !existingEmails.has(email)) {
             existingEmails.add(email);
+            const contactType: "partner" | "privat" =
+              lowerName.includes("private") || lowerName.includes("privat")
+                ? "privat"
+                : "partner";
             newContacts.push({
               id: generateId(),
               name,
               email,
               company: company || "",
               trade: trade || "",
-              type: "partner",
+              type: contactType,
               status: "pending",
               notes: notes || undefined,
               createdAt: new Date().toISOString(),

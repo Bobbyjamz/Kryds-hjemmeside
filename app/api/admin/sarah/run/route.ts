@@ -7,7 +7,7 @@ import {
   readSarahRuns, writeSarahRuns,
   generateId,
 } from "@/lib/db";
-import { getCouncilAdviceForEmail, generateOutreachEmail } from "@/lib/council";
+import { buildEmailFromContact } from "@/lib/sarah-templates";
 import type { SarahLog } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -17,22 +17,14 @@ export const maxDuration = 300;
 const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 const FROM = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
 
-async function sendEmail(to: string, subject: string, body: string): Promise<boolean> {
+async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
   try {
     await resend.emails.send({
       from: FROM,
       to: [to],
       subject,
-      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;">
-        <div style="background:#F5C400;padding:10px 18px;margin-bottom:24px;">
-          <p style="margin:0;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#0C0C0A;">✕ KRYDSBYG</p>
-        </div>
-        <div style="color:#222;font-size:15px;line-height:1.6;white-space:pre-wrap;">${body}</div>
-        <div style="margin-top:32px;padding-top:16px;border-top:1px solid #eee;color:#888;font-size:12px;">
-          KrydsByg ApS · CVR: 46369947 · kontakt@krydsbyg.com · krydsbyg.com
-        </div>
-      </div>`,
-      text: body,
+      html,
+      text,
     });
     return true;
   } catch (err) {
@@ -61,17 +53,35 @@ export async function POST(req: NextRequest) {
   const updated = [...contacts];
 
   if (mode === "email") {
-    const pending = contacts.filter((c) => c.status === "pending").slice(0, 15);
+    // Daglig grænse — start med 15, kan øges til 100 senere via env var
+    const dailyLimit = parseInt(process.env.SARAH_DAILY_LIMIT ?? "15", 10);
+    const pending = contacts.filter((c) => c.status === "pending").slice(0, dailyLimit);
+
     for (const contact of pending) {
       try {
-        const advice = await getCouncilAdviceForEmail(contact);
-        const { subject, body } = await generateOutreachEmail(contact, advice, false);
-        const sent = await sendEmail(contact.email, subject, body);
+        const { subject, html, text, templateKey } = buildEmailFromContact(contact);
+        const sent = await sendEmail(contact.email, subject, html, text);
         if (sent) {
           const idx = updated.findIndex((c) => c.id === contact.id);
-          updated[idx] = { ...contact, status: "emailed", emailSentAt: now, councilAdvice: advice, generatedEmail: body };
+          updated[idx] = {
+            ...contact,
+            status: "emailed",
+            emailSentAt: now,
+            generatedEmail: html,
+            councilAdvice: `Skabelon: ${templateKey}`,
+          };
           emailsSent++;
-          newLogs.push({ id: generateId(), timestamp: now, action: "email_sent", contactId: contact.id, contactName: contact.name, contactEmail: contact.email, details: subject });
+          newLogs.push({
+            id: generateId(),
+            timestamp: now,
+            action: "email_sent",
+            contactId: contact.id,
+            contactName: contact.name,
+            contactEmail: contact.email,
+            details: `${templateKey}: ${subject}`,
+          });
+          // Resend rate-limit: maks 2 emails/sekund — vi venter 600ms mellem hver
+          await new Promise((r) => setTimeout(r, 600));
         }
       } catch (err) {
         console.error(`Sarah fejl (${contact.email}):`, err);
@@ -84,15 +94,27 @@ export async function POST(req: NextRequest) {
     const needFollowUp = contacts
       .filter((c) => c.status === "emailed" && c.emailSentAt && c.emailSentAt < cutoff)
       .slice(0, 10);
+
     for (const contact of needFollowUp) {
       try {
-        const { subject, body } = await generateOutreachEmail(contact, contact.councilAdvice ?? "", true);
-        const sent = await sendEmail(contact.email, subject, body);
+        // Opfølgning: brug samme skabelon, men tilføj kort opfølgnings-præfix i emnet
+        const { subject, html, text, templateKey } = buildEmailFromContact(contact);
+        const followupSubject = `Re: ${subject}`;
+        const sent = await sendEmail(contact.email, followupSubject, html, text);
         if (sent) {
           const idx = updated.findIndex((c) => c.id === contact.id);
           updated[idx] = { ...contact, status: "followed_up", followUpSentAt: now };
           followUpsSent++;
-          newLogs.push({ id: generateId(), timestamp: now, action: "followup_sent", contactId: contact.id, contactName: contact.name, contactEmail: contact.email });
+          newLogs.push({
+            id: generateId(),
+            timestamp: now,
+            action: "followup_sent",
+            contactId: contact.id,
+            contactName: contact.name,
+            contactEmail: contact.email,
+            details: `${templateKey} (opfølgning)`,
+          });
+          await new Promise((r) => setTimeout(r, 600));
         }
       } catch (err) {
         console.error(`Sarah opfølgning fejl (${contact.email}):`, err);

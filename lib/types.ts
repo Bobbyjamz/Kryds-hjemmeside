@@ -113,7 +113,7 @@ export interface SarahContact {
   email: string;
   company: string;
   trade: string;
-  type: "medarbejder" | "partner";
+  type: "medarbejder" | "partner" | "privat";
   status: SarahStatus;
   emailSentAt?: string;
   followUpSentAt?: string;

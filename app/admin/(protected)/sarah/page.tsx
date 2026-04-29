@@ -321,7 +321,7 @@ export default function SarahPage() {
                     </div>
                     <Badge status={c.status} />
                     <span className={`text-[10px] font-condensed uppercase px-2 py-1 rounded-[2px] border border-[rgba(242,238,230,.08)] text-muted`}>
-                      {c.type === "partner" ? "Partner" : "Medarbejder"}
+                      {c.type === "partner" ? "Virksomhed" : c.type === "privat" ? "Privat" : "Medarbejder"}
                     </span>
                     <p className="text-[11px] text-muted hidden min-[900px]:block">
                       {c.emailSentAt ? new Date(c.emailSentAt).toLocaleDateString("da-DK") : "—"}
