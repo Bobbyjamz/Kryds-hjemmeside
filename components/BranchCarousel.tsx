@@ -19,9 +19,9 @@ type Branch = {
 
 const BRANCHES: Branch[] = [
   { num: "01", nameKey: "branch_1_name", subKey: "branch_1_sub", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80" },
-  { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=900&q=80" },
+  { num: "02", nameKey: "branch_2_name", subKey: "branch_2_sub", img: "/gallery/flyttearbejde.webp" },
   { num: "03", nameKey: "branch_3_name", subKey: "branch_3_sub", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80" },
-  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=80" },
+  { num: "04", nameKey: "branch_4_name", subKey: "branch_4_sub", img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80" },
   { num: "05", nameKey: "branch_5_name", subKey: "branch_5_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
   { num: "06", nameKey: "branch_6_name", subKey: "branch_6_sub", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" },
   { num: "07", nameKey: "branch_7_name", subKey: "branch_7_sub", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80" },
