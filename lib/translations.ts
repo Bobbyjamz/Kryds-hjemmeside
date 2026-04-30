@@ -209,14 +209,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_error_general: "Noget gik galt. Prøv igen eller kontakt os direkte.",
 
     // MOBILE TILE LABELS
-    mob_tile_1_label: "Renovering",      mob_tile_1_sub: "Indvendig & udvendig",
-    mob_tile_2_label: "Maling",          mob_tile_2_sub: "Spartling & facade",
-    mob_tile_3_label: "Havearbejde",     mob_tile_3_sub: "Anlæg & beskæring",
+    mob_tile_1_label: "Rengøring",       mob_tile_1_sub: "Oprydning & istandsættelse",
+    mob_tile_2_label: "Flytning",        mob_tile_2_sub: "Transport & tunge løft",
+    mob_tile_3_label: "Maling",          mob_tile_3_sub: "Spartling & facade",
     mob_tile_4_label: "Montering",       mob_tile_4_sub: "Køkken & inventar",
-    mob_tile_5_label: "Nedrivning",      mob_tile_5_sub: "Rydning & bortskaf",
-    mob_tile_6_label: "Flise & anlæg",   mob_tile_6_sub: "Belægning & kant",
-    mob_tile_7_label: "Byggeplads",      mob_tile_7_sub: "Behjælp & logistik",
-    mob_tile_8_label: "Kombineret",      mob_tile_8_sub: "Sammensat hold",
+    mob_tile_5_label: "Have",            mob_tile_5_sub: "Anlæg & beskæring",
+    mob_tile_6_label: "Håndværk",        mob_tile_6_sub: "Tømrer · murer · VVS",
+    mob_tile_7_label: "Byggeplads",      mob_tile_7_sub: "Logistik & oprydning",
+    mob_tile_8_label: "Events & Scener", mob_tile_8_sub: "Opsætning & nedtagning",
+    mob_tile_9_label: "Kombineret",      mob_tile_9_sub: "Sammensat hold",
 
     // MOBILE SERVICES (booking form)
     mob_svc_eyebrow: "Find bemanding",
@@ -759,14 +760,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_error_general: "Something went wrong. Please try again or contact us directly.",
 
     // MOBILE TILE LABELS
-    mob_tile_1_label: "Renovation",      mob_tile_1_sub: "Interior & exterior",
-    mob_tile_2_label: "Painting",        mob_tile_2_sub: "Plastering & facade",
-    mob_tile_3_label: "Garden work",     mob_tile_3_sub: "Landscaping & pruning",
+    mob_tile_1_label: "Cleaning",        mob_tile_1_sub: "Tidying & refreshing",
+    mob_tile_2_label: "Moving",          mob_tile_2_sub: "Transport & heavy lifting",
+    mob_tile_3_label: "Painting",        mob_tile_3_sub: "Plastering & facade",
     mob_tile_4_label: "Mounting",        mob_tile_4_sub: "Kitchen & fixtures",
-    mob_tile_5_label: "Demolition",      mob_tile_5_sub: "Clearing & disposal",
-    mob_tile_6_label: "Tile & groundwork", mob_tile_6_sub: "Paving & kerbing",
-    mob_tile_7_label: "Site work",       mob_tile_7_sub: "Assistance & logistics",
-    mob_tile_8_label: "Combined",        mob_tile_8_sub: "Mixed team",
+    mob_tile_5_label: "Garden",          mob_tile_5_sub: "Landscaping & pruning",
+    mob_tile_6_label: "Handcraft",       mob_tile_6_sub: "Carpenter · mason · plumber",
+    mob_tile_7_label: "Site work",       mob_tile_7_sub: "Logistics & cleanup",
+    mob_tile_8_label: "Events & Stages", mob_tile_8_sub: "Setup & takedown",
+    mob_tile_9_label: "Combined",        mob_tile_9_sub: "Mixed team",
 
     // MOBILE SERVICES
     mob_svc_eyebrow: "Find staffing",

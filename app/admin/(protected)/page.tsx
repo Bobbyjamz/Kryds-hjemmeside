@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { readEmployees, readShifts } from "@/lib/db";
 import { readAnalytics, aggregate, last7Days } from "@/lib/analytics";
+import HealthStatus from "./HealthStatus";
 
 export default async function AdminDashboardPage() {
   const [employees, shifts, views] = await Promise.all([
@@ -36,6 +37,8 @@ export default async function AdminDashboardPage() {
         <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Oversigt</p>
         <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[32px] uppercase tracking-[-.01em] text-cream leading-none">Dashboard</h1>
       </div>
+
+      <HealthStatus />
 
       {/* ── Medarbejder stats ───────────────────────────────────── */}
       <div className="grid grid-cols-4 gap-4 mb-10 max-[900px]:grid-cols-2 max-[500px]:grid-cols-1">

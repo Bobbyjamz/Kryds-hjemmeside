@@ -16,15 +16,34 @@ function XLogo() {
   );
 }
 
-const SERVICE_TILES = [
-  { cat: "Renovering",           num: "01", labelKey: "mob_tile_1_label", subKey: "mob_tile_1_sub", count: "52", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round"><path d="M14 3l7 7-4 4-7-7zM10 10l-7 7v4h4l7-7"/></svg> },
-  { cat: "Maling & spartling",   num: "02", labelKey: "mob_tile_2_label", subKey: "mob_tile_2_sub", count: "34", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="14" height="6" rx="1"/><path d="M17 7h4v5h-9v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-5"/></svg> },
-  { cat: "Havearbejde",          num: "03", labelKey: "mob_tile_3_label", subKey: "mob_tile_3_sub", count: "28", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2C8 6 6 10 6 14a6 6 0 0 0 12 0c0-4-2-8-6-12z"/><path d="M12 14v8"/></svg> },
-  { cat: "Montering",            num: "04", labelKey: "mob_tile_4_label", subKey: "mob_tile_4_sub", count: "41", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9l-3.8 3.8z"/></svg> },
-  { cat: "Nedrivning & rydning", num: "05", labelKey: "mob_tile_5_label", subKey: "mob_tile_5_sub", count: "19", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20l9-9M11 11l6-6 4 4-6 6zM13 13l5 5"/></svg> },
-  { cat: "Flise & anlæg",        num: "06", labelKey: "mob_tile_6_label", subKey: "mob_tile_6_sub", count: "22", img: "https://images.unsplash.com/photo-1567361808960-dec9cb578182?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> },
-  { cat: "Byggepladsbehjælp",    num: "07", labelKey: "mob_tile_7_label", subKey: "mob_tile_7_sub", count: "37", img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h6M9 13h6M9 17h6"/></svg> },
-  { cat: "Kombineret / andet",   num: "08", labelKey: "mob_tile_8_label", subKey: "mob_tile_8_sub", count: "∞",  img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=900&q=80", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg> },
+type ServiceTile = {
+  cat: string;
+  num: string;
+  labelKey: string;
+  subKey: string;
+  img: string;
+  crossImages?: string[];
+};
+
+const SERVICE_TILES: ServiceTile[] = [
+  { cat: "Rengøring & Oprydning",   num: "01", labelKey: "mob_tile_1_label", subKey: "mob_tile_1_sub", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80" },
+  { cat: "Flytning & Transport",    num: "02", labelKey: "mob_tile_2_label", subKey: "mob_tile_2_sub", img: "/gallery/flyttearbejde.webp" },
+  { cat: "Maling & Spartling",      num: "03", labelKey: "mob_tile_3_label", subKey: "mob_tile_3_sub", img: "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=900&q=80" },
+  { cat: "Montering & Samling",     num: "04", labelKey: "mob_tile_4_label", subKey: "mob_tile_4_sub", img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80" },
+  { cat: "Have & Anlæg",            num: "05", labelKey: "mob_tile_5_label", subKey: "mob_tile_5_sub", img: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=900&q=80" },
+  { cat: "Mindre Håndværk",         num: "06", labelKey: "mob_tile_6_label", subKey: "mob_tile_6_sub", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=900&q=80" },
+  { cat: "Byggepladsbehjælp",       num: "07", labelKey: "mob_tile_7_label", subKey: "mob_tile_7_sub", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=900&q=80" },
+  { cat: "Events & Scener",         num: "08", labelKey: "mob_tile_8_label", subKey: "mob_tile_8_sub", img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80" },
+  {
+    cat: "Kombineret / Andet",      num: "09", labelKey: "mob_tile_9_label", subKey: "mob_tile_9_sub",
+    img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=900&q=80",
+    crossImages: [
+      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=450&q=80",
+      "https://images.unsplash.com/photo-1562259949-e8e7689d7828?w=450&q=80",
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=450&q=80",
+      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=450&q=80",
+    ],
+  },
 ];
 
 type FormState = "idle" | "submitting" | "success" | "error";
@@ -173,19 +192,44 @@ export default function MobileApp() {
 
       {/* Menu overlay */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[400] flex flex-col justify-center px-8 gap-5" style={{ background: "color-mix(in srgb, var(--color-black) 97%, transparent)", paddingTop: 58 }}>
-          {[
-            { href: "/om-os", label: isDA ? "Om os" : "About" },
-            { href: "/priser", label: isDA ? "Priser" : "Pricing" },
-            { href: "/tilmeld", label: isDA ? "Tilmeld dig" : "Join us" },
-            { href: "/medarbejder/login", label: isDA ? "Medarbejder login" : "Employee login" },
-          ].map(l => (
-            <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
-              className="font-condensed font-extrabold text-[28px] uppercase text-cream no-underline hover:text-yellow leading-none transition-colors">
-              {l.label}
-            </a>
-          ))}
-          <div className="mt-6 pt-5 border-t border-[rgba(242,238,230,.07)]">
+        <div
+          className="fixed inset-0 z-[400] flex flex-col px-8"
+          style={{
+            background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
+            paddingTop: "calc(20px + env(safe-area-inset-top, 0px))",
+            paddingBottom: "calc(40px + env(safe-area-inset-bottom, 0px))",
+          }}
+        >
+          {/* Tilbage-pil til hovedmenu */}
+          <button
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 self-start font-condensed font-bold text-[12px] tracking-[.18em] uppercase text-muted hover:text-yellow transition-colors mb-12"
+            aria-label={isDA ? "Tilbage til forsiden" : "Back to home"}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12" />
+              <polyline points="12 19 5 12 12 5" />
+            </svg>
+            <span>{isDA ? "Tilbage" : "Back"}</span>
+          </button>
+
+          <div className="flex flex-col gap-5 flex-1 justify-center">
+            {[
+              { href: "/", label: isDA ? "Forside" : "Home" },
+              { href: "/ydelser", label: isDA ? "Ydelser" : "Services" },
+              { href: "/priser", label: isDA ? "Priser" : "Pricing" },
+              { href: "/om-os", label: isDA ? "Om os" : "About" },
+              { href: "/tilmeld", label: isDA ? "Tilmeld dig" : "Join us" },
+              { href: "/medarbejder/login", label: isDA ? "Medarbejder login" : "Employee login" },
+            ].map(l => (
+              <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
+                className="font-condensed font-extrabold text-[26px] uppercase text-cream no-underline hover:text-yellow leading-none transition-colors">
+                {l.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="pt-5 border-t border-[rgba(242,238,230,.07)]">
             <a href="tel:+4542778866" className="text-[15px] text-muted no-underline block mb-1 hover:text-cream transition-colors">+45 42 77 88 66</a>
             <a href="mailto:Kontakt@KrydsByg.com" className="text-[14px] text-muted no-underline hover:text-cream transition-colors">Kontakt@KrydsByg.com</a>
           </div>
@@ -296,13 +340,36 @@ export default function MobileApp() {
                   background: "#111110",
                 }}
               >
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{
-                    backgroundImage: `url('${tile.img}')`,
-                    filter: "grayscale(25%) brightness(0.6) saturate(0.9)",
-                  }}
-                />
+                {tile.crossImages ? (
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "3px",
+                      background: "#F5C400",
+                    }}
+                  >
+                    {tile.crossImages.map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-cover bg-center"
+                        style={{
+                          backgroundImage: `url('${src}')`,
+                          filter: "grayscale(25%) brightness(0.6) saturate(0.9)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url('${tile.img}')`,
+                      filter: "grayscale(25%) brightness(0.6) saturate(0.9)",
+                    }}
+                  />
+                )}
                 <div
                   className="absolute inset-0"
                   style={{
