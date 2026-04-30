@@ -238,6 +238,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("Sarah upload fejl:", err);
-    return NextResponse.json({ error: "Kunne ikke parse Excel-fil" }, { status: 500 });
+    const detail = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Sarah upload fejl: ${detail}` }, { status: 500 });
   }
 }

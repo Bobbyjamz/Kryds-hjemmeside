@@ -168,7 +168,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, imported: newLeads.length, skipped: skipped.length, errors, total: existingLeads.length + newLeads.length });
   } catch (err) {
     console.error("[leads/upload]", err);
-    return NextResponse.json({ error: "Kunne ikke parse filen" }, { status: 500 });
+    const detail = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Leads upload fejl: ${detail}` }, { status: 500 });
   }
 }
 

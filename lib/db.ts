@@ -27,7 +27,13 @@ async function kvGet<T>(key: string, fallback: T): Promise<T> {
 }
 
 async function kvSet<T>(key: string, data: T): Promise<void> {
-  await kv.set(key, data);
+  try {
+    await kv.set(key, data);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    // Re-throw med klar besked så API-ruterne kan vise hvad der gik galt
+    throw new Error(`KV-database fejl ved skrivning til "${key}": ${msg}. Tjek at KV_REST_API_URL og KV_REST_API_TOKEN er sat på Vercel.`);
+  }
 }
 
 // ── ID generator ──────────────────────────────────────────────────────────
