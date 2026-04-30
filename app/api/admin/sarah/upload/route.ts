@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { readSarahContacts, writeSarahContacts, readCustomers, writeCustomers, generateId } from "@/lib/db";
+import { notifyAdmin } from "@/lib/sms";
 import type { SarahContact, Customer } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -228,6 +229,13 @@ export async function POST(req: NextRequest) {
 
     await writeSarahContacts([...existingSarah, ...newContacts]);
     await writeCustomers([...existingCustomers, ...newCustomers]);
+
+    // SMS til admin når der faktisk blev importeret noget
+    if (newContacts.length > 0 || newCustomers.length > 0) {
+      await notifyAdmin(
+        `KrydsByg Sarah: ${newContacts.length} outreach-kontakter + ${newCustomers.length} kunder importeret. Klar til afsendelse.`
+      );
+    }
 
     return NextResponse.json({
       ok: true,

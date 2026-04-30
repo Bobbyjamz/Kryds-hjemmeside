@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { readEmployees, writeEmployees, generateId } from "@/lib/db";
 import { CONTRACT_VERSION } from "@/lib/contract";
+import { notifyAdmin } from "@/lib/sms";
 import type { Employee, Reference } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -118,6 +119,11 @@ export async function POST(req: NextRequest) {
 
     employees.push(employee);
     await writeEmployees(employees);
+
+    // SMS-notifikation til admin om ny tilmelding
+    await notifyAdmin(
+      `KrydsByg: Ny medarbejder — ${employee.name} (${employee.trade}). Tlf: ${employee.phone}`
+    );
 
     // Send email verification if employee has email
     if (email?.trim() && process.env.RESEND_API_KEY) {

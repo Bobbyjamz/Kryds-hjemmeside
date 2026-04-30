@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
+import { notifyAdmin } from "@/lib/sms";
 
 function escapeHtml(str: string): string {
   return str
@@ -167,6 +168,13 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("[contact] Email sendt til", toAddress, "— ID:", data?.id);
+
+    // SMS-notifikation til admin (fejler stille hvis ADMIN_PHONE ikke er sat)
+    const smsContact = telefon || email || "ingen kontakt";
+    await notifyAdmin(
+      `KrydsByg: Ny forespørgsel — ${opgavetype} fra ${virksomhed || kontaktperson || "ukendt"}. Kontakt: ${smsContact}`
+    );
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[contact] Uventet fejl:", err);

@@ -18,6 +18,27 @@ export default function HealthStatus() {
   const [data, setData] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [smsResult, setSmsResult] = useState<string | null>(null);
+  const [smsLoading, setSmsLoading] = useState(false);
+
+  const sendTestSMS = async () => {
+    setSmsLoading(true);
+    setSmsResult(null);
+    try {
+      const r = await fetch("/api/admin/test-sms", { method: "POST" });
+      const d = await r.json();
+      if (d.ok) {
+        setSmsResult(`✓ Test-SMS sendt til ${d.sentTo}`);
+      } else {
+        setSmsResult(`✗ ${d.error}`);
+      }
+    } catch (err) {
+      setSmsResult(`✗ Netværksfejl: ${err instanceof Error ? err.message : "ukendt"}`);
+    } finally {
+      setSmsLoading(false);
+      setTimeout(() => setSmsResult(null), 6000);
+    }
+  };
 
   const refresh = async () => {
     setLoading(true);
@@ -117,10 +138,24 @@ export default function HealthStatus() {
               </div>
             </div>
           ))}
-          <div className="px-4 py-2 bg-[rgba(242,238,230,.02)]">
+          <div className="px-4 py-3 bg-[rgba(242,238,230,.02)] flex items-center justify-between gap-3 flex-wrap">
             <p className="text-[10px] text-muted font-condensed">
               Tjekket: {new Date(data.timestamp).toLocaleString("da-DK")}
             </p>
+            <div className="flex items-center gap-3">
+              {smsResult && (
+                <span className={`text-[11px] font-condensed ${smsResult.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>
+                  {smsResult}
+                </span>
+              )}
+              <button
+                onClick={sendTestSMS}
+                disabled={smsLoading}
+                className="text-[10px] font-condensed font-bold tracking-[.12em] uppercase text-yellow border border-yellow/30 px-3 py-1 rounded-[2px] hover:bg-yellow/10 transition-colors disabled:opacity-50"
+              >
+                {smsLoading ? "Sender..." : "Test-SMS →"}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -40,7 +40,7 @@ export async function GET() {
     { name: "KV-database",        vars: ["KV_REST_API_URL", "KV_REST_API_TOKEN"],                    required: true },
     { name: "Resend (email)",     vars: ["RESEND_API_KEY", "RESEND_FROM"],                            required: true },
     { name: "Anthropic (Council)",vars: ["ANTHROPIC_API_KEY"],                                        required: true },
-    { name: "Twilio (SMS)",       vars: ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_FROM_NUMBER"], required: false },
+    { name: "GatewayAPI (SMS)",   vars: ["GATEWAYAPI_TOKEN", "GATEWAYAPI_SENDER"],                    required: false },
     { name: "Admin SMS-modtager", vars: ["ADMIN_PHONE"],                                              required: false },
   ];
 

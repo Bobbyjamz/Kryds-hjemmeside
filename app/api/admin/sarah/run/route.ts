@@ -8,6 +8,7 @@ import {
   generateId,
 } from "@/lib/db";
 import { buildEmailFromContact } from "@/lib/sarah-templates";
+import { notifyAdmin } from "@/lib/sms";
 import type { SarahLog } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -128,6 +129,13 @@ export async function POST(req: NextRequest) {
   const runIdx = runs.findIndex((r) => r.id === runId);
   runs[runIdx] = { ...runs[runIdx], completedAt: new Date().toISOString(), emailsSent, followUpsSent, status: "completed" };
   await writeSarahRuns(runs);
+
+  // SMS til admin med kørselsresultat
+  if (mode === "email" && emailsSent > 0) {
+    await notifyAdmin(`KrydsByg Sarah: ${emailsSent} outreach-emails sendt. Tjek admin-panelet for status.`);
+  } else if (mode === "followup" && followUpsSent > 0) {
+    await notifyAdmin(`KrydsByg Sarah: ${followUpsSent} opfølgnings-emails sendt.`);
+  }
 
   return NextResponse.json({ ok: true, emailsSent, followUpsSent });
 }
