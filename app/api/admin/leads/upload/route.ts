@@ -46,15 +46,46 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const XLSX = await import("xlsx");
     const workbook = XLSX.read(buffer, { type: "buffer" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" }) as Record<string, string>[];
 
-    if (rows.length === 0) {
-      return NextResponse.json({ error: "Excel filen er tom" }, { status: 400 });
+    // Skip overview/banner sheets — find the first sheet with actual data columns
+    const SKIP_NAMES = ["overblik", "tips", "guide", "instruks", "regler", "forside", "vejledning"];
+    const dataSheetName =
+      workbook.SheetNames.find((n) => !SKIP_NAMES.some((s) => n.toLowerCase().includes(s))) ??
+      workbook.SheetNames[0];
+
+    const sheet = workbook.Sheets[dataSheetName];
+
+    // Try to auto-detect if first row is a banner (not column headers) by checking
+    // whether row 1 looks like real data headers vs. a title cell
+    const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" }) as string[][];
+    const HEADER_HINTS = ["navn", "kontaktperson", "e-mail", "email", "virksomhed", "firma", "telefon", "name", "company"];
+    let headerRowIdx = 0;
+    for (let i = 0; i < Math.min(6, aoa.length); i++) {
+      const rowLower = (aoa[i] || []).map((c) => String(c ?? "").toLowerCase().trim());
+      const hits = rowLower.filter((c) => HEADER_HINTS.some((h) => c === h || c.startsWith(h)));
+      if (hits.length >= 2) { headerRowIdx = i; break; }
     }
 
-    const headers = Object.keys(rows[0]);
+    // Rebuild rows with correct header row
+    const headers = (aoa[headerRowIdx] || []).map((c) => String(c ?? "").trim());
+    const rows: Record<string, string>[] = [];
+    for (let i = headerRowIdx + 1; i < aoa.length; i++) {
+      const row = aoa[i] || [];
+      const obj: Record<string, string> = {};
+      let hasAny = false;
+      for (let j = 0; j < headers.length; j++) {
+        if (!headers[j]) continue;
+        const v = String(row[j] ?? "").trim();
+        obj[headers[j]] = v;
+        if (v) hasAny = true;
+      }
+      if (hasAny) rows.push(obj);
+    }
+
+    if (rows.length === 0) {
+      return NextResponse.json({ error: `Excel filen er tom (sheet: ${dataSheetName})` }, { status: 400 });
+    }
+
     const autoMapping = autoMapColumns(headers);
 
     const mapping: ExcelColumnMapping = mappingStr

@@ -85,7 +85,12 @@ export default function SarahPage() {
     const r = await fetch("/api/admin/sarah/upload", { method: "POST", body: fd });
     const d = await r.json();
     if (d.ok) {
-      setUploadResult(`✓ ${d.imported} importeret, ${d.skipped} sprunget over`);
+      const parts: string[] = [];
+      if (d.imported > 0) parts.push(`${d.imported} outreach-kontakter`);
+      if (d.customersImported > 0) parts.push(`${d.customersImported} kunder`);
+      if (parts.length === 0) parts.push("0 nye (alle allerede importeret?)");
+      const skippedTotal = (d.skipped ?? 0) + (d.customersSkipped ?? 0);
+      setUploadResult(`✓ Importeret: ${parts.join(" + ")}${skippedTotal > 0 ? ` · ${skippedTotal} sprunget over` : ""}`);
       await load();
     } else {
       setUploadResult(`Fejl: ${d.error}`);
