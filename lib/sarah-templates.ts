@@ -89,6 +89,8 @@ export interface SarahTemplateFields {
   // Fælles tidsforslag
   tid1?: string;
   tid2?: string;
+  // Personlig note (1 sætning Sarah fletter ind så mailen ikke føles AI-genereret)
+  personalNote?: string;
 }
 
 export interface SarahTemplate {
@@ -131,10 +133,11 @@ const virksomhedTemplate: SarahTemplate = {
     const virk = f.virksomhed ? ` hos ${esc(f.virksomhed)}` : "";
     const tid1 = esc(f.tid1 || "I de kommende 2 uger");
     const tid2 = esc(f.tid2 || "eller ugen efter hvis det passer bedre");
+    const personalLine = f.personalNote ? `<p style="margin:0 0 16px 0;">${esc(f.personalNote)}</p>\n` : "";
     return wrapTpl(`
 <p style="margin:0 0 16px 0;">Hej ${navn},</p>
 <p style="margin:0 0 16px 0;">Sarah her fra <strong style="color:${s.ink};">Kryds</strong>. Vi er et vikarbureau til byggeprojekter i København og leverer byggepersonale: malere, handymen, gartnere, montering, byggepladshjælp og lignende. Lige nu har vi lidt over 75 aktive folk i netværket, alle screenet og klar til at tage fat.</p>
-<p style="margin:0 0 16px 0;">Vi kender ikke hinanden endnu, og det er derfor jeg skriver. Hvis I${virk} en gang imellem mangler ekstra hænder på et projekt, kunne vi godt tænke os at lave en lille test-opgave sammen. På den måde kan I selv se kvaliteten uden at binde jer til noget.</p>
+${personalLine}<p style="margin:0 0 16px 0;">Vi kender ikke hinanden endnu, og det er derfor jeg skriver. Hvis I${virk} en gang imellem mangler ekstra hænder på et projekt, kunne vi godt tænke os at lave en lille test-opgave sammen. På den måde kan I selv se kvaliteten uden at binde jer til noget.</p>
 <p style="margin:0 0 22px 0;">Har du <strong style="color:${s.ink};">20 minutter til en kop kaffe</strong> et par uger ude i kalenderen? Vi kommer gerne forbi jer.</p>
 <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px 0;background:${s.cream};border-left:3px solid ${s.mustard};">
   <tr>
@@ -152,11 +155,12 @@ const virksomhedTemplate: SarahTemplate = {
     const virk = f.virksomhed ? ` hos ${f.virksomhed}` : "";
     const tid1 = f.tid1 || "I de kommende 2 uger";
     const tid2 = f.tid2 || "eller ugen efter hvis det passer bedre";
+    const personalLine = f.personalNote ? `${f.personalNote}\n\n` : "";
     return `Hej ${navn},
 
 Sarah her fra Kryds. Vi er et vikarbureau til byggeprojekter i København og leverer byggepersonale: malere, handymen, gartnere, montering, byggepladshjælp og lignende. Lige nu har vi lidt over 75 aktive folk i netværket, alle screenet og klar til at tage fat.
 
-Vi kender ikke hinanden endnu, og det er derfor jeg skriver. Hvis I${virk} en gang imellem mangler ekstra hænder på et projekt, kunne vi godt tænke os at lave en lille test-opgave sammen. På den måde kan I selv se kvaliteten uden at binde jer til noget.
+${personalLine}Vi kender ikke hinanden endnu, og det er derfor jeg skriver. Hvis I${virk} en gang imellem mangler ekstra hænder på et projekt, kunne vi godt tænke os at lave en lille test-opgave sammen. På den måde kan I selv se kvaliteten uden at binde jer til noget.
 
 Har du 20 minutter til en kop kaffe et par uger ude i kalenderen? Vi kommer gerne forbi jer.
 
@@ -194,10 +198,11 @@ const privatTemplate: SarahTemplate = {
     const opgave = esc(f.opgave || "maling, havearbejde eller lidt montering");
     const tid1 = esc(f.tid1 || "I de kommende 2 uger");
     const tid2 = esc(f.tid2 || "eller ugen efter");
+    const personalLine = f.personalNote ? `<p style="margin:0 0 16px 0;">${esc(f.personalNote)}</p>\n` : "";
     return wrapTpl(`
 <p style="margin:0 0 16px 0;">Hej ${navn},</p>
 <p style="margin:0 0 16px 0;">Sarah her fra <strong style="color:${s.ink};">Kryds</strong>. Vi er et lille vikarbureau i København, der hjælper boligejere${sted} med de praktiske ting, man ikke selv når. Det kan være ${opgave}, oprydning eller mindre håndværk.</p>
-<p style="margin:0 0 16px 0;">Vi kender ikke hinanden endnu, og jeg ved godt, det er en kold mail. Men hvis du har en lille opgave liggende derhjemme, du gerne vil have væk fra to-do-listen, er det et fint sted at teste os af. Du betaler kun for udført arbejde, og du får en klar pris på forhånd.</p>
+${personalLine}<p style="margin:0 0 16px 0;">Vi kender ikke hinanden endnu, og jeg ved godt, det er en kold mail. Men hvis du har en lille opgave liggende derhjemme, du gerne vil have væk fra to-do-listen, er det et fint sted at teste os af. Du betaler kun for udført arbejde, og du får en klar pris på forhånd.</p>
 <p style="margin:0 0 22px 0;">Må jeg invitere dig på en kort kop kaffe et par uger ude i kalenderen? 20 minutter, så du får et ansigt på os og kan vurdere, om Kryds kunne være relevant for dig.</p>
 <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px 0;background:${s.cream};border-left:3px solid ${s.mustard};">
   <tr>
@@ -216,11 +221,12 @@ const privatTemplate: SarahTemplate = {
     const opgave = f.opgave || "maling, havearbejde eller lidt montering";
     const tid1 = f.tid1 || "I de kommende 2 uger";
     const tid2 = f.tid2 || "eller ugen efter";
+    const personalLine = f.personalNote ? `${f.personalNote}\n\n` : "";
     return `Hej ${navn},
 
 Sarah her fra Kryds. Vi er et lille vikarbureau i København, der hjælper boligejere${sted} med de praktiske ting, man ikke selv når. Det kan være ${opgave}, oprydning eller mindre håndværk.
 
-Vi kender ikke hinanden endnu, og jeg ved godt, det er en kold mail. Men hvis du har en lille opgave liggende derhjemme, du gerne vil have væk fra to-do-listen, er det et fint sted at teste os af. Du betaler kun for udført arbejde, og du får en klar pris på forhånd.
+${personalLine}Vi kender ikke hinanden endnu, og jeg ved godt, det er en kold mail. Men hvis du har en lille opgave liggende derhjemme, du gerne vil have væk fra to-do-listen, er det et fint sted at teste os af. Du betaler kun for udført arbejde, og du får en klar pris på forhånd.
 
 Må jeg invitere dig på en kort kop kaffe et par uger ude i kalenderen? 20 minutter, så du får et ansigt på os og kan vurdere, om Kryds kunne være relevant for dig.
 
@@ -261,10 +267,11 @@ const medarbejderTemplate: SarahTemplate = {
     const hvor = esc(f.hvorFundet || "din profil");
     const tid1 = esc(f.tid1 || "I de kommende 2 uger");
     const tid2 = esc(f.tid2 || "eller ugen efter");
+    const personalLine = f.personalNote ? `<p style="margin:0 0 16px 0;">${esc(f.personalNote)}</p>\n` : "";
     return wrapTpl(`
 <p style="margin:0 0 16px 0;">Hej ${navn},</p>
 <p style="margin:0 0 16px 0;">Sarah her fra <strong style="color:${s.ink};">Kryds</strong>. Vi er et vikarbureau til byggeprojekter i København, og lige nu er vi lidt over 75 folk i netværket: malere, handymen, gartnere, montering og lignende. Vi faldt over ${hvor} og blev nysgerrige.</p>
-<p style="margin:0 0 16px 0;">Vi har løbende brug for dygtige ${fag} til vores opgaver i København. Det kan være enkelte dage eller hele projekter, alt efter hvad der passer dig. Klare aftaler, fair løn, og ingen bureaukratisk vikarbureau-følelse.</p>
+${personalLine}<p style="margin:0 0 16px 0;">Vi har løbende brug for dygtige ${fag} til vores opgaver i København. Det kan være enkelte dage eller hele projekter, alt efter hvad der passer dig. Klare aftaler, fair løn, og ingen bureaukratisk vikarbureau-følelse.</p>
 <p style="margin:0 0 22px 0;">Du kender os ikke endnu, og det er helt fair. Men har du lyst til en uformel kop kaffe et par uger ude, så vi kan få en snak om, hvad du går og laver, og om Kryds kunne være noget for dig? Ellers er du altid velkommen til at læse mere på <a href="https://${KRYDS_WEB}" style="color:${s.mustardDeep};text-decoration:none;font-weight:bold;">${KRYDS_WEB}</a> og tilmelde dig direkte der.</p>
 <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px 0;background:${s.cream};border-left:3px solid ${s.mustard};">
   <tr>
@@ -283,11 +290,12 @@ const medarbejderTemplate: SarahTemplate = {
     const hvor = f.hvorFundet || "din profil";
     const tid1 = f.tid1 || "I de kommende 2 uger";
     const tid2 = f.tid2 || "eller ugen efter";
+    const personalLine = f.personalNote ? `${f.personalNote}\n\n` : "";
     return `Hej ${navn},
 
 Sarah her fra Kryds. Vi er et vikarbureau til byggeprojekter i København, og lige nu er vi lidt over 75 folk i netværket: malere, handymen, gartnere, montering og lignende. Vi faldt over ${hvor} og blev nysgerrige.
 
-Vi har løbende brug for dygtige ${fag} til vores opgaver i København. Det kan være enkelte dage eller hele projekter, alt efter hvad der passer dig. Klare aftaler, fair løn, og ingen bureaukratisk vikarbureau-følelse.
+${personalLine}Vi har løbende brug for dygtige ${fag} til vores opgaver i København. Det kan være enkelte dage eller hele projekter, alt efter hvad der passer dig. Klare aftaler, fair løn, og ingen bureaukratisk vikarbureau-følelse.
 
 Du kender os ikke endnu, og det er helt fair. Men har du lyst til en uformel kop kaffe et par uger ude, så vi kan få en snak om, hvad du går og laver, og om Kryds kunne være noget for dig? Ellers er du altid velkommen til at læse mere på ${KRYDS_WEB} og tilmelde dig direkte der.
 
@@ -325,6 +333,7 @@ export function buildEmailFromContact(contact: {
   company: string;
   trade: string;
   type: "medarbejder" | "partner" | "privat";
+  notes?: string;
 }): { subject: string; html: string; text: string; templateKey: SarahTemplateKey } {
   const templateKey: SarahTemplateKey =
     contact.type === "partner" ? "virksomhed" : contact.type;
@@ -336,6 +345,8 @@ export function buildEmailFromContact(contact: {
     virksomhed: contact.company || undefined,
     fag: contact.trade || undefined,
     hvorFundet: contact.trade ? `din profil` : undefined,
+    // notes-feltet bliver til den personlige sætning Sarah fletter ind i mailen
+    personalNote: contact.notes?.trim() || undefined,
   };
 
   return {

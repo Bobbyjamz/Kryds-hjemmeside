@@ -5,9 +5,13 @@ import type { SarahContact, Customer } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-/** Find the row containing actual column headers (skip banner/title rows). */
+/** Find the row containing actual column headers (skip banner/title rows).
+ *  Matches both old format (header on row 3) and new format (header on row 1). */
 function findHeaderRow(aoa: unknown[][]): number {
-  const HEADER_HINTS = ["navn", "kontaktperson", "e-mail", "email", "name", "stilling"];
+  const HEADER_HINTS = [
+    "navn", "kontaktperson", "e-mail", "email", "name", "stilling",
+    "fornavn", "efternavn", "fag", "virksomhed", "telefon", "status",
+  ];
   for (let i = 0; i < Math.min(10, aoa.length); i++) {
     const row = aoa[i] || [];
     const lowered = row.map((c) => String(c ?? "").toLowerCase().trim());
@@ -15,6 +19,34 @@ function findHeaderRow(aoa: unknown[][]): number {
     if (matches.length >= 2) return i;
   }
   return 0;
+}
+
+/** Map Mail-skabelon column value → contact type. */
+function mapTemplateToType(tpl: string): "medarbejder" | "partner" | "privat" | null {
+  const t = tpl.toLowerCase().trim();
+  if (t === "virksomhed" || t === "partner") return "partner";
+  if (t === "privat" || t === "privatperson") return "privat";
+  if (t === "medarbejder" || t === "medarbejdere") return "medarbejder";
+  return null;
+}
+
+/** Combine Fornavn + Efternavn or fall back to single Navn/Kontaktperson field. */
+function pickFullName(row: Record<string, string>): string {
+  const fornavn = pickRaw(row, "Fornavn");
+  const efternavn = pickRaw(row, "Efternavn");
+  if (fornavn || efternavn) return `${fornavn} ${efternavn}`.trim();
+  return pickRaw(row, "Kontaktperson", "Navn", "Name");
+}
+
+/** Like pick() but doesn't apply lowercase. */
+function pickRaw(row: Record<string, string>, ...candidates: string[]): string {
+  const keys = Object.keys(row);
+  for (const cand of candidates) {
+    const wanted = cand.toLowerCase();
+    const hit = keys.find((k) => k.toLowerCase() === wanted || k.toLowerCase().startsWith(wanted));
+    if (hit && row[hit]) return row[hit];
+  }
+  return "";
 }
 
 /** Convert AOA to row objects with normalized header keys. */
@@ -37,16 +69,6 @@ function rowsWithHeaders(aoa: unknown[][], headerIdx: number): Record<string, st
   return result;
 }
 
-/** Get first non-empty value from a list of possible header keys (case-insensitive, partial match). */
-function pick(row: Record<string, string>, ...candidates: string[]): string {
-  const keys = Object.keys(row);
-  for (const cand of candidates) {
-    const wanted = cand.toLowerCase();
-    const hit = keys.find((k) => k.toLowerCase() === wanted || k.toLowerCase().startsWith(wanted));
-    if (hit && row[hit]) return row[hit];
-  }
-  return "";
-}
 
 export async function POST(req: NextRequest) {
   const session = await getAdminSession();
@@ -82,42 +104,83 @@ export async function POST(req: NextRequest) {
       const lowerName = sheetName.toLowerCase();
 
       // Skip overview / instruction sheets
-      if (lowerName.includes("overblik") || lowerName.includes("tips") || lowerName.includes("guide")) {
+      if (
+        lowerName.includes("overblik") ||
+        lowerName.includes("tips") ||
+        lowerName.includes("guide") ||
+        lowerName.includes("instruks") ||
+        lowerName.includes("regler")
+      ) {
         continue;
       }
 
-      // Customer sheets: kunde, partner, customer, virksomhed, private
+      // ── Bestem default-type ud fra sheet-navn ────────────────────────────
+      // Ny struktur: "Virksomheder" / "Private kunder – Leads" / "Medarbejdere – Skabelon"
+      // Gammel struktur: "kunde", "partner", "customer", "virksomhed", "private"
+      let defaultType: "medarbejder" | "partner" | "privat" = "medarbejder";
       const isCustomerSheet =
         lowerName.includes("kunde") ||
         lowerName.includes("customer") ||
         lowerName.includes("virksomhed") ||
         lowerName.includes("partner") ||
-        lowerName.includes("private");
+        lowerName.includes("private") ||
+        lowerName.includes("privat");
 
       if (isCustomerSheet) {
-        for (const row of rows) {
-          const name = pick(row, "Kontaktperson", "Navn", "Name");
-          const email = pick(row, "E-mail (arbejde)", "E-mail", "Email", "EMAIL").toLowerCase();
-          const phoneRaw = pick(row, "Telefon", "Phone");
-          const phone = phoneRaw.replace(/\D/g, "").slice(-8);
-          const company = pick(row, "Virksomhed / Stilling", "Virksomhed", "Firma", "Company");
-          const trade = pick(row, "Projekttype", "Stilling / Speciale", "Fag", "Trade");
-          const notes = pick(row, "Sarahs noter – skriv en personlig besked", "Sarahs noter", "Sarahs noter til personlig besked", "Noter");
+        defaultType = lowerName.includes("private") || lowerName.includes("privat") ? "privat" : "partner";
+      }
 
-          if (!name) continue;
+      for (const row of rows) {
+        // Pr.-række "Mail-skabelon"-kolonne overruler sheet-navn hvis sat
+        const tplOverride = mapTemplateToType(pickRaw(row, "Mail-skabelon", "Skabelon"));
+        const contactType = tplOverride ?? defaultType;
+
+        const name = pickFullName(row);
+        const email = pickRaw(row, "E-mail (arbejde)", "E-mail (udfyld)", "E-mail", "Email", "EMAIL").toLowerCase();
+        const phoneRaw = pickRaw(row, "Telefon (udfyld)", "Telefon", "Phone");
+        const phone = phoneRaw.replace(/\D/g, "").slice(-8);
+        const company = pickRaw(row, "Virksomhed / Stilling", "Virksomhed", "Firma", "Company");
+        const trade = pickRaw(
+          row,
+          "Fag",
+          "Stilling / Speciale",
+          "Stilling",
+          "Projekttype",
+          "Trade",
+          "Titel",
+          "Branche",
+        );
+        // Personal note — ny struktur "Personlig note", gammel "Sarahs noter ..."
+        const notes = pickRaw(
+          row,
+          "Personlig note",
+          "Sarahs noter – skriv en personlig besked",
+          "Sarahs noter til personlig besked",
+          "Sarahs noter",
+          "Noter",
+          "Note",
+        );
+        const adresse = pickRaw(row, "Adresse / område", "Adresse", "By / område", "By");
+        const opgave = pickRaw(row, "Opgave", "Aktuelle opgave", "Projekt-vinkel");
+
+        if (!name) continue;
+
+        // ── Customer-record (kunder, ikke medarbejdere) ────────────────────
+        if (contactType === "partner" || contactType === "privat") {
+          // Skip duplikater på email/telefon
           if (email && customerEmails.has(email)) { skippedCustomers++; continue; }
           if (phone && customerPhones.has(phone)) { skippedCustomers++; continue; }
 
           const customer: Customer = {
             id: generateId(),
-            type: lowerName.includes("private") || lowerName.includes("privat") ? "privat" : "virksomhed",
+            type: contactType === "privat" ? "privat" : "virksomhed",
             name,
             company: company || undefined,
             email: email || undefined,
             phone: phoneRaw || undefined,
-            cvr: pick(row, "CVR") || undefined,
+            cvr: pickRaw(row, "CVR") || undefined,
             trade: trade || undefined,
-            notes: notes || undefined,
+            notes: [notes, opgave, adresse].filter(Boolean).join(" · ") || undefined,
             status: "lead",
             createdAt: new Date().toISOString(),
             source: "excel_import",
@@ -130,10 +193,6 @@ export async function POST(req: NextRequest) {
           // Også lav en Sarah-outreach kontakt så hun kan emaile dem direkte
           if (email && email.includes("@") && !existingEmails.has(email)) {
             existingEmails.add(email);
-            const contactType: "partner" | "privat" =
-              lowerName.includes("private") || lowerName.includes("privat")
-                ? "privat"
-                : "partner";
             newContacts.push({
               id: generateId(),
               name,
@@ -146,19 +205,9 @@ export async function POST(req: NextRequest) {
               createdAt: new Date().toISOString(),
             });
           }
-        }
-      } else {
-        // Sarah outreach contacts (medarbejder)
-        const type: "medarbejder" | "partner" = lowerName.includes("partner") ? "partner" : "medarbejder";
-
-        for (const row of rows) {
-          const email = pick(row, "E-mail (arbejde)", "E-mail", "Email", "EMAIL").toLowerCase();
-          const name = pick(row, "Navn", "Kontaktperson", "Name");
-          const company = pick(row, "Virksomhed / Stilling", "Firma", "Company");
-          const trade = pick(row, "Stilling / Speciale", "Projekttype", "Fag", "Trade", "Titel");
-          const notes = pick(row, "Sarahs noter til personlig besked", "Sarahs noter", "Noter");
-
-          if (!email || !name || !email.includes("@")) continue;
+        } else {
+          // ── Medarbejder-outreach (kun Sarah-kontakt, ingen Customer) ─────
+          if (!email || !email.includes("@")) continue;
           if (existingEmails.has(email)) { skipped++; continue; }
 
           existingEmails.add(email);
@@ -168,7 +217,7 @@ export async function POST(req: NextRequest) {
             email,
             company: company || "",
             trade: trade || "",
-            type,
+            type: "medarbejder",
             status: "pending",
             notes: notes || undefined,
             createdAt: new Date().toISOString(),
