@@ -193,27 +193,30 @@ export default function MobileApp() {
       {/* Menu overlay */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-[400] flex flex-col px-8"
+          className="fixed inset-0 z-[400] flex flex-col"
           style={{
             background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
-            paddingTop: "calc(20px + env(safe-area-inset-top, 0px))",
             paddingBottom: "calc(40px + env(safe-area-inset-bottom, 0px))",
           }}
         >
-          {/* Tilbage-pil til hovedmenu */}
-          <button
-            onClick={() => setMenuOpen(false)}
-            className="flex items-center gap-2 self-start font-condensed font-bold text-[12px] tracking-[.18em] uppercase text-muted hover:text-yellow transition-colors mb-12"
-            aria-label={isDA ? "Tilbage til forsiden" : "Back to home"}
+          {/* Top bar: mirrors header height + positions close-X at same spot as hamburger */}
+          <div
+            className="flex items-center justify-end px-[18px] flex-shrink-0"
+            style={{ height: 58, borderBottom: "1px solid rgba(242,238,230,.07)" }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
-            <span>{isDA ? "Tilbage" : "Back"}</span>
-          </button>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="app-menu-btn"
+              aria-label={isDA ? "Luk menu" : "Close menu"}
+            >
+              <span style={{ transform: "translateY(6px) rotate(45deg)" }} />
+              <span style={{ opacity: 0 }} />
+              <span style={{ transform: "translateY(-6px) rotate(-45deg)" }} />
+            </button>
+          </div>
 
-          <div className="flex flex-col gap-5 flex-1 justify-center">
+          {/* Navigation links — compact, no centering gap */}
+          <div className="flex flex-col gap-5 px-8 mt-8">
             {[
               { href: "/", label: isDA ? "Forside" : "Home" },
               { href: "/ydelser", label: isDA ? "Ydelser" : "Services" },
@@ -229,7 +232,8 @@ export default function MobileApp() {
             ))}
           </div>
 
-          <div className="pt-5 border-t border-[rgba(242,238,230,.07)]">
+          {/* Contact info pushed to bottom */}
+          <div className="mt-auto px-8 pt-5 border-t border-[rgba(242,238,230,.07)]">
             <a href="tel:+4542778866" className="text-[15px] text-muted no-underline block mb-1 hover:text-cream transition-colors">+45 42 77 88 66</a>
             <a href="mailto:Kontakt@KrydsByg.com" className="text-[14px] text-muted no-underline hover:text-cream transition-colors">Kontakt@KrydsByg.com</a>
           </div>
