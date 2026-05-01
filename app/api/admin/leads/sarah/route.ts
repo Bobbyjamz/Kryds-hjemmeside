@@ -143,6 +143,8 @@ export async function PATCH(req: NextRequest) {
       await resend.emails.send({
         from,
         to: [lead.email],
+        bcc: ["kontakt@krydsbyg.com"],
+        replyTo: "kontakt@krydsbyg.com",
         subject: lead.draftSubject,
         html,
         text: lead.draftBody,
