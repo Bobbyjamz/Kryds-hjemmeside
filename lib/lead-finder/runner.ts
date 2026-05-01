@@ -2,12 +2,14 @@ import { fetchCVRLeads } from "./sources/cvr";
 import { fetchGooglePlacesLeads } from "./sources/google-places";
 import { fetchBoligsidenLeads } from "./sources/boligsiden";
 import { fetchJobindexLeads } from "./sources/jobindex";
+import { getIndustryWeights } from "./scoring";
 import type { LeadCandidate } from "./types";
 
 export interface RunResult {
   candidates: LeadCandidate[];
   bySource: Record<string, number>;
   durationMs: number;
+  industryWeightsApplied: number; // antal branche-vægte der blev brugt
 }
 
 export async function runLeadFinder(): Promise<RunResult> {
@@ -19,10 +21,13 @@ export async function runLeadFinder(): Promise<RunResult> {
     (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
   );
 
+  // Hent industry-vægte fra email-hukommelsen — boost søgninger inden for brancher der har konverteret
+  const weights = await getIndustryWeights().catch(() => ({} as Record<string, number>));
+
   // Kør alle kilder parallelt (med timeout fallback)
   const [cvrResults, googleResults, boligsidenResults, jobindexResults] =
     await Promise.allSettled([
-      fetchCVRLeads(dayOfYear),
+      fetchCVRLeads(dayOfYear, weights),
       fetchGooglePlacesLeads(dayOfYear),
       fetchBoligsidenLeads(),
       fetchJobindexLeads(dayOfYear),
@@ -45,5 +50,6 @@ export async function runLeadFinder(): Promise<RunResult> {
     candidates: allCandidates,
     bySource,
     durationMs: Date.now() - start,
+    industryWeightsApplied: Object.keys(weights).length,
   };
 }

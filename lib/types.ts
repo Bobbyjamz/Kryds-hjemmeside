@@ -197,6 +197,14 @@ export type LeadStatus =
   | "Rejected"
   | "Needs Review";
 
+export interface SarahBriefing {
+  openingLine: string;        // Foreslået åbnings-sætning (første linje i body)
+  painPoints: string[];       // 2-3 specifikke pain points der skal adresseres
+  keyServices: string[];      // 1-2 KrydsByg-ydelser der er mest relevante for dette lead
+  subjectOptions: string[];   // 2 forslag til emnelinje (Sarah vælger den bedste)
+  callToAction: string;       // Præcis CTA i sidste linje (f.eks. "Ring torsdag kl. 14")
+}
+
 export interface CouncilAnalysis {
   leadScore: number;
   customerType: string;
@@ -208,7 +216,22 @@ export interface CouncilAnalysis {
   operationsAdvice: string;
   financeAdvice: string;
   finalRecommendation: string;
+  sarahBriefing?: SarahBriefing;  // Konkret skrive-instruktion til Sarah
   analyzedAt: string;
+}
+
+// Email-hukommelse: gemmer metadata fra hver afsendt mail så Sarah lærer hvad der virker
+export interface EmailMemoryEntry {
+  industry?: string;
+  serviceType?: string;
+  angle: string;            // Den vinkel Council anbefalede
+  tone: string;
+  subjectLine: string;
+  bodyLength: number;       // Antal tegn i body — fortæller om kort/lang virker bedst
+  councilScore: number;
+  customerType: string;
+  sentAt: string;
+  leadId: string;
 }
 
 export interface ExcelColumnMapping {

@@ -1,4 +1,5 @@
 import type { LeadCandidate } from "../types";
+import { rankSearchTerms, type IndustryWeights } from "../scoring";
 
 // 90+ søgetermer — roterer dagligt så vi aldrig rammer de samme firmaer to dage i træk
 const SEARCH_TERMS = [
@@ -60,15 +61,24 @@ interface CVRApiResponse {
   industrydesc?: string;
 }
 
-export async function fetchCVRLeads(dayOfYear: number): Promise<LeadCandidate[]> {
+export async function fetchCVRLeads(
+  dayOfYear: number,
+  weights: IndustryWeights = {}
+): Promise<LeadCandidate[]> {
   const results: LeadCandidate[] = [];
 
   // Hent 30 termer baseret på dagens dato — roterer gennem alle ~90 termer over 3 dage
   const startIdx = (dayOfYear * 30) % SEARCH_TERMS.length;
-  const terms: string[] = [];
+  const dailyTerms: string[] = [];
   for (let i = 0; i < 30; i++) {
-    terms.push(SEARCH_TERMS[(startIdx + i) % SEARCH_TERMS.length]);
+    dailyTerms.push(SEARCH_TERMS[(startIdx + i) % SEARCH_TERMS.length]);
   }
+
+  // Hvis vi har historiske vægte, ranger termerne så top-konverterende brancher prøves først
+  // (vigtigt hvis CVR-API'et timer ud halvvejs)
+  const terms = Object.keys(weights).length > 0
+    ? rankSearchTerms(dailyTerms, weights)
+    : dailyTerms;
 
   for (const term of terms) {
     try {

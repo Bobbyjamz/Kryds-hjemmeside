@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readLeads, writeLeads } from "@/lib/db";
+import { readLeads, writeLeads, appendEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
+import { buildEmailHtml, buildEmailText } from "@/lib/email-builder";
 
 export const runtime = "nodejs";
 
@@ -37,15 +38,14 @@ SARAHS REGLER:
 - Lov aldrig noget urealistisk
 - Skriv ALTID på dansk
 
-SIGNATUR (brug altid denne nøjagtigt):
-Sarah Møller
-På vegne af Krystian
-KrydsByg.com
-Telefon: +45 42 77 88 66
-Mail: Kontakt@KrydsByg.com
+VIGTIGT — SIGNATUR HÅNDTERES AUTOMATISK:
+- Du skal IKKE skrive nogen signatur, kontaktinfo eller "Sarah Møller" til sidst i body
+- Body skal slutte med call-to-action — IKKE med navnet
+- Systemet tilføjer signaturen automatisk
+- Body må MAX være 6 linjer — ekskl. signatur
 
 RETURNER KUN JSON — ingen tekst udenom:
-{"subject":"<emne>","body":"<body med linjeskift som \\n>","angle":"<kort forklaring på valgt vinkel>"}`;
+{"subject":"<emne>","body":"<body uden signatur, med linjeskift som \\n>","angle":"<kort forklaring på valgt vinkel>"}`;
 
 export async function POST(req: NextRequest) {
   if (!await isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -59,6 +59,23 @@ export async function POST(req: NextRequest) {
   if (lead.draftBody && !regenerate) return NextResponse.json({ error: "Udkast eksisterer allerede. Brug regenerate: true for at lave nyt." }, { status: 400 });
 
   const council = lead.councilAnalysis;
+  const briefing = council.sarahBriefing;
+
+  // Bygger briefing-blok hvis Council har leveret en
+  const briefingBlock = briefing
+    ? `
+SARAH-BRIEFING FRA COUNCIL (FØLG DETTE):
+- Åbningslinje: "${briefing.openingLine}"
+- Pain points der skal adresseres: ${briefing.painPoints.join(" | ")}
+- Fokuser på disse KrydsByg-ydelser: ${briefing.keyServices.join(", ")}
+- Foreslåede emnelinjer (vælg den bedste eller skriv en variation): ${briefing.subjectOptions.join(" / ")}
+- Afslut med præcis CTA: "${briefing.callToAction}"
+
+Brug Council's openingLine som første linje (eller en let variation). Slut body med CTA — IKKE med navn/signatur.`
+    : `
+COUNCIL HAR INGEN BRIEFING — brug egen vurdering baseret på følgende råd:
+Salgsråd: ${council.salesAdvice}
+Vinkel: ${council.recommendedAngle}`;
 
   try {
     const msg = await client.messages.create({
@@ -80,11 +97,9 @@ Noter: ${lead.notes || "ingen"}
 
 COUNCIL:
 Kundetype: ${council.customerType}
-Anbefalet vinkel: ${council.recommendedAngle}
 Tone: ${council.tone}
-Salgsråd: ${council.salesAdvice}
-Endelig anbefaling: ${council.finalRecommendation}
-Risici at undgå: ${council.risks.join(", ")}`,
+Risici at undgå: ${council.risks.join(", ")}
+${briefingBlock}`,
       }],
     });
 
@@ -138,13 +153,12 @@ export async function PATCH(req: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
 
-    // Konvertér plain text body til simpel HTML
-    const htmlBody = lead.draftBody
-      .split("\n")
-      .map((line) => line.trim() ? `<p style="margin:0 0 10px 0">${line}</p>` : "")
-      .join("");
-
-    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#222;max-width:600px">${htmlBody}</div>`;
+    // Brug branded email-builder med professionel signatur
+    const html = buildEmailHtml({
+      body: lead.draftBody,
+      preheader: lead.draftSubject,
+    });
+    const textVersion = buildEmailText(lead.draftBody);
 
     try {
       await resend.emails.send({
@@ -154,7 +168,7 @@ export async function PATCH(req: NextRequest) {
         replyTo: "kontakt@krydsbyg.com",
         subject: lead.draftSubject,
         html,
-        text: lead.draftBody,
+        text: textVersion,
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -164,6 +178,27 @@ export async function PATCH(req: NextRequest) {
     await writeLeads(leads.map((l) =>
       l.id === leadId ? { ...l, status: "Sent" as const, sentAt: now, updatedAt: now } : l
     ));
+
+    // Gem i email-hukommelse — så Sarah lærer hvad der virker fremover
+    if (lead.councilAnalysis) {
+      try {
+        await appendEmailMemory({
+          industry: lead.industry,
+          serviceType: lead.serviceType,
+          angle: lead.councilAnalysis.recommendedAngle,
+          tone: lead.councilAnalysis.tone,
+          subjectLine: lead.draftSubject,
+          bodyLength: lead.draftBody.length,
+          councilScore: lead.councilAnalysis.leadScore,
+          customerType: lead.councilAnalysis.customerType,
+          sentAt: now,
+          leadId: lead.id,
+        });
+      } catch (err) {
+        console.error("[email-memory] kunne ikke gemme entry:", err);
+      }
+    }
+
     return NextResponse.json({ ok: true, sent: true });
   }
 

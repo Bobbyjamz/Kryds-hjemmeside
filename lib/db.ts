@@ -18,6 +18,7 @@ import type {
   Customer,
   EmailVerificationToken,
   Lead,
+  EmailMemoryEntry,
 } from "./types";
 
 // ── Generic helpers ────────────────────────────────────────────────────────
@@ -181,4 +182,20 @@ export async function readLeads(): Promise<Lead[]> {
 }
 export async function writeLeads(leads: Lead[]): Promise<void> {
   return kvSet("leads", leads);
+}
+
+// ── Email memory (Sarah lærer hvad der virker) ─────────────────────────────
+
+export async function readEmailMemory(): Promise<EmailMemoryEntry[]> {
+  return kvGet<EmailMemoryEntry[]>("email-memory", []);
+}
+export async function writeEmailMemory(entries: EmailMemoryEntry[]): Promise<void> {
+  return kvSet("email-memory", entries);
+}
+
+/** Tilføjer en ny entry og holder listen på max 500 — vi kasserer den ældste først */
+export async function appendEmailMemory(entry: EmailMemoryEntry): Promise<void> {
+  const existing = await readEmailMemory();
+  const next = [...existing, entry].slice(-500);
+  await writeEmailMemory(next);
 }

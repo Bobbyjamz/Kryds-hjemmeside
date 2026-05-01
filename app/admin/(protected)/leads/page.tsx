@@ -468,6 +468,41 @@ export default function LeadsPage() {
                   <p className="font-condensed text-[10px] tracking-[.15em] uppercase text-blue-300 mb-1">Endelig anbefaling</p>
                   <p className="text-cream text-[13px] leading-[1.6]">{selectedLead.councilAnalysis.finalRecommendation}</p>
                 </div>
+
+                {/* Sarah-briefing fra Council */}
+                {selectedLead.councilAnalysis.sarahBriefing && (
+                  <div className="mt-4 p-3 bg-[rgba(245,196,0,.06)] border border-yellow/30 rounded-[2px]">
+                    <p className="font-condensed text-[10px] tracking-[.15em] uppercase text-yellow mb-3">Sarah-briefing fra Council</p>
+                    <div className="mb-3">
+                      <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-muted mb-1">Åbningslinje</p>
+                      <p className="text-cream text-[13px] italic">&ldquo;{selectedLead.councilAnalysis.sarahBriefing.openingLine}&rdquo;</p>
+                    </div>
+                    <div className="mb-3">
+                      <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-muted mb-1">Pain points</p>
+                      <ul className="text-cream text-[13px] leading-[1.6] list-disc list-inside">
+                        {selectedLead.councilAnalysis.sarahBriefing.painPoints.map((p, i) => <li key={i}>{p}</li>)}
+                      </ul>
+                    </div>
+                    <div className="mb-3">
+                      <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-muted mb-1">Fokus-ydelser</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedLead.councilAnalysis.sarahBriefing.keyServices.map((s) => (
+                          <span key={s} className="text-[11px] text-yellow bg-yellow/10 border border-yellow/30 px-2 py-[2px] rounded-[2px]">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mb-3">
+                      <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-muted mb-1">Emne-forslag</p>
+                      <ul className="text-cream text-[13px] leading-[1.5]">
+                        {selectedLead.councilAnalysis.sarahBriefing.subjectOptions.map((s, i) => <li key={i}>· {s}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-muted mb-1">Call to action</p>
+                      <p className="text-cream text-[13px] font-bold">{selectedLead.councilAnalysis.sarahBriefing.callToAction}</p>
+                    </div>
+                  </div>
+                )}
               </section>
             )}
 
