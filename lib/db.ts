@@ -1,5 +1,10 @@
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
 import crypto from "crypto";
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 import type {
   Employee,
   Shift,
@@ -19,7 +24,7 @@ import type {
 
 async function kvGet<T>(key: string, fallback: T): Promise<T> {
   try {
-    const val = await kv.get<T>(key);
+    const val = await redis.get<T>(key);
     return val ?? fallback;
   } catch {
     return fallback;
@@ -28,11 +33,10 @@ async function kvGet<T>(key: string, fallback: T): Promise<T> {
 
 async function kvSet<T>(key: string, data: T): Promise<void> {
   try {
-    await kv.set(key, data);
+    await redis.set(key, data);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    // Re-throw med klar besked så API-ruterne kan vise hvad der gik galt
-    throw new Error(`KV-database fejl ved skrivning til "${key}": ${msg}. Tjek at KV_REST_API_URL og KV_REST_API_TOKEN er sat på Vercel.`);
+    throw new Error(`KV-database fejl ved skrivning til "${key}": ${msg}. Tjek at UPSTASH_REDIS_REST_URL og UPSTASH_REDIS_REST_TOKEN er sat på Vercel.`);
   }
 }
 

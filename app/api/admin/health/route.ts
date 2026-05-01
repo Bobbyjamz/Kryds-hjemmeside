@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
 import { getAdminSession } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -19,11 +19,15 @@ export async function GET() {
 
   // ── KV connectivity test (write + read + delete) ─────────────────
   try {
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
     const testKey = "_health_check_" + Date.now();
     const testValue = { ts: new Date().toISOString(), random: Math.random() };
-    await kv.set(testKey, testValue, { ex: 60 }); // expires in 60 sec
-    const readBack = await kv.get<typeof testValue>(testKey);
-    await kv.del(testKey);
+    await redis.set(testKey, testValue, { ex: 60 }); // expires in 60 sec
+    const readBack = await redis.get<typeof testValue>(testKey);
+    await redis.del(testKey);
     if (readBack && readBack.random === testValue.random) {
       checks.push({ name: "KV database", ok: true, detail: "Write + read + delete fungerer" });
     } else {
@@ -37,7 +41,7 @@ export async function GET() {
   // ── Env var presence (uden at lække værdier) ─────────────────────
   const ENV_GROUPS: { name: string; vars: string[]; required: boolean }[] = [
     { name: "Auth (JWT + admin)", vars: ["JWT_SECRET", "ADMIN_USERNAME", "ADMIN_PASSWORD_HASH_B64"], required: true },
-    { name: "KV-database",        vars: ["KV_REST_API_URL", "KV_REST_API_TOKEN"],                    required: true },
+    { name: "KV-database",        vars: ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"],        required: true },
     { name: "Resend (email)",     vars: ["RESEND_API_KEY", "RESEND_FROM"],                            required: true },
     { name: "Anthropic (Council)",vars: ["ANTHROPIC_API_KEY"],                                        required: true },
     { name: "GatewayAPI (SMS)",   vars: ["GATEWAYAPI_TOKEN", "GATEWAYAPI_SENDER"],                    required: false },
