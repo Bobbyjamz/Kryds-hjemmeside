@@ -89,8 +89,15 @@ Risici at undgå: ${council.risks.join(", ")}`,
     });
 
     const text = msg.content[0].type === "text" ? msg.content[0].text : "{}";
-    const clean = text.replace(/```json|```/g, "").trim();
-    const result = JSON.parse(clean);
+    let result: Record<string, string>;
+    try {
+      const clean = text.replace(/```json|```/g, "").trim();
+      result = JSON.parse(clean);
+    } catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error(`Sarah returnerede intet JSON. Svar: ${text.slice(0, 200)}`);
+      result = JSON.parse(match[0]);
+    }
 
     await writeLeads(leads.map((l) =>
       l.id === leadId

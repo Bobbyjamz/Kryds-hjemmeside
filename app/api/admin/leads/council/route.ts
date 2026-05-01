@@ -69,8 +69,21 @@ Noter: ${lead.notes || "Ingen"}
     });
 
     const text = msg.content[0].type === "text" ? msg.content[0].text : "{}";
-    const clean = text.replace(/```json|```/g, "").trim();
-    const analysis: CouncilAnalysis = { ...JSON.parse(clean), analyzedAt: new Date().toISOString() };
+
+    // Robust JSON-ekstraktion: find første { og matchende afsluttende }
+    let parsed: Record<string, unknown>;
+    try {
+      // Forsøg 1: direkte parse efter strip af markdown
+      const clean = text.replace(/```json|```/g, "").trim();
+      parsed = JSON.parse(clean);
+    } catch {
+      // Forsøg 2: udtræk JSON-blok med regex
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error(`Council returnerede intet JSON. Svar: ${text.slice(0, 200)}`);
+      parsed = JSON.parse(match[0]);
+    }
+
+    const analysis: CouncilAnalysis = { ...parsed, analyzedAt: new Date().toISOString() } as CouncilAnalysis;
 
     await writeLeads(leads.map((l) =>
       l.id === leadId
