@@ -8,7 +8,7 @@ export default function StatsBar() {
   const { t } = useLanguage();
 
   const stats = [
-    { num: "300+", labelKey: "stats_1" },
+    { num: "50+", labelKey: "stats_1" },
     { num: "2t",   labelKey: "stats_2" },
     { num: "100%", labelKey: "stats_3" },
     { num: "7 år", labelKey: "stats_4" },
