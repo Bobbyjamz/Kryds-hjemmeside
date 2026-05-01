@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const msg = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-4-5",
       max_tokens: 900,
       system: SYSTEM_PROMPT,
       messages: [{
@@ -94,7 +94,8 @@ Noter: ${lead.notes || "Ingen"}
     return NextResponse.json({ ok: true, analysis });
   } catch (err) {
     console.error("[leads/council]", err);
-    return NextResponse.json({ error: "Council analyse fejlede" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Council analyse fejlede: ${msg}` }, { status: 500 });
   }
 }
 
