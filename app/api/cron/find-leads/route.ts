@@ -42,6 +42,7 @@ export async function GET(req: Request) {
       if (emailLower) existingEmails.add(emailLower);
 
       const now = new Date().toISOString();
+      // Leads uden email gemmes med tom streng — kan tilføjes manuelt i admin
       newLeads.push({
         id: generateId(),
         companyName: candidate.companyName,
@@ -52,7 +53,10 @@ export async function GET(req: Request) {
         city: candidate.city,
         industry: candidate.industry,
         serviceType: candidate.serviceType,
-        notes: candidate.notes,
+        notes: [
+          candidate.notes,
+          !candidate.email ? "⚠️ Ingen email fundet — tilføj manuelt for at Sarah kan sende" : "",
+        ].filter(Boolean).join(" | "),
         status: "New",
         sourceFile: `auto-${candidate.source.toLowerCase().replace(/\s+/g, "-")}`,
         createdAt: now,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readLeads, writeLeads } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
+import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
@@ -111,16 +112,55 @@ Risici at undgå: ${council.risks.join(", ")}`,
   }
 }
 
-// PATCH — godkend, afvis eller rediger udkast
+// PATCH — godkend, afvis, rediger eller SEND email
 export async function PATCH(req: NextRequest) {
   if (!await isAdmin()) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { leadId, action, editedSubject, editedBody } = await req.json();
   const leads = await readLeads();
+  const lead = leads.find((l) => l.id === leadId);
+  if (!lead) return NextResponse.json({ error: "Lead ikke fundet" }, { status: 404 });
 
+  const now = new Date().toISOString();
+
+  // ── Send godkendt email via Resend ──────────────────────────────────────
+  if (action === "send") {
+    if (!lead.email) return NextResponse.json({ error: "Lead mangler email-adresse" }, { status: 400 });
+    if (!lead.draftSubject || !lead.draftBody) return NextResponse.json({ error: "Ingen email-udkast — generér udkast med Sarah først" }, { status: 400 });
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
+
+    // Konvertér plain text body til simpel HTML
+    const htmlBody = lead.draftBody
+      .split("\n")
+      .map((line) => line.trim() ? `<p style="margin:0 0 10px 0">${line}</p>` : "")
+      .join("");
+
+    const html = `<div style="font-family:Arial,sans-serif;font-size:15px;color:#222;max-width:600px">${htmlBody}</div>`;
+
+    try {
+      await resend.emails.send({
+        from,
+        to: [lead.email],
+        subject: lead.draftSubject,
+        html,
+        text: lead.draftBody,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return NextResponse.json({ error: `Email-afsendelse fejlede: ${msg}` }, { status: 500 });
+    }
+
+    await writeLeads(leads.map((l) =>
+      l.id === leadId ? { ...l, status: "Sent" as const, sentAt: now, updatedAt: now } : l
+    ));
+    return NextResponse.json({ ok: true, sent: true });
+  }
+
+  // ── Øvrige handlinger ───────────────────────────────────────────────────
   await writeLeads(leads.map((l) => {
     if (l.id !== leadId) return l;
-    const now = new Date().toISOString();
     if (action === "approve") return { ...l, status: "Approved" as const, approvedAt: now, updatedAt: now };
     if (action === "reject") return { ...l, status: "Rejected" as const, updatedAt: now };
     if (action === "edit") return { ...l, draftSubject: editedSubject, draftBody: editedBody, status: "Needs Review" as const, updatedAt: now };
