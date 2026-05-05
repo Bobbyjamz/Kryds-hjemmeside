@@ -247,10 +247,13 @@ export interface ExcelColumnMapping {
   personalAngle?: string;
 }
 
+export type LeadType = "company" | "private" | "employee";
+
 export interface Lead {
   id: string;
   companyName: string;
   contactName?: string;
+  contactTitle?: string;     // Direktør, Formand, Jobsøger, osv.
   email: string;
   phone?: string;
   industry?: string;
@@ -259,6 +262,8 @@ export interface Lead {
   notes?: string;
   serviceType?: string;
   personalAngle?: string;
+  budget?: string;           // Estimeret budget
+  leadType?: LeadType;       // company | private | employee (valgfri for bagudkompatibilitet)
   status: LeadStatus;
   councilScore?: number;
   councilAnalysis?: CouncilAnalysis;

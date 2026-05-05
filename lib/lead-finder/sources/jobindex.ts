@@ -53,6 +53,7 @@ export async function fetchJobindexLeads(dayOfYear: number): Promise<LeadCandida
           website: job.employer?.url || undefined,
           city: job.location || "Storkøbenhavn",
           source: "Jobindex",
+          leadType: "company",
           serviceType: "Facility / vedligehold",
           notes: `Søger "${job.title}" — har aktivt vedligeholdelsesbehov`,
         });

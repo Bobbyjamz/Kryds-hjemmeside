@@ -62,6 +62,7 @@ export async function fetchGooglePlacesLeads(dayOfYear: number): Promise<LeadCan
           address: place.formatted_address,
           city,
           source: "Google Places",
+          leadType: "company",
           serviceType: "Malerarbejde + facility services",
           notes: `Fundet via Google Places: "${query}"`,
         });

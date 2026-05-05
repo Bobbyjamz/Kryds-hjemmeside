@@ -1,7 +1,19 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { Lead, LeadStatus } from "@/lib/types";
+import type { Lead, LeadStatus, LeadType } from "@/lib/types";
+
+const LEAD_TYPE_LABELS: Record<LeadType, string> = {
+  company: "🏢 Virksomheder",
+  private: "🏠 Private",
+  employee: "👷 Medarbejdere",
+};
+
+const LEAD_TYPE_COLORS: Record<LeadType, string> = {
+  company: "text-blue-300 border-[rgba(96,165,250,.3)] bg-[rgba(96,165,250,.08)]",
+  private: "text-green-300 border-[rgba(74,222,128,.3)] bg-[rgba(74,222,128,.08)]",
+  employee: "text-yellow border-[rgba(245,196,0,.3)] bg-[rgba(245,196,0,.08)]",
+};
 
 const STATUS_COLORS: Record<LeadStatus, string> = {
   New:           "bg-[rgba(242,238,230,.08)] text-muted border-[rgba(242,238,230,.15)]",
@@ -24,6 +36,7 @@ export default function LeadsPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"all" | LeadType>("all");
 
   // Upload state
   const [file, setFile] = useState<File | null>(null);
@@ -172,12 +185,24 @@ export default function LeadsPage() {
     alert(`${sent} emails sendt!`);
   }
 
+  // Filter leads baseret på aktiv tab
+  const filteredLeads = activeTab === "all"
+    ? leads
+    : leads.filter((l) => (l.leadType || "company") === activeTab);
+
+  const tabCounts: Record<"all" | LeadType, number> = {
+    all: leads.length,
+    company: leads.filter((l) => (l.leadType || "company") === "company").length,
+    private: leads.filter((l) => l.leadType === "private").length,
+    employee: leads.filter((l) => l.leadType === "employee").length,
+  };
+
   const stats = {
-    New: leads.filter((l) => l.status === "New").length,
-    Analyzed: leads.filter((l) => l.status === "Analyzed").length,
-    Drafted: leads.filter((l) => l.status === "Drafted").length,
-    Approved: leads.filter((l) => l.status === "Approved").length,
-    Sent: leads.filter((l) => l.status === "Sent").length,
+    New: filteredLeads.filter((l) => l.status === "New").length,
+    Analyzed: filteredLeads.filter((l) => l.status === "Analyzed").length,
+    Drafted: filteredLeads.filter((l) => l.status === "Drafted").length,
+    Approved: filteredLeads.filter((l) => l.status === "Approved").length,
+    Sent: filteredLeads.filter((l) => l.status === "Sent").length,
   };
 
   const btnClass = "font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-3 py-[6px] rounded-[2px] border transition-colors disabled:opacity-40";
@@ -219,6 +244,23 @@ export default function LeadsPage() {
             {actionLoading === "batch-send" ? "Sender..." : `Send alle (${stats.Approved} godkendt)`}
           </button>
         </div>
+      </div>
+
+      {/* Type-tabs */}
+      <div className="flex gap-1 mb-6 border-b border-[rgba(242,238,230,0.07)] pb-0">
+        {(["all", "company", "private", "employee"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-4 py-[10px] border-b-2 transition-colors -mb-px ${
+              activeTab === tab
+                ? "border-yellow text-yellow"
+                : "border-transparent text-muted hover:text-cream"
+            }`}
+          >
+            {tab === "all" ? "Alle" : LEAD_TYPE_LABELS[tab]} ({tabCounts[tab]})
+          </button>
+        ))}
       </div>
 
       {/* Stats */}
@@ -305,9 +347,9 @@ export default function LeadsPage() {
       {/* Leads table */}
       {loading ? (
         <div className="text-center text-muted py-20 font-condensed uppercase tracking-[.12em]">Henter leads...</div>
-      ) : leads.length === 0 ? (
+      ) : filteredLeads.length === 0 ? (
         <div className="text-center py-20 bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px]">
-          <p className="text-muted font-condensed text-[14px] mb-3">Ingen leads endnu</p>
+          <p className="text-muted font-condensed text-[14px] mb-3">Ingen leads i denne kategori</p>
           <button onClick={() => setUploadOpen(true)} className="text-yellow font-condensed font-bold text-[12px] tracking-[.1em] uppercase hover:underline">Upload Excel →</button>
         </div>
       ) : (
@@ -315,13 +357,13 @@ export default function LeadsPage() {
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-[rgba(242,238,230,0.07)]">
-                {["Virksomhed", "Kontakt", "Email", "Branche", "Score", "Status", "Handlinger"].map((h) => (
+                {["Type", "Virksomhed/Navn", "Kontakt", "Email", "Budget", "Score", "Status", "Handlinger"].map((h) => (
                   <th key={h} className="text-left font-condensed font-semibold text-[10px] tracking-[.18em] uppercase text-muted px-4 py-3">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {leads.map((lead) => {
+              {filteredLeads.map((lead) => {
                 const isLoading = (s: string) => actionLoading === lead.id + "-" + s;
                 return (
                   <tr
@@ -329,10 +371,20 @@ export default function LeadsPage() {
                     className="border-b border-[rgba(242,238,230,0.04)] hover:bg-[rgba(242,238,230,.02)] cursor-pointer"
                     onClick={() => { setSelectedLead(lead); setEditSubject(lead.draftSubject || ""); setEditBody(lead.draftBody || ""); setEditing(false); }}
                   >
-                    <td className="px-4 py-3 text-cream font-semibold">{lead.companyName}</td>
-                    <td className="px-4 py-3 text-muted">{lead.contactName || "–"}</td>
-                    <td className="px-4 py-3 text-muted truncate max-w-[160px]">{lead.email}</td>
-                    <td className="px-4 py-3 text-muted">{lead.industry || "–"}</td>
+                    <td className="px-4 py-3">
+                      {lead.leadType ? (
+                        <span className={`inline-block font-condensed font-bold text-[9px] tracking-[.1em] uppercase px-[6px] py-[2px] rounded-[2px] border ${LEAD_TYPE_COLORS[lead.leadType]}`}>
+                          {lead.leadType === "company" ? "🏢" : lead.leadType === "private" ? "🏠" : "👷"}
+                        </span>
+                      ) : <span className="text-muted text-[11px]">🏢</span>}
+                    </td>
+                    <td className="px-4 py-3 text-cream font-semibold max-w-[180px] truncate">{lead.companyName}</td>
+                    <td className="px-4 py-3 text-muted text-[12px]">
+                      {lead.contactName || "–"}
+                      {lead.contactTitle && <span className="block text-[10px] text-muted opacity-60">{lead.contactTitle}</span>}
+                    </td>
+                    <td className="px-4 py-3 text-muted truncate max-w-[140px] text-[12px]">{lead.email || "–"}</td>
+                    <td className="px-4 py-3 text-muted text-[12px]">{lead.budget || "–"}</td>
                     <td className="px-4 py-3">
                       {lead.councilScore ? (
                         <span className={`font-condensed font-black text-[16px] ${lead.councilScore >= 7 ? "text-green-300" : lead.councilScore >= 4 ? "text-yellow" : "text-red-300"}`}>
@@ -410,15 +462,23 @@ export default function LeadsPage() {
 
             {/* Lead info */}
             <section className="mb-6 p-5 bg-gray rounded-[2px] border border-[rgba(242,238,230,0.07)]">
-              <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-3">Lead info</p>
+              <div className="flex items-center gap-3 mb-3">
+                <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted">Lead info</p>
+                {selectedLead.leadType && (
+                  <span className={`font-condensed font-bold text-[9px] tracking-[.1em] uppercase px-[7px] py-[3px] rounded-[2px] border ${LEAD_TYPE_COLORS[selectedLead.leadType]}`}>
+                    {LEAD_TYPE_LABELS[selectedLead.leadType]}
+                  </span>
+                )}
+              </div>
               {[
-                ["Kontakt", selectedLead.contactName],
+                ["Kontakt", selectedLead.contactName ? `${selectedLead.contactName}${selectedLead.contactTitle ? ` — ${selectedLead.contactTitle}` : ""}` : null],
                 ["Email", selectedLead.email],
                 ["Telefon", selectedLead.phone],
                 ["Branche", selectedLead.industry],
                 ["By", selectedLead.city],
                 ["Website", selectedLead.website],
                 ["Service", selectedLead.serviceType],
+                ["Budget", selectedLead.budget],
                 ["Vinkel", selectedLead.personalAngle],
                 ["Noter", selectedLead.notes],
               ].filter(([, v]) => v).map(([k, v]) => (

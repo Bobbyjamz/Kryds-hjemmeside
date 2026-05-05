@@ -44,6 +44,7 @@ export async function fetchBoligsidenLeads(): Promise<LeadCandidate[]> {
           address: property.address,
           city: property.city || `Postnr. ${zip}`,
           source: "Boligsiden (nyligt solgt)",
+          leadType: "private",
           serviceType: "Malerarbejde + gulvlægning",
           notes: `Nyligt købt bolig — typisk i gang med renovering. Salgspris: ${property.salesPrice ? (property.salesPrice / 1000000).toFixed(1) + "M" : "ukendt"}`,
         });

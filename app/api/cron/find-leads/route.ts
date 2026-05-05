@@ -5,7 +5,7 @@ import { notifyAdmin } from "@/lib/sms";
 import type { Lead } from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // Op til 60 sekunder (Vercel Pro: 300s)
+export const maxDuration = 300; // 300s — website scraping + note-generering kræver tid
 
 export async function GET(req: Request) {
   // Sikkerhed: kun Vercel Cron eller admin med CRON_SECRET må kalde denne
@@ -42,20 +42,22 @@ export async function GET(req: Request) {
       if (emailLower) existingEmails.add(emailLower);
 
       const now = new Date().toISOString();
-      // Leads uden email gemmes med tom streng — kan tilføjes manuelt i admin
       newLeads.push({
         id: generateId(),
         companyName: candidate.companyName,
         contactName: candidate.contactName,
+        contactTitle: candidate.contactTitle,
         email: candidate.email || "",
         phone: candidate.phone,
         website: candidate.website,
         city: candidate.city,
         industry: candidate.industry,
         serviceType: candidate.serviceType,
+        budget: candidate.budget,
+        leadType: candidate.leadType,
         notes: [
           candidate.notes,
-          !candidate.email ? "⚠️ Ingen email fundet — tilføj manuelt for at Sarah kan sende" : "",
+          !candidate.email ? "⚠️ Ingen email fundet — tilføj manuelt" : "",
         ].filter(Boolean).join(" | "),
         status: "New",
         sourceFile: `auto-${candidate.source.toLowerCase().replace(/\s+/g, "-")}`,
@@ -74,10 +76,14 @@ export async function GET(req: Request) {
       .map(([src, n]) => `${src}: ${n}`)
       .join(", ");
 
+    const typeBreakdown = result.byType
+      ? `Virksomheder: ${result.byType.company}, Private: ${result.byType.private}, Medarbejdere: ${result.byType.employee}`
+      : sourceBreakdown;
+
     const smsText =
       newLeads.length > 0
-        ? `KrydsByg LeadBot: ${newLeads.length} nye leads fundet i dag (${sourceBreakdown}). Klar i admin-panelet.`
-        : `KrydsByg LeadBot: Ingen nye leads i dag — alle ${result.candidates.length} fundet er allerede i systemet.`;
+        ? `KrydsByg LeadBot: ${newLeads.length} nye leads i dag. ${typeBreakdown}. Klar i admin.`
+        : `KrydsByg LeadBot: Ingen nye leads — alle ${result.candidates.length} fundet er allerede i systemet.`;
 
     await notifyAdmin(smsText);
 
