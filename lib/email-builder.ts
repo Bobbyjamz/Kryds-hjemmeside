@@ -59,11 +59,11 @@ ${preheaderHtml}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e8e8e0;padding-top:20px">
               <tr>
                 <td style="padding:0">
-                  <p style="margin:0 0 4px 0;font-size:16px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Sarah Møller</p>
-                  <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY};font-style:italic">På vegne af Krystian — KrydsByg ApS</p>
+                  <p style="margin:0 0 2px 0;font-size:16px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Krystian</p>
+                  <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">KrydsByg ApS</p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Telefon:</span>
-                    <a href="tel:+4542778866" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">+45 42 77 88 66</a>
+                    <a href="tel:+4542779866" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">+45 42 77 98 66</a>
                   </p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Email:</span>
@@ -75,8 +75,8 @@ ${preheaderHtml}
                   </p>
                   <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px">
                     <tr>
-                      <td style="background:${KRYDSBYG_YELLOW};padding:8px 14px;border-radius:2px">
-                        <a href="https://krydsbyg.com" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-size:12px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase">Se vores ydelser</a>
+                      <td style="background:${KRYDSBYG_YELLOW};padding:8px 16px;border-radius:2px">
+                        <a href="https://krydsbyg.com" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-size:12px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase">Se hvem vi er</a>
                       </td>
                     </tr>
                   </table>
@@ -89,8 +89,7 @@ ${preheaderHtml}
         <tr>
           <td style="padding:0 40px 28px 40px">
             <p style="margin:0;font-size:11px;color:#9a9a92;line-height:1.5">
-              Denne email er sendt af Sarah, KrydsByg's outreach-assistent, på vegne af Krystian.
-              Hvis du ikke ønsker at modtage flere emails, så svar med &quot;afmeld&quot; — vi fjerner dig fra listen med det samme.
+              Ønsker du ikke at høre mere fra os, så svar blot med &quot;afmeld&quot; og vi skriver dig af med det samme.
             </p>
           </td>
         </tr>
@@ -109,13 +108,13 @@ export function buildEmailText(body: string): string {
   return `${body.trim()}
 
 ---
-Sarah Møller
-På vegne af Krystian — KrydsByg ApS
-Telefon: +45 42 77 88 66
+Krystian
+KrydsByg ApS
+Telefon: +45 42 77 98 66
 Email: kontakt@krydsbyg.com
 Web: krydsbyg.com
 
-Hvis du ikke ønsker flere emails, svar med "afmeld".`;
+Ønsker du ikke at høre mere fra os, svar blot med "afmeld".`;
 }
 
 function escapeHtml(s: string): string {

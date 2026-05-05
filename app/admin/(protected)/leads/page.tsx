@@ -600,7 +600,7 @@ export default function LeadsPage() {
                       <p className="text-cream text-[13px] leading-[1.7] whitespace-pre-wrap">{selectedLead.draftBody}</p>
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      {selectedLead.status === "Drafted" && (
+                      {(selectedLead.status === "Drafted" || selectedLead.status === "Needs Review") && (
                         <button onClick={() => patchLead(selectedLead.id, "approve")} disabled={!!actionLoading} className="bg-[rgba(74,222,128,.15)] text-green-300 border border-green-400/30 font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-5 py-2 hover:bg-[rgba(74,222,128,.25)] transition-colors disabled:opacity-40">
                           Godkend ✓
                         </button>
