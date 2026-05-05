@@ -59,8 +59,8 @@ ${preheaderHtml}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e8e8e0;padding-top:20px">
               <tr>
                 <td style="padding:0">
-                  <p style="margin:0 0 2px 0;font-size:16px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Krystian</p>
-                  <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">KrydsByg ApS</p>
+                  <p style="margin:0 0 2px 0;font-size:16px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Sarah Møller</p>
+                  <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">Sekretær, KrydsByg ApS</p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Telefon:</span>
                     <a href="tel:+4542779866" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">+45 42 77 98 66</a>
@@ -108,8 +108,8 @@ export function buildEmailText(body: string): string {
   return `${body.trim()}
 
 ---
-Krystian
-KrydsByg ApS
+Sarah Møller
+Sekretær, KrydsByg ApS
 Telefon: +45 42 77 98 66
 Email: kontakt@krydsbyg.com
 Web: krydsbyg.com
