@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AdminControls from "./_admin-controls";
 
 const NAV_ITEMS = [
   { href: "/admin",              label: "Dashboard",    icon: "⊞" },
@@ -29,9 +30,9 @@ export default function MobileAdminNav({ username }: { username: string }) {
       {/* ── Top header bar ── */}
       <header className="min-[700px]:hidden sticky top-0 z-30 flex items-center justify-between px-4 bg-black2 border-b border-[rgba(242,238,230,0.07)]" style={{ height: 52 }}>
         <Link href="/" className="flex items-center gap-2">
-          <svg width="26" height="26" viewBox="0 0 90 90">
+          <svg width="26" height="26" viewBox="0 0 90 90" className="text-cream">
             <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
-            <line x1="76" y1="14" x2="14" y2="76" stroke="white" strokeWidth="18" strokeLinecap="round" />
+            <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
           </svg>
           <span className="font-condensed font-black text-[13px] uppercase tracking-[.06em] text-cream">
             {currentPage?.label ?? "Admin"}
@@ -100,9 +101,10 @@ export default function MobileAdminNav({ username }: { username: string }) {
               })}
             </nav>
 
-            {/* Log ud */}
+            {/* Controls + Log ud */}
             <div className="px-5 py-4 border-t border-[rgba(242,238,230,0.07)]">
-              <p className="text-[11px] text-muted mb-3">Logget ind som <span className="text-cream">{username}</span></p>
+              <AdminControls compact />
+              <p className="text-[11px] text-muted mt-3 mb-2">Logget ind som <span className="text-cream">{username}</span></p>
               <form action="/api/admin/logout" method="POST">
                 <button
                   type="submit"

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getAdminSession } from "@/lib/auth";
 import MobileAdminNav from "./_mobile-nav";
+import AdminControls from "./_admin-controls";
 
 export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
   const session = await getAdminSession();
@@ -48,7 +49,8 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
           </ul>
         </nav>
         <div className="p-4 border-t border-[rgba(242,238,230,0.07)]">
-          <p className="text-[11px] text-muted mb-2">Logget ind som <span className="text-cream">{session.username}</span></p>
+          <AdminControls />
+          <p className="text-[11px] text-muted mt-3 mb-2">Logget ind som <span className="text-cream">{session.username}</span></p>
           <form action="/api/admin/logout" method="POST">
             <button
               type="submit"

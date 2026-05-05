@@ -502,3 +502,54 @@ input[type="date"]::-webkit-date-and-time-value {
 .animate-fadeIn {
   animation: fadeIn 0.35s ease-out both;
 }
+
+/* ================================================
+   ADMIN LIGHT MODE — status badge & panel colors
+   Tailwind fixed colors (text-blue-300 etc.) are
+   designed for dark backgrounds. Override to darker,
+   more readable variants in light mode.
+   ================================================ */
+
+/* Status text colors */
+[data-theme="light"] .text-blue-300  { color: #1d4ed8 !important; }
+[data-theme="light"] .text-blue-400  { color: #1d4ed8 !important; }
+[data-theme="light"] .text-orange-300 { color: #c2410c !important; }
+[data-theme="light"] .text-orange-400 { color: #9a3412 !important; }
+[data-theme="light"] .text-green-300 { color: #15803d !important; }
+[data-theme="light"] .text-green-400 { color: #166534 !important; }
+[data-theme="light"] .text-red-300   { color: #b91c1c !important; }
+[data-theme="light"] .text-red-400   { color: #991b1b !important; }
+
+/* Status backgrounds (rgba-based) */
+[data-theme="light"] [class*="bg-[rgba(96,165,250,"]  { background-color: rgba(29,78,216,0.08)  !important; }
+[data-theme="light"] [class*="bg-[rgba(251,146,60,"]  { background-color: rgba(194,65,12,0.08)  !important; }
+[data-theme="light"] [class*="bg-[rgba(74,222,128,"]  { background-color: rgba(21,128,61,0.08)  !important; }
+[data-theme="light"] [class*="bg-[rgba(34,197,94,"]   { background-color: rgba(22,163,74,0.07)  !important; }
+[data-theme="light"] [class*="bg-[rgba(248,113,113,"] { background-color: rgba(185,28,28,0.08)  !important; }
+[data-theme="light"] [class*="bg-[rgba(245,196,0,"]   { background-color: rgba(146,105,0,0.07)  !important; }
+
+/* Status borders (rgba-based) */
+[data-theme="light"] [class*="border-blue-400"]   { border-color: rgba(29,78,216,0.35)   !important; }
+[data-theme="light"] [class*="border-blue-300"]   { border-color: rgba(29,78,216,0.25)   !important; }
+[data-theme="light"] [class*="border-orange-400"] { border-color: rgba(194,65,12,0.35)   !important; }
+[data-theme="light"] [class*="border-orange-300"] { border-color: rgba(194,65,12,0.25)   !important; }
+[data-theme="light"] [class*="border-green-400"]  { border-color: rgba(21,128,61,0.35)   !important; }
+[data-theme="light"] [class*="border-green-300"]  { border-color: rgba(21,128,61,0.25)   !important; }
+[data-theme="light"] [class*="border-red-400"]    { border-color: rgba(185,28,28,0.35)   !important; }
+[data-theme="light"] [class*="border-red-300"]    { border-color: rgba(185,28,28,0.25)   !important; }
+[data-theme="light"] [class*="border-yellow\/"]   { border-color: rgba(146,105,0,0.3)    !important; }
+
+/* Rgba border overrides specifically for admin dark values */
+[data-theme="light"] [class*="border-[rgba(96,165,250,"]  { border-color: rgba(29,78,216,0.3)   !important; }
+[data-theme="light"] [class*="border-[rgba(251,146,60,"]  { border-color: rgba(194,65,12,0.3)   !important; }
+[data-theme="light"] [class*="border-[rgba(74,222,128,"]  { border-color: rgba(21,128,61,0.3)   !important; }
+[data-theme="light"] [class*="border-[rgba(34,197,94,"]   { border-color: rgba(22,163,74,0.3)   !important; }
+[data-theme="light"] [class*="border-[rgba(248,113,113,"] { border-color: rgba(185,28,28,0.3)   !important; }
+[data-theme="light"] [class*="border-[rgba(245,196,0,"]   { border-color: rgba(146,105,0,0.25)  !important; }
+
+/* Admin inputs — bg-black is already theme-aware via CSS var,
+   but textarea/input focus ring should adapt */
+[data-theme="light"] .focus\:border-yellow:focus { border-color: var(--color-yellow) !important; }
+
+/* Hamburger lines in mobile admin header */
+[data-theme="light"] .bg-cream { background-color: var(--color-cream) !important; }
