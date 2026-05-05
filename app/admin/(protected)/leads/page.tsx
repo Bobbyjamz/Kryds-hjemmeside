@@ -45,11 +45,19 @@ export default function LeadsPage() {
   const [uploadResult, setUploadResult] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Detail panel edit state
+  // Detail panel — Sarah draft edit
   const [editSubject, setEditSubject] = useState("");
   const [editBody, setEditBody] = useState("");
   const [editing, setEditing] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+
+  // Lead-info edit state
+  const [editingLead, setEditingLead] = useState(false);
+  const [leadEdit, setLeadEdit] = useState<{
+    companyName: string; email: string; phone: string; contactName: string;
+    contactTitle: string; website: string; city: string; industry: string;
+    serviceType: string; budget: string; notes: string; personalAngle: string;
+  } | null>(null);
 
   async function fetchLeads() {
     try {
@@ -147,6 +155,39 @@ export default function LeadsPage() {
     try {
       await fetch("/api/admin/leads/sarah", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ leadId, action, ...extras }) });
       await fetchLeads();
+    } catch {}
+    setActionLoading(null);
+  }
+
+  function openLeadEdit(lead: Lead) {
+    setLeadEdit({
+      companyName: lead.companyName || "",
+      email: lead.email || "",
+      phone: lead.phone || "",
+      contactName: lead.contactName || "",
+      contactTitle: lead.contactTitle || "",
+      website: lead.website || "",
+      city: lead.city || "",
+      industry: lead.industry || "",
+      serviceType: lead.serviceType || "",
+      budget: lead.budget || "",
+      notes: lead.notes || "",
+      personalAngle: lead.personalAngle || "",
+    });
+    setEditingLead(true);
+  }
+
+  async function saveLeadEdit() {
+    if (!selectedLead || !leadEdit) return;
+    setActionLoading("lead-edit");
+    try {
+      await fetch("/api/admin/leads/update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId: selectedLead.id, ...leadEdit }),
+      });
+      await fetchLeads();
+      setEditingLead(false);
     } catch {}
     setActionLoading(null);
   }
@@ -463,14 +504,30 @@ export default function LeadsPage() {
 
             {/* Lead info */}
             <section className="mb-6 p-5 bg-gray rounded-[2px] border border-[rgba(242,238,230,0.07)]">
-              <div className="flex items-center gap-3 mb-3">
-                <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted">Lead info</p>
-                {selectedLead.leadType && (
-                  <span className={`font-condensed font-bold text-[9px] tracking-[.1em] uppercase px-[7px] py-[3px] rounded-[2px] border ${LEAD_TYPE_COLORS[selectedLead.leadType]}`}>
-                    {LEAD_TYPE_LABELS[selectedLead.leadType]}
-                  </span>
-                )}
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3">
+                  <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted">Lead info</p>
+                  {selectedLead.leadType && (
+                    <span className={`font-condensed font-bold text-[9px] tracking-[.1em] uppercase px-[7px] py-[3px] rounded-[2px] border ${LEAD_TYPE_COLORS[selectedLead.leadType]}`}>
+                      {LEAD_TYPE_LABELS[selectedLead.leadType]}
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => openLeadEdit(selectedLead)}
+                  className="font-condensed font-bold text-[10px] tracking-[.1em] uppercase text-muted hover:text-yellow border border-[rgba(242,238,230,.12)] hover:border-yellow/40 px-3 py-[4px] rounded-[2px] transition-colors"
+                >
+                  Rediger ✎
+                </button>
               </div>
+
+              {/* Mangler email — fremhævet advarsel */}
+              {!selectedLead.email && (
+                <div className="mb-3 p-2 bg-[rgba(248,113,113,.08)] border border-red-400/30 rounded-[2px] flex items-center justify-between gap-2">
+                  <p className="text-red-300 text-[11px] font-condensed">⚠ Ingen email — Sarah kan ikke sende</p>
+                  <button onClick={() => openLeadEdit(selectedLead)} className="text-red-300 font-condensed font-bold text-[10px] uppercase hover:text-red-200">Tilføj →</button>
+                </div>
+              )}
               {[
                 ["Kontakt", selectedLead.contactName ? `${selectedLead.contactName}${selectedLead.contactTitle ? ` — ${selectedLead.contactTitle}` : ""}` : null],
                 ["Email", selectedLead.email],
@@ -652,6 +709,106 @@ export default function LeadsPage() {
                   {actionLoading === selectedLead.id + "-sarah" ? "Skriver..." : "Skriv udkast (Sarah) ✍"}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lead-edit modal */}
+      {editingLead && leadEdit && selectedLead && (
+        <div className="fixed inset-0 z-[55] flex items-center justify-center p-4" style={{ background: "rgba(12,12,10,.88)" }} onClick={() => setEditingLead(false)}>
+          <div className="bg-gray border border-[rgba(242,238,230,0.1)] rounded-[2px] w-full max-w-[560px] max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-condensed font-black text-[18px] uppercase text-cream">Rediger lead</h3>
+              <button onClick={() => setEditingLead(false)} className="text-muted hover:text-cream text-[20px] leading-none">✕</button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                ["Firmanavn / Navn", "companyName"],
+                ["Email", "email"],
+                ["Telefon", "phone"],
+                ["Kontaktperson", "contactName"],
+                ["Stilling / Titel", "contactTitle"],
+                ["Website", "website"],
+                ["By", "city"],
+                ["Branche", "industry"],
+                ["Service type", "serviceType"],
+                ["Budget (DKK)", "budget"],
+              ] as [string, keyof typeof leadEdit][]).map(([label, key]) => (
+                <div key={key} className={key === "email" || key === "companyName" ? "col-span-2" : ""}>
+                  <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">
+                    {label}
+                    {key === "email" && !leadEdit.email && <span className="text-red-400 ml-1">*mangler</span>}
+                  </label>
+                  <input
+                    value={leadEdit[key]}
+                    onChange={(e) => setLeadEdit({ ...leadEdit, [key]: e.target.value })}
+                    className={`w-full bg-black border text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow transition-colors ${
+                      key === "email" && !leadEdit.email
+                        ? "border-red-400/50 focus:border-yellow"
+                        : "border-[rgba(242,238,230,.12)]"
+                    }`}
+                    placeholder={key === "email" ? "eks. info@firma.dk" : key === "budget" ? "eks. 15.000–20.000" : ""}
+                  />
+                </div>
+              ))}
+
+              <div className="col-span-2">
+                <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">Personlig vinkel</label>
+                <input
+                  value={leadEdit.personalAngle}
+                  onChange={(e) => setLeadEdit({ ...leadEdit, personalAngle: e.target.value })}
+                  className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow"
+                  placeholder="Noget specifikt Council og Sarah skal vide om dette lead"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">Noter</label>
+                <textarea
+                  value={leadEdit.notes}
+                  onChange={(e) => setLeadEdit({ ...leadEdit, notes: e.target.value })}
+                  rows={4}
+                  className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow resize-y"
+                />
+              </div>
+            </div>
+
+            {/* Budget-hjælp */}
+            <div className="mt-3 p-3 bg-[rgba(245,196,0,.05)] border border-yellow/20 rounded-[2px]">
+              <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-yellow mb-2">Budget-estimat guide</p>
+              <div className="grid grid-cols-2 gap-1 text-[11px] text-muted">
+                {[
+                  ["Andelsforening (lille)", "10.000–15.000"],
+                  ["Andelsforening (stor)", "15.000–30.000"],
+                  ["Ejendomsadministrator", "15.000–50.000"],
+                  ["Privat renovering", "10.000–25.000"],
+                  ["Facility kontrakt", "20.000–100.000"],
+                  ["Enkelt opgave", "5.000–15.000"],
+                ].map(([type, range]) => (
+                  <button
+                    key={type}
+                    onClick={() => setLeadEdit({ ...leadEdit, budget: range })}
+                    className="text-left hover:text-cream transition-colors"
+                  >
+                    <span className="text-yellow">→</span> {type}: <span className="text-cream">{range}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={saveLeadEdit}
+                disabled={actionLoading === "lead-edit"}
+                className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-6 py-3 hover:bg-yellow2 transition-colors disabled:opacity-50"
+              >
+                {actionLoading === "lead-edit" ? "Gemmer..." : "Gem ændringer"}
+              </button>
+              <button onClick={() => setEditingLead(false)} className="border border-[rgba(242,238,230,.12)] text-muted font-condensed font-bold text-[12px] uppercase px-5 py-3 hover:text-cream transition-colors">
+                Annuller
+              </button>
             </div>
           </div>
         </div>
