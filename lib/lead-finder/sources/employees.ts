@@ -1,40 +1,39 @@
 /**
- * Employee-kilde — finder ~30 potentielle medarbejdere per dag:
- * 1. Jobindex: jobsøgere der har oprettet CV (offentlige profiler)
- * 2. Workindenmark.dk: udenlandske jobsøgere i DK
- * 3. Manuelle uploads fra Facebook-grupper håndteres via admin CSV-upload
+ * Employee-kilde — finder ~30 leads per dag:
+ * 1. Jobindex job-opslag: TO resultater per opslag:
+ *    a) Firma-lead: virksomheden der ansætter (= potentiel KrydsByg-kunde)
+ *    b) Medarbejder-lead: én per søgetype (= der er aktive kandidater i dette fag)
+ * 2. Workindenmark.dk: internationale jobsøgere i DK (employee-leads)
  */
 
 import type { LeadCandidate } from "../types";
 
-// Søgetermer til at finde relevante jobsøgere
 const EMPLOYEE_QUERIES = [
   "maler erfaring", "gulvlægger", "rengøringsassistent", "servicemedarbejder",
   "chauffør transport", "lagermedarbejder", "tømrer", "murer erfaring",
   "VVS montør", "elektriker", "gartner anlæg", "bygningsarbejder",
-  "SOSU assistent", "plejepersonale", "køkkenmedhjælper", "cateringsmedhjælper",
-  "flyttemand", "bud transport", "anlægsgartnelærling", "malerlærling",
+  "flyttemand", "bud transport", "anlægsgartner", "malerlærling",
+  "rengøringshjælper", "bygningsservice medhjælper",
 ];
 
 interface JobindexJob {
   employer?: { name?: string; url?: string };
   location?: string;
   title?: string;
-  description?: string;
 }
 
 interface JobindexResponse {
   jobs?: JobindexJob[];
 }
 
-// CV-bank endpoint (forskellige fra job-opslag)
 const CV_SEARCH_URLS = [
   "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=storkøbenhavn&limit=8",
   "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=sjælland&limit=5",
 ];
 
 export async function fetchEmployeeLeads(dayOfYear: number): Promise<LeadCandidate[]> {
-  const results: LeadCandidate[] = [];
+  const companyResults: LeadCandidate[] = [];
+  const employeeResults: LeadCandidate[] = [];
   const seen = new Set<string>();
 
   // 4 søgninger per dag — roterer
@@ -43,34 +42,39 @@ export async function fetchEmployeeLeads(dayOfYear: number): Promise<LeadCandida
   );
 
   for (const query of queries) {
-    if (results.length >= 30) break;
-
     for (const urlTemplate of CV_SEARCH_URLS) {
-      if (results.length >= 30) break;
-
       const url = urlTemplate.replace("{query}", encodeURIComponent(query));
-      const found = await fetchJobindexResults(url, query, seen);
-      results.push(...found);
+      const { companies, employeeLead } = await fetchJobindexResults(url, query, seen);
+      companyResults.push(...companies);
+
+      // Ét medarbejder-lead per søgetype (talent pool signal)
+      if (employeeLead && !seen.has(`emp-pool-${query}`)) {
+        seen.add(`emp-pool-${query}`);
+        employeeResults.push(employeeLead);
+      }
 
       await new Promise((r) => setTimeout(r, 600));
     }
   }
 
-  // Suppler med Workindenmark hvis vi mangler
-  if (results.length < 20) {
+  // Suppler medarbejder-leads med Workindenmark
+  if (employeeResults.length < 8) {
     const extra = await fetchWorkindenmark(dayOfYear, seen);
-    results.push(...extra);
+    employeeResults.push(...extra);
   }
 
-  return results.slice(0, 30);
+  // Kombiner: prioritér virksomheder, men sørg for at medarbejdere er med
+  return [...companyResults.slice(0, 20), ...employeeResults.slice(0, 10)];
 }
 
 async function fetchJobindexResults(
   url: string,
   query: string,
   seen: Set<string>
-): Promise<LeadCandidate[]> {
-  const results: LeadCandidate[] = [];
+): Promise<{ companies: LeadCandidate[]; employeeLead: LeadCandidate | null }> {
+  const companies: LeadCandidate[] = [];
+  let employeeLead: LeadCandidate | null = null;
+  let jobCount = 0;
 
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -92,50 +96,64 @@ async function fetchJobindexResults(
 
       for (const job of data.jobs || []) {
         const company = job.employer?.name;
-        if (!company) continue;
+        jobCount++;
 
-        // Vi finder virksomheder der søger disse profiler = de er vores potentielle medarbejdere
-        // Det er ikke jobsøgerne selv men firmaer der signalerer de har brug for disse kompetencer
-        // → Vi vil rekruttere folk med disse kompetencer til at arbejde for os
-
-        // Virksomheder der aktivt rekrutterer inden for disse fagområder
-        // = de har brug for den slags arbejdskraft, men måske mangler kapacitet
-        // = potentielle KrydsByg-kunder (company-lead, ikke medarbejder-lead)
-        const key = `emp-${query}-${company}`.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-
-        results.push({
-          companyName: company,
-          contactTitle: undefined,
-          industry: job.title || query,
-          city: job.location || "Storkøbenhavn",
-          website: job.employer?.url || undefined,
-          source: "Jobindex (rekrutteringssignal)",
-          leadType: "company",
-          serviceType: getEmployeeServiceType(query),
-          notes: `Virksomhed der aktivt rekrutterer "${job.title || query}" — signalerer kapacitetsbehov. KrydsByg kan supplere med fleksible hold og undgå fast ansættelse.`,
-        });
+        // ── Firma-lead: virksomhed der rekrutterer = kapacitetsbehov ──
+        if (company) {
+          const key = `company-${query}-${company}`.toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            companies.push({
+              companyName: company,
+              industry: job.title || query,
+              city: job.location || "Storkøbenhavn",
+              website: job.employer?.url || undefined,
+              source: "Jobindex (rekrutteringssignal)",
+              leadType: "company",
+              serviceType: getServiceType(query),
+              notes: `Virksomhed der ansætter "${job.title || query}" — signalerer kapacitetsbehov. KrydsByg kan supplere med fleksible hold og spare dem for fast ansættelse.`,
+            });
+          }
+        }
       }
 
-      break; // Success — stop retry
+      // ── Medarbejder-lead: talent pool-signal baseret på søgetype ──
+      if (jobCount > 0 && !employeeLead) {
+        employeeLead = {
+          companyName: `Kandidat søges: ${capitalise(query)}`,
+          contactTitle: query,
+          city: "Storkøbenhavn",
+          source: "Jobindex (talent pool)",
+          leadType: "employee",
+          serviceType: getServiceType(query),
+          notes: `${jobCount} aktive stillingsopslag inden for "${query}" i Storkøbenhavn. Der er kandidater i markedet — god mulighed for rekruttering til KrydsByg's hold.`,
+        };
+      }
+
+      break;
     } catch {
       if (attempt === 0) await new Promise((r) => setTimeout(r, 1500));
     }
   }
 
-  return results;
+  return { companies, employeeLead };
 }
 
 // Workindenmark: udenlandske jobsøgere der ønsker arbejde i DK
 async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise<LeadCandidate[]> {
   const results: LeadCandidate[] = [];
 
-  const searches = ["cleaning", "moving", "painting", "construction helper", "garden"];
-  const query = searches[dayOfYear % searches.length];
+  const searches = [
+    { q: "cleaning", label: "Rengøringshjælper (international)" },
+    { q: "moving", label: "Flyttemand (international)" },
+    { q: "painting", label: "Malerlærling (international)" },
+    { q: "construction helper", label: "Bygningsmedhjælper (international)" },
+    { q: "garden", label: "Gartnermedhjælper (international)" },
+  ];
+  const { q, label } = searches[dayOfYear % searches.length];
 
   try {
-    const url = `https://www.workindenmark.dk/api/jobad/search?q=${encodeURIComponent(query)}&area=capital&limit=10`;
+    const url = `https://www.workindenmark.dk/api/jobad/search?q=${encodeURIComponent(q)}&area=capital&limit=10`;
     const res = await fetch(url, {
       headers: { "User-Agent": "KrydsByg-LeadFinder/1.0", "Accept": "application/json" },
       signal: AbortSignal.timeout(8000),
@@ -148,20 +166,20 @@ async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise
     const data: ApiResp = await res.json();
     const jobs = (data.jobs || data.results || []) as JobAd[];
 
-    for (const job of jobs.slice(0, 8)) {
-      const key = `wid-${query}-${job.company}`.toLowerCase();
+    let count = 0;
+    for (const job of jobs.slice(0, 6)) {
+      const key = `wid-${q}-${job.company || count++}`.toLowerCase();
       if (seen.has(key)) continue;
       seen.add(key);
 
       results.push({
-        companyName: `Jobsøger: ${query} (international)`,
-        contactTitle: query,
-        industry: job.title || query,
+        companyName: label,
+        contactTitle: job.title || q,
         city: job.location || "Storkøbenhavn",
         source: "Workindenmark",
         leadType: "employee",
-        serviceType: getEmployeeServiceType(query),
-        notes: `International jobsøger med erfaring inden for "${query}". KrydsByg kan tilbyde fleksible timer, god timeløn og varierede opgaver i Storkøbenhavn.`,
+        serviceType: getServiceType(q),
+        notes: `International jobsøger med erfaring inden for "${q}". Søger arbejde i ${job.location || "Storkøbenhavn"}. KrydsByg kan tilbyde fleksible timer, god timeløn og varierede opgaver.`,
       });
     }
   } catch { /* ikke kritisk */ }
@@ -169,22 +187,21 @@ async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise
   return results;
 }
 
-function getEmployeeServiceType(query: string): string {
+function getServiceType(query: string): string {
   const q = query.toLowerCase();
-  if (q.includes("maler")) return "Maler";
-  if (q.includes("gulv")) return "Gulvlægger";
-  if (q.includes("rengøring")) return "Rengøringsassistent";
-  if (q.includes("chauffør") || q.includes("transport") || q.includes("moving")) return "Chauffør/transport";
-  if (q.includes("tømrer")) return "Tømrer";
-  if (q.includes("murer")) return "Murer";
-  if (q.includes("vvs")) return "VVS-montør";
-  if (q.includes("gartner") || q.includes("garden")) return "Gartner";
-  if (q.includes("bygning") || q.includes("construction")) return "Bygningsarbejder";
-  return "Servicemedarbejder";
+  if (q.includes("maler") || q.includes("paint")) return "Maling & Spartling";
+  if (q.includes("gulv")) return "Gulvlægning";
+  if (q.includes("rengøring") || q.includes("clean")) return "Rengøring & Oprydning";
+  if (q.includes("chauffør") || q.includes("transport") || q.includes("moving")) return "Flytning & Transport";
+  if (q.includes("tømrer")) return "Tømrerarbejde";
+  if (q.includes("murer")) return "Murerarbejde";
+  if (q.includes("vvs")) return "VVS";
+  if (q.includes("gartner") || q.includes("garden")) return "Have & Anlæg";
+  if (q.includes("bygning") || q.includes("construction")) return "Byggepladsbehjælp";
+  if (q.includes("flyt")) return "Flytning & Transport";
+  return "Kombineret vedligehold";
 }
 
-function buildEmployeeNote(query: string, job: JobindexJob): string {
-  const title = job.title || query;
-  const city = job.location || "Storkøbenhavn";
-  return `Søger arbejde inden for "${title}" i ${city}. KrydsByg kan tilbyde fleksibel fuldtid eller deltid, timeløn efter overenskomst, og varierede opgaver — rengøring, flytning, maling og mere.`;
+function capitalise(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
 }

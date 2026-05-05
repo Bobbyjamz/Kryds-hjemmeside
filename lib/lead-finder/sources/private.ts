@@ -130,14 +130,38 @@ async function fetchBoligsidenZip(zip: string): Promise<BoligsidenSale[]> {
 
 // Velkendte andelsforeningsnavne — roterer dagligt
 const ANDELS_NAMES = [
-  "A/B Bellahøj", "A/B Birkegade", "A/B Blåmejsegården", "A/B Brumleby",
-  "A/B Classens Have", "A/B Danmarksgade", "A/B Drosselvej", "A/B Ellebjerg",
-  "A/B Fortunen", "A/B Frihavn", "A/B Gl. Kongevej", "A/B Godthåbsvej",
-  "A/B Hejrevej", "A/B Ibstrupparken", "A/B Jagtparken", "A/B Kildevæld",
-  "A/B Knudsvej", "A/B Kornblomsten", "A/B Langgade", "A/B Lundtoftegade",
-  "A/B Møllestien", "A/B Nikolajgade", "A/B Nørrebrogade", "A/B Odinsgade",
-  "A/B Pile Alle", "A/B Raunstrupvej", "A/B Solbakken", "A/B Strandboulevarden",
-  "A/B Tuborgvej", "A/B Valdemarsgade", "A/B Vestergade", "A/B Åboulevard",
+  // Østerbro
+  "A/B Bellahøj", "A/B Classens Have", "A/B Frihavn", "A/B Strandboulevarden",
+  "A/B Tuborgvej", "A/B Ibstrupparken", "A/B Ryvangs Alle", "A/B Kildevæld",
+  "A/B Skovgårdsvej", "A/B Vordingborggade", "A/B Nordre Frihavnsgade",
+  "A/B Marselis", "A/B Trianglen", "A/B Classensgade", "A/B Bernstorffsgade",
+  // Nørrebro
+  "A/B Birkegade", "A/B Danmarksgade", "A/B Hejrevej", "A/B Nørrebrogade",
+  "A/B Odinsgade", "A/B Lundtoftegade", "A/B Kornblomsten", "A/B Æbeløgade",
+  "A/B Blågårdsgade", "A/B Mimersgade", "A/B Stefansgade", "A/B Jagtvej",
+  "A/B Baldersgade", "A/B Nørre Alle", "A/B Dortheavej", "A/B Hillerødgade",
+  // Frederiksberg
+  "A/B Gl. Kongevej", "A/B Godthåbsvej", "A/B Pile Alle", "A/B Valdemarsgade",
+  "A/B Vestergade", "A/B Solbakken", "A/B Rolighedsvej", "A/B Falkoner Alle",
+  "A/B Vodroffsvej", "A/B Nordre Fasanvej", "A/B Peter Bangsvej",
+  "A/B Smallegade", "A/B Finsensvej", "A/B Hoffmeyersvej",
+  // Vesterbro & Valby
+  "A/B Blåmejsegården", "A/B Ellebjerg", "A/B Knudsvej", "A/B Raunstrupvej",
+  "A/B Åboulevard", "A/B Enghavevej", "A/B Dybbølsgade", "A/B Sundevedsgade",
+  "A/B Istedgade", "A/B Sønder Blvd", "A/B Stampesgade", "A/B Vigerslev Alle",
+  "A/B Folehaven", "A/B Valby Langgade", "A/B Valbyparken",
+  // Amager
+  "A/B Brumleby", "A/B Jagtparken", "A/B Møllestien", "A/B Nikolajgade",
+  "A/B Langgade", "A/B Drosselvej", "A/B Fortunen", "A/B Amagerbrogade",
+  "A/B Rebildvej", "A/B Holmbladsgade", "A/B Artillerivej", "A/B Vermlandsgade",
+  "A/B Sundholmsvej", "A/B Peder Lykkes Vej",
+  // Indre By
+  "A/B Admiralgade", "A/B Gammel Mønt", "A/B Kronprinsensgade",
+  "A/B Nyhavn", "A/B Studiestræde", "A/B Grønnegade",
+  // Ydre kommuner
+  "A/B Gentofte Park", "A/B Hellerup Strandpark", "A/B Lyngby Storcenter",
+  "A/B Gladsaxevej", "A/B Herlev Have", "A/B Brønshøj Torv",
+  "A/B Vanløse Alle", "A/B Rødovre Centrum", "A/B Hvidovre Strandpark",
 ];
 
 async function fetchAndelsforeninger(dayOfYear: number, seen: Set<string>): Promise<LeadCandidate[]> {

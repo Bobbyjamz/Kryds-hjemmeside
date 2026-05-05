@@ -37,6 +37,7 @@ export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | LeadType>("all");
+  const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
 
   // Upload state
   const [file, setFile] = useState<File | null>(null);
@@ -260,10 +261,10 @@ export default function LeadsPage() {
     alert(`${sent} emails sendt!`);
   }
 
-  // Filter leads baseret på aktiv tab
-  const filteredLeads = activeTab === "all"
-    ? leads
-    : leads.filter((l) => (l.leadType || "company") === activeTab);
+  // Filter leads baseret på aktiv tab + statusFilter
+  const filteredLeads = leads
+    .filter((l) => activeTab === "all" || (l.leadType || "company") === activeTab)
+    .filter((l) => statusFilter === "all" || l.status === statusFilter);
 
   const tabCounts: Record<"all" | LeadType, number> = {
     all: leads.length,
@@ -344,14 +345,56 @@ export default function LeadsPage() {
         ))}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-5 gap-3 mb-8 max-[900px]:grid-cols-3">
-        {Object.entries(stats).map(([k, v]) => (
-          <div key={k} className="bg-gray border border-[rgba(242,238,230,0.07)] p-4 rounded-[2px]">
-            <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted mb-1">{STATUS_DA[k as LeadStatus] || k}</p>
-            <p className="font-condensed font-black text-[28px] text-cream">{v}</p>
-          </div>
+      {/* Stats — klikbare som filter */}
+      <div className="grid grid-cols-5 gap-3 mb-4 max-[900px]:grid-cols-3">
+        {Object.entries(stats).map(([k, v]) => {
+          const active = statusFilter === k;
+          return (
+            <button
+              key={k}
+              onClick={() => setStatusFilter(active ? "all" : k as LeadStatus)}
+              className={`text-left p-4 rounded-[2px] border transition-colors ${
+                active
+                  ? "bg-yellow/10 border-yellow/50"
+                  : "bg-gray border-[rgba(242,238,230,0.07)] hover:border-[rgba(242,238,230,0.2)]"
+              }`}
+            >
+              <p className={`font-condensed font-semibold text-[10px] tracking-[.2em] uppercase mb-1 ${active ? "text-yellow" : "text-muted"}`}>
+                {STATUS_DA[k as LeadStatus] || k}
+              </p>
+              <p className={`font-condensed font-black text-[28px] ${active ? "text-yellow" : "text-cream"}`}>{v}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Aktive filtre + quick-filter knapper */}
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
+        <span className="font-condensed text-[10px] tracking-[.15em] uppercase text-muted">Vis:</span>
+        {(["all", "New", "Sent"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setStatusFilter(f === "all" ? "all" : f as LeadStatus)}
+            className={`font-condensed font-bold text-[10px] tracking-[.1em] uppercase px-3 py-[5px] rounded-[2px] border transition-colors ${
+              statusFilter === f
+                ? "bg-yellow/10 border-yellow/50 text-yellow"
+                : "border-[rgba(242,238,230,.1)] text-muted hover:text-cream"
+            }`}
+          >
+            {f === "all" ? "Alle" : f === "New" ? "Nye" : "Sendte"}
+          </button>
         ))}
+        {statusFilter !== "all" && (
+          <button
+            onClick={() => setStatusFilter("all")}
+            className="font-condensed text-[10px] text-muted hover:text-red-300 transition-colors ml-1"
+          >
+            ✕ Nulstil filter
+          </button>
+        )}
+        <span className="font-condensed text-[10px] text-muted ml-auto">
+          {filteredLeads.length} leads vist
+        </span>
       </div>
 
       {/* Upload modal */}

@@ -1,6 +1,5 @@
 import type { LeadCandidate } from "../types";
 
-// Søgeforespørgsler — roterer så vi får nye resultater hver dag
 const SEARCH_QUERIES = [
   "ejendomsadministration København",
   "facility management Copenhagen",
@@ -30,13 +29,24 @@ interface PlacesTextResponse {
   status: string;
 }
 
+interface PlaceDetails {
+  name?: string;
+  formatted_phone_number?: string;
+  international_phone_number?: string;
+  website?: string;
+  formatted_address?: string;
+}
+
+interface PlacesDetailsResponse {
+  result?: PlaceDetails;
+  status: string;
+}
+
 export async function fetchGooglePlacesLeads(dayOfYear: number): Promise<LeadCandidate[]> {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!apiKey) return []; // Springer over hvis ingen API nøgle
+  if (!apiKey) return [];
 
   const results: LeadCandidate[] = [];
-
-  // 3 forskellige søgninger per dag — roterer dagligt
   const queries = [0, 1, 2].map((offset) =>
     SEARCH_QUERIES[(dayOfYear + offset) % SEARCH_QUERIES.length]
   );
@@ -53,11 +63,12 @@ export async function fetchGooglePlacesLeads(dayOfYear: number): Promise<LeadCan
       const data: PlacesTextResponse = await res.json();
       if (data.status !== "OK") continue;
 
-      for (const place of data.results || []) {
+      // Hent Details for de første 5 resultater (telefon + website)
+      for (const place of data.results.slice(0, 5)) {
         const addressParts = place.formatted_address.split(",");
         const city = addressParts[addressParts.length - 2]?.trim() || "København";
 
-        results.push({
+        const candidate: LeadCandidate = {
           companyName: place.name,
           address: place.formatted_address,
           city,
@@ -65,7 +76,30 @@ export async function fetchGooglePlacesLeads(dayOfYear: number): Promise<LeadCan
           leadType: "company",
           serviceType: "Malerarbejde + facility services",
           notes: `Fundet via Google Places: "${query}"`,
-        });
+        };
+
+        // Hent Details API for telefon og website
+        try {
+          const detailsUrl =
+            `https://maps.googleapis.com/maps/api/place/details/json` +
+            `?place_id=${place.place_id}&fields=name,formatted_phone_number,international_phone_number,website&language=da&key=${apiKey}`;
+
+          const detailsRes = await fetch(detailsUrl, { signal: AbortSignal.timeout(6000) });
+          if (detailsRes.ok) {
+            const details: PlacesDetailsResponse = await detailsRes.json();
+            if (details.status === "OK" && details.result) {
+              const d = details.result;
+              if (d.formatted_phone_number) {
+                // Normaliser til dansk 8-cifret format
+                candidate.phone = d.formatted_phone_number.replace(/\s/g, " ").trim();
+              }
+              if (d.website) candidate.website = d.website;
+            }
+          }
+          await new Promise((r) => setTimeout(r, 200));
+        } catch { /* Details-opslag fejlede — fortsæt med basis-data */ }
+
+        results.push(candidate);
       }
 
       await new Promise((r) => setTimeout(r, 500));
