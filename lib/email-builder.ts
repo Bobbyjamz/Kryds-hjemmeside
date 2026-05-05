@@ -47,6 +47,29 @@ ${preheaderHtml}
         <tr>
           <td style="height:5px;background:${KRYDSBYG_YELLOW};line-height:5px;font-size:5px">&nbsp;</td>
         </tr>
+        <!-- Logo header -->
+        <tr>
+          <td style="background:${KRYDSBYG_BLACK};padding:22px 40px">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="vertical-align:middle;padding-right:14px">
+                  <svg width="42" height="42" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="14" y1="14" x2="76" y2="76" stroke="${KRYDSBYG_YELLOW}" stroke-width="18" stroke-linecap="round" />
+                    <line x1="76" y1="14" x2="14" y2="76" stroke="#F5F1E6" stroke-width="18" stroke-linecap="round" />
+                  </svg>
+                </td>
+                <td style="vertical-align:middle">
+                  <div style="font-family:'Arial Narrow',Arial,sans-serif;font-weight:900;font-size:28px;letter-spacing:.02em;color:#F5F1E6;line-height:1;text-transform:uppercase">
+                    <span style="color:${KRYDSBYG_YELLOW}">K</span>RYDS
+                  </div>
+                  <div style="font-family:Arial,sans-serif;font-style:italic;font-size:11px;letter-spacing:.08em;color:#9a9a92;line-height:1;margin-top:5px">
+                    Sæt et kryds i kalenderen.
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
         <!-- Body -->
         <tr>
           <td style="padding:36px 40px 24px 40px">
