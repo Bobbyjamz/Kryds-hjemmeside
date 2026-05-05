@@ -98,21 +98,23 @@ async function fetchJobindexResults(
         // Det er ikke jobsøgerne selv men firmaer der signalerer de har brug for disse kompetencer
         // → Vi vil rekruttere folk med disse kompetencer til at arbejde for os
 
-        // Byg en "medarbejder-lead" baseret på jobopslaget — vi finder folk der søger disse jobs
+        // Virksomheder der aktivt rekrutterer inden for disse fagområder
+        // = de har brug for den slags arbejdskraft, men måske mangler kapacitet
+        // = potentielle KrydsByg-kunder (company-lead, ikke medarbejder-lead)
         const key = `emp-${query}-${company}`.toLowerCase();
         if (seen.has(key)) continue;
         seen.add(key);
 
         results.push({
-          companyName: `Jobsøger: ${query}`,
-          contactTitle: query,
+          companyName: company,
+          contactTitle: undefined,
           industry: job.title || query,
           city: job.location || "Storkøbenhavn",
           website: job.employer?.url || undefined,
-          source: "Jobindex",
-          leadType: "employee",
+          source: "Jobindex (rekrutteringssignal)",
+          leadType: "company",
           serviceType: getEmployeeServiceType(query),
-          notes: buildEmployeeNote(query, job),
+          notes: `Virksomhed der aktivt rekrutterer "${job.title || query}" — signalerer kapacitetsbehov. KrydsByg kan supplere med fleksible hold og undgå fast ansættelse.`,
         });
       }
 

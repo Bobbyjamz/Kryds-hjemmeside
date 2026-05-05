@@ -59,6 +59,16 @@ export default function LeadsPage() {
     serviceType: string; budget: string; notes: string; personalAngle: string;
   } | null>(null);
 
+  // Manuel opret lead
+  const emptyNewLead = {
+    companyName: "", email: "", phone: "", contactName: "", contactTitle: "",
+    website: "", city: "", industry: "", serviceType: "", budget: "",
+    notes: "", personalAngle: "", leadType: "company" as LeadType,
+  };
+  const [creatingLead, setCreatingLead] = useState(false);
+  const [newLeadForm, setNewLeadForm] = useState(emptyNewLead);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   async function fetchLeads() {
     try {
       const r = await fetch("/api/admin/leads/upload");
@@ -192,6 +202,29 @@ export default function LeadsPage() {
     setActionLoading(null);
   }
 
+  async function createLead() {
+    if (!newLeadForm.companyName.trim()) { setCreateError("Firmanavn er påkrævet"); return; }
+    setCreateError(null);
+    setActionLoading("create-lead");
+    try {
+      const r = await fetch("/api/admin/leads/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newLeadForm),
+      });
+      const d = await r.json();
+      if (!d.ok) { setCreateError(d.error || "Oprettelse fejlede"); }
+      else {
+        await fetchLeads();
+        setCreatingLead(false);
+        setNewLeadForm(emptyNewLead);
+        // Vælg det nye lead i detaljepanelet
+        if (d.lead) setSelectedLead(d.lead);
+      }
+    } catch { setCreateError("Netværksfejl"); }
+    setActionLoading(null);
+  }
+
   async function runBatchCouncil() {
     setActionLoading("batch-council");
     const r = await fetch("/api/admin/leads/council", { method: "PUT" });
@@ -259,8 +292,14 @@ export default function LeadsPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <button
-            onClick={() => { setUploadOpen(true); setPreview(null); setUploadResult(null); setFile(null); }}
+            onClick={() => { setCreatingLead(true); setCreateError(null); setNewLeadForm(emptyNewLead); }}
             className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-5 py-3 hover:bg-yellow2 transition-colors"
+          >
+            + Tilføj lead
+          </button>
+          <button
+            onClick={() => { setUploadOpen(true); setPreview(null); setUploadResult(null); setFile(null); }}
+            className="border border-[rgba(242,238,230,.2)] text-cream font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-5 py-3 hover:border-yellow hover:text-yellow transition-colors"
           >
             Upload Excel
           </button>
@@ -807,6 +846,137 @@ export default function LeadsPage() {
                 {actionLoading === "lead-edit" ? "Gemmer..." : "Gem ændringer"}
               </button>
               <button onClick={() => setEditingLead(false)} className="border border-[rgba(242,238,230,.12)] text-muted font-condensed font-bold text-[12px] uppercase px-5 py-3 hover:text-cream transition-colors">
+                Annuller
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Opret lead manuelt — modal */}
+      {creatingLead && (
+        <div className="fixed inset-0 z-[55] flex items-center justify-center p-4" style={{ background: "rgba(12,12,10,.88)" }} onClick={() => setCreatingLead(false)}>
+          <div className="bg-gray border border-[rgba(242,238,230,0.1)] rounded-[2px] w-full max-w-[580px] max-h-[92vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <p className="font-condensed font-semibold text-[10px] tracking-[.22em] uppercase text-yellow mb-1">Manuel oprettelse</p>
+                <h3 className="font-condensed font-black text-[20px] uppercase text-cream">Tilføj nyt lead</h3>
+              </div>
+              <button onClick={() => setCreatingLead(false)} className="text-muted hover:text-cream text-[20px] leading-none">✕</button>
+            </div>
+
+            {/* Lead type vælger */}
+            <div className="mb-4">
+              <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-2">Type</label>
+              <div className="flex gap-2">
+                {(["company", "private", "employee"] as LeadType[]).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setNewLeadForm({ ...newLeadForm, leadType: t })}
+                    className={`font-condensed font-bold text-[11px] tracking-[.1em] uppercase px-4 py-[7px] rounded-[2px] border transition-colors ${
+                      newLeadForm.leadType === t
+                        ? LEAD_TYPE_COLORS[t] + " border-current"
+                        : "border-[rgba(242,238,230,.12)] text-muted hover:text-cream"
+                    }`}
+                  >
+                    {t === "company" ? "🏢 Virksomhed" : t === "private" ? "🏠 Privat" : "👷 Medarbejder"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                ["Firmanavn / Navn *", "companyName", "col-span-2"],
+                ["Email", "email", "col-span-2"],
+                ["Telefon", "phone", ""],
+                ["By", "city", ""],
+                ["Kontaktperson", "contactName", ""],
+                ["Stilling / Titel", "contactTitle", ""],
+                ["Website", "website", "col-span-2"],
+                ["Branche", "industry", ""],
+                ["Service type", "serviceType", ""],
+                ["Budget (DKK)", "budget", "col-span-2"],
+              ] as [string, keyof typeof newLeadForm, string][]).map(([label, key, span]) => (
+                <div key={key} className={span}>
+                  <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">{label}</label>
+                  <input
+                    value={newLeadForm[key] as string}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, [key]: e.target.value })}
+                    className={`w-full bg-black border text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow transition-colors ${
+                      key === "companyName" && !newLeadForm.companyName
+                        ? "border-red-400/40"
+                        : "border-[rgba(242,238,230,.12)]"
+                    }`}
+                    placeholder={
+                      key === "email" ? "eks. info@firma.dk" :
+                      key === "budget" ? "eks. 15.000–25.000" :
+                      key === "website" ? "eks. https://firma.dk" : ""
+                    }
+                  />
+                </div>
+              ))}
+
+              <div className="col-span-2">
+                <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">Personlig vinkel</label>
+                <input
+                  value={newLeadForm.personalAngle}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, personalAngle: e.target.value })}
+                  className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow"
+                  placeholder="Noget specifikt Council og Sarah skal vide"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">Noter</label>
+                <textarea
+                  value={newLeadForm.notes}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, notes: e.target.value })}
+                  rows={3}
+                  className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow resize-y"
+                  placeholder="Baggrundsviden, særlige hensyn, kilde..."
+                />
+              </div>
+            </div>
+
+            {/* Budget guide */}
+            <div className="mt-3 p-3 bg-[rgba(245,196,0,.05)] border border-yellow/20 rounded-[2px]">
+              <p className="font-condensed text-[10px] tracking-[.12em] uppercase text-yellow mb-2">Budget-estimat guide</p>
+              <div className="grid grid-cols-2 gap-1 text-[11px]">
+                {[
+                  ["Andelsforening (lille)", "10.000–15.000"],
+                  ["Andelsforening (stor)", "15.000–30.000"],
+                  ["Ejendomsadministrator", "15.000–50.000"],
+                  ["Privat renovering", "10.000–25.000"],
+                  ["Facility kontrakt", "20.000–100.000"],
+                  ["Enkelt opgave", "5.000–15.000"],
+                ].map(([type, range]) => (
+                  <button
+                    key={type}
+                    onClick={() => setNewLeadForm({ ...newLeadForm, budget: range })}
+                    className="text-left text-muted hover:text-cream transition-colors"
+                  >
+                    <span className="text-yellow">→</span> {type}: <span className="text-cream">{range}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {createError && (
+              <div className="mt-3 p-3 bg-red-400/5 border border-red-400/30 rounded-[2px] text-red-300 text-[12px] font-condensed">
+                ⚠ {createError}
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={createLead}
+                disabled={actionLoading === "create-lead" || !newLeadForm.companyName.trim()}
+                className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-6 py-3 hover:bg-yellow2 transition-colors disabled:opacity-50"
+              >
+                {actionLoading === "create-lead" ? "Opretter..." : "Opret lead →"}
+              </button>
+              <button onClick={() => setCreatingLead(false)} className="border border-[rgba(242,238,230,.12)] text-muted font-condensed font-bold text-[12px] uppercase px-5 py-3 hover:text-cream transition-colors">
                 Annuller
               </button>
             </div>
