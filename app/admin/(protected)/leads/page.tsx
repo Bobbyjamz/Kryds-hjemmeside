@@ -49,6 +49,7 @@ export default function LeadsPage() {
   const [editSubject, setEditSubject] = useState("");
   const [editBody, setEditBody] = useState("");
   const [editing, setEditing] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
 
   async function fetchLeads() {
     try {
@@ -610,6 +611,20 @@ export default function LeadsPage() {
                           {actionLoading === selectedLead.id + "-send" ? "Sender..." : "Send ✉"}
                         </button>
                       )}
+                      <button
+                        onClick={async () => {
+                          const r = await fetch("/api/admin/leads/preview", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ leadId: selectedLead.id }),
+                          });
+                          const d = await r.json();
+                          if (d.html) setPreviewHtml(d.html);
+                        }}
+                        className="border border-[rgba(242,238,230,.12)] text-muted font-condensed font-bold text-[12px] uppercase px-4 py-2 hover:text-cream transition-colors"
+                      >
+                        Forhåndsvis ✉
+                      </button>
                       <button onClick={() => runSarah(selectedLead.id, true)} disabled={!!actionLoading} className="border border-[rgba(251,146,60,.3)] text-orange-300 font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-4 py-2 hover:border-orange-300 transition-colors disabled:opacity-40">
                         {actionLoading === selectedLead.id + "-sarah" ? "Genererer..." : "Regenerer"}
                       </button>
@@ -637,6 +652,27 @@ export default function LeadsPage() {
                   {actionLoading === selectedLead.id + "-sarah" ? "Skriver..." : "Skriv udkast (Sarah) ✍"}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HTML-preview modal */}
+      {previewHtml && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" style={{ background: "rgba(12,12,10,.88)" }} onClick={() => setPreviewHtml(null)}>
+          <div className="bg-white rounded-[4px] w-full max-w-[640px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 bg-[#f5f5f0] border-b border-gray-200 flex-shrink-0">
+              <span className="font-condensed font-bold text-[12px] tracking-[.12em] uppercase text-gray-500">Forhåndsvisning — præcis hvad modtageren ser</span>
+              <button onClick={() => setPreviewHtml(null)} className="text-gray-400 hover:text-gray-800 text-[20px] leading-none font-light">✕</button>
+            </div>
+            <div className="overflow-y-auto flex-1">
+              <iframe
+                srcDoc={previewHtml}
+                title="Email preview"
+                className="w-full border-0"
+                style={{ height: 600 }}
+                sandbox="allow-same-origin"
+              />
             </div>
           </div>
         </div>

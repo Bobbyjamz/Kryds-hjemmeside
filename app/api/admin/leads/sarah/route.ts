@@ -158,6 +158,13 @@ export async function PATCH(req: NextRequest) {
         subject: lead.draftSubject,
         html,
         text: textVersion,
+        headers: {
+          // List-Unsubscribe: Gmail og Outlook stoler mere på afsendere der har dette
+          "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          // X-Mailer signatur (undgå generiske "sent via" headers der trigger spam)
+          "X-Mailer": "KrydsByg Outreach",
+        },
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

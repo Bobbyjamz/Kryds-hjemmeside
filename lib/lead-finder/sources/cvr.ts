@@ -184,7 +184,15 @@ export async function fetchCVRLeads(
       const websiteToScrape = data.website || `https://www.${key.replace(/\s+/g, "")}.dk`;
       const scraped = await scrapeWebsite(websiteToScrape).catch(() => null);
       if (scraped) {
-        if (scraped.emails.length > 0) candidate.email = scraped.emails[0];
+        if (scraped.emails.length > 0) {
+          candidate.email = scraped.emails[0];
+          // Hvis emailen er et gæt (ikke fundet på siden) — markér det i noter
+          const foundOnPage = scraped.emails[0].includes("@") &&
+            (candidate.notes || "").includes("Fundet via");
+          if (!foundOnPage && !data.email) {
+            candidate.notes = (candidate.notes || "") + ` | Email er gæt baseret på domæn (verificér inden afsendelse)`;
+          }
+        }
         if (scraped.phones.length > 0 && !candidate.phone) candidate.phone = scraped.phones[0];
         if (scraped.contactNames.length > 0 && !candidate.contactName) {
           candidate.contactName = scraped.contactNames[0];
