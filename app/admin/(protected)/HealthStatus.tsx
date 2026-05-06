@@ -18,6 +18,8 @@ interface LeadBotResult {
   ok: boolean;
   found?: number;
   imported?: number;
+  qualified?: number;
+  discarded?: number;
   byType?: { company: number; private: number; employee: number };
   durationMs?: number;
   smsSent?: boolean;
@@ -127,6 +129,9 @@ export default function HealthStatus() {
                   <span className="text-muted ml-1">
                     · Virk: {botResult.byType.company} · Priv: {botResult.byType.private} · Medarb: {botResult.byType.employee}
                   </span>
+                )}
+                {botResult.discarded !== undefined && botResult.discarded > 0 && (
+                  <span className="block text-muted mt-[2px]">🔁 {botResult.discarded} kasseret af qualifier (score for lav)</span>
                 )}
                 {!botResult.hasGatewayToken && (
                   <span className="block text-orange-400 mt-[2px]">⚠ GATEWAYAPI_TOKEN mangler — ingen SMS sendt</span>

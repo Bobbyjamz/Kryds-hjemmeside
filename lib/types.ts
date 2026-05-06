@@ -265,6 +265,7 @@ export interface Lead {
   budget?: string;           // Estimeret budget
   leadType?: LeadType;       // company | private | employee (valgfri for bagudkompatibilitet)
   status: LeadStatus;
+  qualifierScore?: number;      // 0-100 — sat af qualifier.ts ved scraping
   councilScore?: number;
   councilAnalysis?: CouncilAnalysis;
   draftSubject?: string;

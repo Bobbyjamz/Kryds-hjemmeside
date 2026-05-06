@@ -42,6 +42,11 @@ export async function GET(req: Request) {
       if (emailLower) existingEmails.add(emailLower);
 
       const now = new Date().toISOString();
+      const noteWithWarning = [
+        candidate.notes,
+        !candidate.email ? "⚠️ Ingen email fundet — tilføj manuelt" : "",
+      ].filter(Boolean).join("\n\n");
+
       newLeads.push({
         id: generateId(),
         companyName: candidate.companyName,
@@ -55,10 +60,8 @@ export async function GET(req: Request) {
         serviceType: candidate.serviceType,
         budget: candidate.budget,
         leadType: candidate.leadType,
-        notes: [
-          candidate.notes,
-          !candidate.email ? "⚠️ Ingen email fundet — tilføj manuelt" : "",
-        ].filter(Boolean).join(" | "),
+        qualifierScore: candidate.score,
+        notes: noteWithWarning || undefined,
         status: "New",
         sourceFile: `auto-${candidate.source.toLowerCase().replace(/\s+/g, "-")}`,
         createdAt: now,
