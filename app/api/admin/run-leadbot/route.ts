@@ -73,8 +73,8 @@ export async function POST() {
     // SMS notifikation
     const smsText =
       newLeads.length > 0
-        ? `KrydsByg LeadBot (manuel): ${newLeads.length} nye leads importeret. Klar i admin.`
-        : `KrydsByg LeadBot (manuel): Ingen nye leads — ${result.candidates.length} fundet er allerede i systemet.`;
+        ? `Hej chef! 🎯 Manuel kørsel: ${newLeads.length} nye leads klar til dig. Gå ind på admin og lad Sarah komme igang 🚀`
+        : `Hej chef! Manuel kørsel: Ingen nye leads — alle ${result.candidates.length} fundet er allerede i systemet 💪`;
 
     const smsResult = await (async () => {
       try {

@@ -19,7 +19,7 @@ export async function POST() {
   }
 
   const time = new Date().toLocaleTimeString("da-DK", { timeZone: "Europe/Copenhagen" });
-  await notifyAdmin(`KrydsByg test-SMS kl. ${time} — alt fungerer 👍`);
+  await notifyAdmin(`Hej chef! 👋 SMS-opsætning virker perfekt (kl. ${time}) — du er klar til at modtage daglige leads 🎯`);
 
   return NextResponse.json({ ok: true, sentTo: adminPhone });
 }

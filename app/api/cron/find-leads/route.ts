@@ -77,13 +77,13 @@ export async function GET(req: Request) {
       .join(", ");
 
     const typeBreakdown = result.byType
-      ? `Virksomheder: ${result.byType.company}, Private: ${result.byType.private}, Medarbejdere: ${result.byType.employee}`
+      ? `Virk: ${result.byType.company} · Priv: ${result.byType.private} · Medarb: ${result.byType.employee}`
       : sourceBreakdown;
 
     const smsText =
       newLeads.length > 0
-        ? `KrydsByg LeadBot: ${newLeads.length} nye leads i dag. ${typeBreakdown}. Klar i admin.`
-        : `KrydsByg LeadBot: Ingen nye leads — alle ${result.candidates.length} fundet er allerede i systemet.`;
+        ? `Hej chef! 🎯 ${newLeads.length} nye leads er klar til dig i dag. ${typeBreakdown}. Gå ind på admin og lad Sarah komme igang 🚀`
+        : `Hej chef! LeadBot har kigget — ingen nye leads i dag, de ${result.candidates.length} fundet er allerede i systemet. Prøv igen i morgen 💪`;
 
     await notifyAdmin(smsText);
 
@@ -96,7 +96,7 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    await notifyAdmin(`KrydsByg LeadBot FEJL: ${msg}`).catch(() => {});
+    await notifyAdmin(`Hej chef! ⚠️ LeadBot stødte på en fejl i dag: ${msg}`).catch(() => {});
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
