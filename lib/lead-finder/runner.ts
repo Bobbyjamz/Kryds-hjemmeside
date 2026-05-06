@@ -4,6 +4,10 @@ import { fetchPrivateLeads } from "./sources/private";
 import { fetchEmployeeLeads } from "./sources/employees";
 import { fetchJobindexLeads } from "./sources/jobindex";
 import { fetchOISLeads } from "./sources/ois";
+import { fetchTinglysningLeads } from "./sources/tinglysning";
+import { fetchBoligaListings } from "./sources/boliga";
+import { fetchJobnetLeads } from "./sources/jobnet";
+import { fetchDirectoryLeads } from "./sources/directories";
 import { getIndustryWeights } from "./scoring";
 import { qualifyLeads, QUALIFY_THRESHOLD } from "./qualifier";
 import { generateNotes } from "./enrichment/note-generator";
@@ -29,10 +33,9 @@ export async function runLeadFinder(): Promise<RunResult> {
     (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
   );
 
-  // Hent industry-weights fra email-hukommelse
   const weights = await getIndustryWeights().catch(() => ({} as Record<string, number>));
 
-  // ── Kør alle pipelines parallelt ─────────────────────────────────────────
+  // ── Kør ALLE 10 kilder parallelt ─────────────────────────────────────────
   const [
     cvrResults,
     googleResults,
@@ -40,20 +43,33 @@ export async function runLeadFinder(): Promise<RunResult> {
     employeeResults,
     jobindexResults,
     oisResults,
+    tinglysningResults,
+    boligaResults,
+    jobnetResults,
+    directoryResults,
   ] = await Promise.allSettled([
     fetchCVRLeads(dayOfYear, weights),
     fetchGooglePlacesLeads(dayOfYear),
     fetchPrivateLeads(dayOfYear),
     fetchEmployeeLeads(dayOfYear),
     fetchJobindexLeads(dayOfYear),
-    fetchOISLeads(dayOfYear),          // Ny: Datafordeler BBR byggesager
+    fetchOISLeads(dayOfYear),
+    fetchTinglysningLeads(dayOfYear),
+    fetchBoligaListings(dayOfYear),
+    fetchJobnetLeads(dayOfYear),
+    fetchDirectoryLeads(dayOfYear),
   ]);
 
-  // ── Del employee-source op i company + employee leads ─────────────────────
+  // ── Del employee + jobnet op i company + employee leads ───────────────────
   const employeeSourceRaw =
     employeeResults.status === "fulfilled" ? employeeResults.value : [];
   const employeeSourceCompanies = employeeSourceRaw.filter((c) => c.leadType === "company");
   const employeeSourceEmployees = employeeSourceRaw.filter((c) => c.leadType === "employee");
+
+  const jobnetData =
+    jobnetResults.status === "fulfilled"
+      ? jobnetResults.value
+      : { companies: [], employees: [] };
 
   // ── Saml rådata per kategori ──────────────────────────────────────────────
   const companyRaw: LeadCandidate[] = [
@@ -65,41 +81,49 @@ export async function runLeadFinder(): Promise<RunResult> {
       ? jobindexResults.value.map((c) => ({ ...c, leadType: "company" as const }))
       : []),
     ...employeeSourceCompanies,
-  ].slice(0, 60); // Buffer over 40 — qualifier kaster dårlige fra
+    ...jobnetData.companies,
+    ...(directoryResults.status === "fulfilled" ? directoryResults.value : []),
+  ].slice(0, 100); // Stort buffer — qualifier kaster dårlige fra
 
   const privateRaw: LeadCandidate[] = [
     ...(oisResults.status === "fulfilled"
       ? oisResults.value.map((c) => ({ ...c, leadType: "private" as const }))
       : []),
     ...(privateResults.status === "fulfilled" ? privateResults.value : []),
-  ].slice(0, 60);
+    ...(tinglysningResults.status === "fulfilled" ? tinglysningResults.value : []),
+    ...(boligaResults.status === "fulfilled" ? boligaResults.value : []),
+  ].slice(0, 80);
 
-  const employeeRaw: LeadCandidate[] = employeeSourceEmployees.slice(0, 60);
+  const employeeRaw: LeadCandidate[] = [
+    ...employeeSourceEmployees,
+    ...jobnetData.employees,
+  ].slice(0, 80);
 
-  // ── Qualifier: scorer og filtrerer ───────────────────────────────────────
-  const companyQ = qualifyLeads(companyRaw).slice(0, 40);
-  const privateQ = qualifyLeads(privateRaw).slice(0, 40);
-  const employeeQ = qualifyLeads(employeeRaw).slice(0, 40);
+  // ── Qualifier: scorer og filtrerer (sorterer bedste øverst) ──────────────
+  const companyQ = qualifyLeads(companyRaw).slice(0, 50);
+  const privateQ = qualifyLeads(privateRaw).slice(0, 50);
+  const employeeQ = qualifyLeads(employeeRaw).slice(0, 50);
 
   const totalRaw = companyRaw.length + privateRaw.length + employeeRaw.length;
   const totalQ = companyQ.length + privateQ.length + employeeQ.length;
 
   // ── Email-enrichment (Hunter.io → Apollo → website-scraper) ──────────────
-  // Kør parallelt per kategori for at spare tid
   const [companyEnriched, privateEnriched, employeeEnriched] = await Promise.all([
-    enrichEmailsBatch(companyQ, { maxEnrich: 15 }),
-    enrichEmailsBatch(privateQ, { maxEnrich: 5 }),
-    enrichEmailsBatch(employeeQ, { maxEnrich: 10 }),
+    enrichEmailsBatch(companyQ, { maxEnrich: 20 }),
+    enrichEmailsBatch(privateQ, { maxEnrich: 8 }),
+    enrichEmailsBatch(employeeQ, { maxEnrich: 12 }),
   ]);
 
-  // ── Phone-enrichment (Krak → 118.dk → CVR) ───────────────────────────────
-  // Kun på company-leads — private og employees scraper vi ikke telefon
-  const companyPhoneEnriched = await enrichPhonesBatch(companyEnriched, { maxEnrich: 10 });
+  // ── Phone-enrichment (Krak → 118.dk → CVR) — kun company ─────────────────
+  const companyPhoneEnriched = await enrichPhonesBatch(companyEnriched, { maxEnrich: 12 });
 
-  const allQualified = [...companyPhoneEnriched, ...privateEnriched, ...employeeEnriched];
+  const allQualified = [
+    ...companyPhoneEnriched.slice(0, 35),
+    ...privateEnriched.slice(0, 35),
+    ...employeeEnriched.slice(0, 35),
+  ];
 
-  // ── AI-noter i struktureret Sarah-brief format ────────────────────────────
-  // Generer kun noter for leads der ikke allerede har en struktureret note
+  // ── AI-noter (struktureret Sarah-brief m/ KVALIFIKATION + DECISION-MAKER + TIMING) ─
   const needsNote = allQualified.filter(
     (c) => !c.notes || !c.notes.includes("---SARAH NOTE")
   );
@@ -118,21 +142,24 @@ export async function runLeadFinder(): Promise<RunResult> {
     bySource[c.source] = (bySource[c.source] || 0) + 1;
   }
 
+  const finalCompanies = allQualified.filter((c) => c.leadType === "company");
+  const finalPrivate = allQualified.filter((c) => c.leadType === "private");
+  const finalEmployees = allQualified.filter((c) => c.leadType === "employee");
+
   const byType = {
-    company: companyPhoneEnriched.length,
-    private: privateEnriched.length,
-    employee: employeeEnriched.length,
+    company: finalCompanies.length,
+    private: finalPrivate.length,
+    employee: finalEmployees.length,
   };
 
-  // Log dashboard til Vercel-logs (synlig i dashboard)
   const duration = Math.round((Date.now() - start) / 1000);
   console.log([
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
     `  KRYDSBYG LEADBOT — ${now.toLocaleDateString("da-DK")}`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `  🏢 Virksomheder:  ${companyRaw.length} fundet / ${byType.company} kvalificeret ${byType.company >= 20 ? "✅" : "⚠️"}`,
-    `  🏠 Private:       ${privateRaw.length} fundet / ${byType.private} kvalificeret ${byType.private >= 20 ? "✅" : "⚠️"}`,
-    `  👷 Medarbejdere:  ${employeeRaw.length} fundet / ${byType.employee} kvalificeret ${byType.employee >= 20 ? "✅" : "⚠️"}`,
+    `  🏢 Virksomheder:  ${companyRaw.length} fundet / ${byType.company} kvalificeret ${byType.company >= 30 ? "✅" : byType.company >= 20 ? "⚠️" : "❌"}`,
+    `  🏠 Private:       ${privateRaw.length} fundet / ${byType.private} kvalificeret ${byType.private >= 30 ? "✅" : byType.private >= 20 ? "⚠️" : "❌"}`,
+    `  👷 Medarbejdere:  ${employeeRaw.length} fundet / ${byType.employee} kvalificeret ${byType.employee >= 30 ? "✅" : byType.employee >= 20 ? "⚠️" : "❌"}`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
     `  📧 Klar til Sarah: ${allQualified.length} leads`,
     `  🔁 Kasseret (score < ${QUALIFY_THRESHOLD}): ${totalRaw - totalQ}`,

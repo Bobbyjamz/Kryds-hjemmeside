@@ -23,9 +23,29 @@ import type { LeadCandidate } from "../types";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// Minimal AI-prompt — kun til at skrive 2-3 konkrete KVALIFIKATION-bullets
-const QUAL_SYSTEM = `Du er en skarp B2B-analytiker. Du skriver 2-3 korte, konkrete bullets om et leads potentiale for KrydsByg (dansk bemandingsbureau: rengøring, malerarbejde, flytning, håndværk, byggeplads).
-Returner KUN bullets som ren tekst med "- " foran, ét per linje. Ingen intro, ingen afslutning. Max 200 tegn per bullet.`;
+// AI-prompt — laver dyb kvalifikation Sarah kan handle på
+const QUAL_SYSTEM = `Du er en skarp B2B-analytiker for KrydsByg, et dansk bemandingsbureau (rengøring, malerarbejde, flytning, håndværk, byggeplads, montering).
+
+Du modtager rådata om et lead og skriver en konkret, handlingsorienteret kvalifikation som Sarah (assistent) kan bruge til at sende en mail.
+
+OUTPUT FORMAT (præcis som vist, ingen intro/outro):
+
+KVALIFIKATION:
+- 3-5 bullets der forklarer HVORFOR dette er et godt lead, baseret på rådata. Vær konkret om branche, størrelse, signaler. Max 180 tegn pr. bullet.
+
+DECISION-MAKER:
+- Hvem skal Sarah skrive til? (fx "Direktør / ejer" eller "Formand for andelsforening" eller specifik person hvis kendt). Maks 1 linje.
+
+TIMING:
+- Hvornår er det bedst at kontakte? (fx "Mandag morgen", "i denne uge", "efter sommerferie"). Maks 1 linje.
+
+BEDSTE TILGANG:
+- Skal Sarah ringe eller maile først? Hvilket vinkel virker bedst? Maks 2 linjer.
+
+VINKEL TIL BREV:
+- Den ene konkrete pointe Sarah skal åbne med — noget specifikt om dette lead, ikke generisk. Maks 1 sætning.
+
+Returner KUN ovenstående blokke i nøjagtig denne rækkefølge. Brug danske branche-termer. Vær præcis, ikke forsigtig.`;
 
 export async function generateNotes(candidates: LeadCandidate[]): Promise<string[]> {
   const results = await Promise.allSettled(
@@ -39,23 +59,23 @@ export async function generateNotes(candidates: LeadCandidate[]): Promise<string
 }
 
 async function buildStructuredNote(c: LeadCandidate): Promise<string> {
-  // Generer AI-kvalifikation kun for leads med nok data
-  let qualBullets = "";
+  // Generer rig AI-analyse for alle leads med nok data
+  let aiAnalysis = "";
   if (hasEnoughDataForAI(c)) {
-    qualBullets = await generateQualBullets(c).catch(() => "");
+    aiAnalysis = await generateAIAnalysis(c).catch(() => "");
   }
-  if (!qualBullets) {
-    qualBullets = buildFallbackQualBullets(c);
+  if (!aiAnalysis) {
+    aiAnalysis = buildFallbackAnalysis(c);
   }
 
-  if (c.leadType === "company") return buildCompanyNote(c, qualBullets);
-  if (c.leadType === "private") return buildPrivateNote(c, qualBullets);
-  return buildEmployeeNote(c, qualBullets);
+  if (c.leadType === "company") return buildCompanyNote(c, aiAnalysis);
+  if (c.leadType === "private") return buildPrivateNote(c, aiAnalysis);
+  return buildEmployeeNote(c, aiAnalysis);
 }
 
 // ── Virksomheds-note ──────────────────────────────────────────────────────────
 
-function buildCompanyNote(c: LeadCandidate, qualBullets: string): string {
+function buildCompanyNote(c: LeadCandidate, aiAnalysis: string): string {
   const lines: string[] = [
     `---SARAH NOTE [VIRKSOMHED]---`,
     `FIRMA: ${c.companyName}`,
@@ -73,38 +93,18 @@ function buildCompanyNote(c: LeadCandidate, qualBullets: string): string {
   if (c.score) lines.push(`LEAD-SCORE: ${c.score}/100`);
   lines.push(`KILDE: ${c.source}`);
 
-  lines.push(``, `KVALIFIKATION:`);
-  lines.push(qualBullets);
+  lines.push(``, aiAnalysis);
 
-  lines.push(``, `SARAH — SKRIV EN MAIL DER:`);
-  lines.push(...getCompanyInstructions(c));
-  lines.push(`TONE: Professionel, direkte, B2B`);
+  lines.push(``, `HILSEN: "Hej ${c.contactName?.split(" ")[0] || `${c.companyName}-team`},"`);
+  lines.push(`AFSLUTNING: "Med venlig hilsen,"`);
   lines.push(`---`);
 
   return lines.join("\n");
 }
 
-function getCompanyInstructions(c: LeadCandidate): string[] {
-  const serviceType = c.serviceType || "vedligehold og service";
-  const isRecruiting = c.source.includes("Jobindex");
-
-  if (isRecruiting) {
-    return [
-      `1. Nævn at de søger folk og at KrydsByg kan supplere med fleksibel kapacitet`,
-      `2. Fremhæv at vi håndterer løn, skat og forsikring — ingen HR-besvær`,
-      `3. Foreslå en hurtig snak om kapacitetsbehov (opkald inden for 2 dage)`,
-    ];
-  }
-  return [
-    `1. Nævn KrydsByg som bemandingspartner til ${serviceType}`,
-    `2. Fremhæv fleksibel arbejdskraft — de betaler kun for de timer de bruger`,
-    `3. Tilbyd et konkret opkald — foreslå dato (i dag + 3 arbejdsdage)`,
-  ];
-}
-
 // ── Privat-note ───────────────────────────────────────────────────────────────
 
-function buildPrivateNote(c: LeadCandidate, qualBullets: string): string {
+function buildPrivateNote(c: LeadCandidate, aiAnalysis: string): string {
   const lines: string[] = [
     `---SARAH NOTE [PRIVAT]---`,
     `ADRESSE: ${c.address || c.companyName}`,
@@ -118,6 +118,8 @@ function buildPrivateNote(c: LeadCandidate, qualBullets: string): string {
     ? "Aktiv byggetilladelse (Datafordeler BBR)"
     : c.source === "Boligsiden"
     ? `Nyligt solgt bolig${c.salePrice ? ` til ${(c.salePrice / 1_000_000).toFixed(1)}M kr.` : ""}`
+    : c.source === "Tinglysning"
+    ? "Nyligt registreret pant (renovering forventes)"
     : c.source;
   lines.push(`SIGNAL: ${signal}`);
 
@@ -125,16 +127,10 @@ function buildPrivateNote(c: LeadCandidate, qualBullets: string): string {
   if (c.budget) lines.push(`ESTIMERET BUDGET: kr. ${c.budget}`);
   if (c.score) lines.push(`LEAD-SCORE: ${c.score}/100`);
 
-  lines.push(``, `KVALIFIKATION:`);
-  lines.push(qualBullets);
+  lines.push(``, aiAnalysis);
 
-  lines.push(``, `SARAH — SKRIV EN BESKED DER:`);
-  lines.push(
-    `1. Er meget personlig — nævn adressen eller bydelen`,
-    `2. Tilbyder hjælp til at finde de rigtige håndværkere via KrydsByg`,
-    `3. Nævner at KrydsByg kan levere hurtigt og klare hele koordineringen`,
-  );
-  lines.push(`TONE: Varm, hjælpsom, lokal — ikke pushy`);
+  lines.push(``, `HILSEN: "Hej ${c.contactName?.split(" ")[0] || ""}," (eller "Goddag," hvis intet navn)`);
+  lines.push(`AFSLUTNING: "Med venlig hilsen,"`);
   lines.push(`---`);
 
   return lines.join("\n");
@@ -142,7 +138,7 @@ function buildPrivateNote(c: LeadCandidate, qualBullets: string): string {
 
 // ── Medarbejder-note ──────────────────────────────────────────────────────────
 
-function buildEmployeeNote(c: LeadCandidate, qualBullets: string): string {
+function buildEmployeeNote(c: LeadCandidate, aiAnalysis: string): string {
   const lines: string[] = [
     `---SARAH NOTE [MEDARBEJDER]---`,
     `KANDIDAT: ${c.companyName}`,
@@ -162,36 +158,30 @@ function buildEmployeeNote(c: LeadCandidate, qualBullets: string): string {
   if (c.score) lines.push(`LEAD-SCORE: ${c.score}/100`);
   lines.push(`KILDE: ${c.source}`);
 
-  lines.push(``, `KVALIFIKATION:`);
-  lines.push(qualBullets);
+  lines.push(``, aiAnalysis);
 
-  lines.push(``, `SARAH — SKRIV EN MAIL DER:`);
-  lines.push(
-    `1. Præsenterer KrydsByg som bemandingsbureau med varierede opgaver i KBH`,
-    `2. Fremhæver fleksibel arbejdstid, god timeløn og stable opgaver`,
-    `3. Inviterer til 15 min. uforpligtende snak — foreslå konkret tid`,
-  );
-  lines.push(`TONE: Kollegial, respektfuld, ikke-pushy`);
+  lines.push(``, `HILSEN: "Hej ${c.contactName?.split(" ")[0] || ""},"`);
+  lines.push(`AFSLUTNING: "Med venlig hilsen,"`);
   lines.push(`---`);
 
   return lines.join("\n");
 }
 
-// ── AI-genereret kvalifikation ────────────────────────────────────────────────
+// ── AI-genereret rig analyse (Sonnet for bedre kvalitet) ──────────────────────
 
-async function generateQualBullets(c: LeadCandidate): Promise<string> {
+async function generateAIAnalysis(c: LeadCandidate): Promise<string> {
   const context = buildAIContext(c);
 
   const msg = await client.messages.create({
-    model: "claude-haiku-4-5",
-    max_tokens: 250,
+    model: "claude-sonnet-4-5", // Sonnet for dybde — Haiku misser nuancer
+    max_tokens: 600,
     system: QUAL_SYSTEM,
     messages: [{ role: "user", content: context }],
   });
 
   const text = msg.content[0].type === "text" ? msg.content[0].text.trim() : "";
-  // Sikr at output er bullet-format
-  if (!text.includes("- ")) return "";
+  // Sikr at output indeholder mindst KVALIFIKATION-blokken
+  if (!text.includes("KVALIFIKATION:")) return "";
   return text;
 }
 
@@ -233,23 +223,70 @@ function hasEnoughDataForAI(c: LeadCandidate): boolean {
   return filledFields >= 2;
 }
 
-function buildFallbackQualBullets(c: LeadCandidate): string {
+function buildFallbackAnalysis(c: LeadCandidate): string {
   if (c.leadType === "company") {
     const bullets: string[] = [];
     if (c.source.includes("Jobindex")) bullets.push("- Aktiv rekruttering = klar kapacitetssignal");
     if (c.employees) bullets.push(`- ${c.employees} ansatte — passer til KrydsByg's B2B-model`);
     if (c.city) bullets.push(`- Placeret i ${c.city} — inden for KrydsByg's primærzone`);
     if (!c.email) bullets.push("- Mangler email — tilføj manuelt inden Sarah kører");
-    return bullets.join("\n") || "- Relevant virksomhed i KrydsByg's målgruppe";
+    if (bullets.length === 0) bullets.push("- Relevant virksomhed i KrydsByg's målgruppe");
+    return [
+      "KVALIFIKATION:",
+      bullets.join("\n"),
+      "",
+      "DECISION-MAKER:",
+      `- ${c.contactTitle || "Direktør / ejer"}`,
+      "",
+      "TIMING:",
+      "- Hverdage 9-11 (mest svarende tidspunkt for B2B)",
+      "",
+      "BEDSTE TILGANG:",
+      "- Email først, opkald som follow-up efter 2 dage",
+      "",
+      "VINKEL TIL BREV:",
+      `- ${c.serviceType ? `Konkret tilbud om ${c.serviceType.toLowerCase()}` : "Fleksibel kapacitet uden HR-besvær"}`,
+    ].join("\n");
   }
   if (c.leadType === "private") {
     const bullets: string[] = [];
     if (c.buildingPermit) bullets.push("- Aktiv byggetilladelse — søger håndværkere NU");
     else bullets.push("- Nyindflyttet / renovering på vej — stærkt signal");
     if (c.budget) bullets.push(`- Estimeret budget kr. ${c.budget}`);
-    return bullets.join("\n");
+    return [
+      "KVALIFIKATION:",
+      bullets.join("\n"),
+      "",
+      "DECISION-MAKER:",
+      "- Boligejer (privat)",
+      "",
+      "TIMING:",
+      "- Aften 17-20 eller weekend formiddage",
+      "",
+      "BEDSTE TILGANG:",
+      "- Personlig email — undgå pushy salgssprog",
+      "",
+      "VINKEL TIL BREV:",
+      "- Tilbyd at koordinere alle håndværkere ét sted",
+    ].join("\n");
   }
-  return `- Potentiel medarbejder inden for ${c.tradeCategory || c.industry || "håndværk"}\n- Klar til opkald fra Sarah`;
+  return [
+    "KVALIFIKATION:",
+    `- Potentiel medarbejder inden for ${c.tradeCategory || c.industry || "håndværk"}`,
+    "- Aktivt jobsøgende eller åben for nye muligheder",
+    "",
+    "DECISION-MAKER:",
+    "- Personen selv",
+    "",
+    "TIMING:",
+    "- Hverdage formiddag (mens de søger jobs)",
+    "",
+    "BEDSTE TILGANG:",
+    "- Kort, kollegial mail med konkret jobtilbud",
+    "",
+    "VINKEL TIL BREV:",
+    "- Fleksibel arbejdstid + varierede opgaver",
+  ].join("\n");
 }
 
 function buildFallbackNote(c: LeadCandidate): string {
@@ -261,11 +298,10 @@ function buildFallbackNote(c: LeadCandidate): string {
     c.phone ? `TLF: ${c.phone}` : "",
     `KILDE: ${c.source}`,
     ``,
-    `KVALIFIKATION:`,
-    buildFallbackQualBullets(c),
+    buildFallbackAnalysis(c),
     ``,
-    `SARAH: Skriv en kort, personlig mail baseret på ovenstående info.`,
-    `TONE: Professionel, direkte`,
+    `HILSEN: "Hej ${c.contactName?.split(" ")[0] || (c.leadType === "private" ? "" : `${c.companyName}-team`)},"`,
+    `AFSLUTNING: "Med venlig hilsen,"`,
     `---`,
   ].filter((l) => l !== "").join("\n");
 }

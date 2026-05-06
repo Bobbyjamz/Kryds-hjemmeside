@@ -45,26 +45,23 @@ ${preheaderHtml}
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="background:#ffffff;border-radius:4px;overflow:hidden;max-width:600px;width:100%">
         <!-- Gul branding-streg øverst -->
         <tr>
-          <td style="height:5px;background:${KRYDSBYG_YELLOW};line-height:5px;font-size:5px">&nbsp;</td>
+          <td style="height:3px;background:${KRYDSBYG_YELLOW};line-height:3px;font-size:3px">&nbsp;</td>
         </tr>
-        <!-- Logo header -->
+        <!-- Mini logo header (diskret) -->
         <tr>
-          <td style="background:${KRYDSBYG_BLACK};padding:22px 40px">
+          <td style="padding:14px 40px 0 40px">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="vertical-align:middle;padding-right:14px">
-                  <svg width="42" height="42" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+                <td style="vertical-align:middle;padding-right:8px">
+                  <svg width="20" height="20" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
                     <line x1="14" y1="14" x2="76" y2="76" stroke="${KRYDSBYG_YELLOW}" stroke-width="18" stroke-linecap="round" />
-                    <line x1="76" y1="14" x2="14" y2="76" stroke="#F5F1E6" stroke-width="18" stroke-linecap="round" />
+                    <line x1="76" y1="14" x2="14" y2="76" stroke="${KRYDSBYG_BLACK}" stroke-width="18" stroke-linecap="round" />
                   </svg>
                 </td>
                 <td style="vertical-align:middle">
-                  <div style="font-family:'Arial Narrow',Arial,sans-serif;font-weight:900;font-size:28px;letter-spacing:.02em;color:#F5F1E6;line-height:1;text-transform:uppercase">
-                    <span style="color:${KRYDSBYG_YELLOW}">K</span>RYDS
-                  </div>
-                  <div style="font-family:Arial,sans-serif;font-style:italic;font-size:11px;letter-spacing:.08em;color:#9a9a92;line-height:1;margin-top:5px">
-                    Sæt et kryds i kalenderen.
-                  </div>
+                  <span style="font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:13px;letter-spacing:.12em;color:${KRYDSBYG_BLACK};text-transform:uppercase">
+                    KrydsByg
+                  </span>
                 </td>
               </tr>
             </table>
@@ -72,17 +69,17 @@ ${preheaderHtml}
         </tr>
         <!-- Body -->
         <tr>
-          <td style="padding:36px 40px 24px 40px">
+          <td style="padding:20px 40px 24px 40px">
             ${bodyHtml}
           </td>
         </tr>
         <!-- Signatur -->
         <tr>
           <td style="padding:0 40px 36px 40px">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #e8e8e0;padding-top:20px">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td style="padding:0">
-                  <p style="margin:0 0 2px 0;font-size:16px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Sarah Møller</p>
+                  <p style="margin:0 0 2px 0;font-size:15px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Sarah Møller</p>
                   <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">Assistent, KrydsByg</p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Telefon:</span>
