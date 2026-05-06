@@ -211,6 +211,40 @@ export async function PATCH(req: NextRequest) {
   }
 
   // ── Øvrige handlinger ───────────────────────────────────────────────────
+
+  // Lærings-signal: når admin redigerer Sarahs udkast, gem hvad der blev ændret
+  if (action === "edit" && editedBody && lead.draftBody && lead.councilAnalysis) {
+    try {
+      const origLines = lead.draftBody.split("\n").map((l) => l.trim()).filter(Boolean);
+      const editLines = (editedBody as string).split("\n").map((l) => l.trim()).filter(Boolean);
+      const removed = origLines.filter((l) => !editLines.includes(l)).slice(0, 4);
+      const added = editLines.filter((l) => !origLines.includes(l)).slice(0, 4);
+
+      if (removed.length > 0 || added.length > 0) {
+        const parts: string[] = [];
+        if (removed.length) parts.push(`Fjernet: "${removed.join(" | ")}"`);
+        if (added.length) parts.push(`Tilføjet: "${added.join(" | ")}"`);
+
+        await appendEmailMemory({
+          industry: lead.industry,
+          serviceType: lead.serviceType,
+          angle: lead.councilAnalysis.recommendedAngle,
+          tone: lead.councilAnalysis.tone,
+          subjectLine: (editedSubject as string) || lead.draftSubject || "",
+          bodyLength: (editedBody as string).length,
+          councilScore: lead.councilAnalysis.leadScore,
+          customerType: lead.councilAnalysis.customerType,
+          sentAt: now,
+          leadId: lead.id,
+          wasEdited: true,
+          editSummary: parts.join(" · "),
+        });
+      }
+    } catch (err) {
+      console.error("[email-memory] kunne ikke gemme edit-diff:", err);
+    }
+  }
+
   await writeLeads(leads.map((l) => {
     if (l.id !== leadId) return l;
     if (action === "approve") return { ...l, status: "Approved" as const, approvedAt: now, updatedAt: now };

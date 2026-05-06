@@ -232,6 +232,9 @@ export interface EmailMemoryEntry {
   customerType: string;
   sentAt: string;
   leadId: string;
+  // Lærings-signal: sættes hvis admin manuelt rettede Sarahs udkast inden afsendelse
+  wasEdited?: boolean;
+  editSummary?: string;     // Kort tekst der beskriver hvad der blev ændret
 }
 
 export interface ExcelColumnMapping {

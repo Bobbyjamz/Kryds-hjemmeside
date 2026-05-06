@@ -28,6 +28,20 @@ interface LeadBotResult {
   error?: string;
 }
 
+interface OutreachResult {
+  ok: boolean;
+  processed?: number;
+  sent?: number;
+  analyzed?: number;
+  drafted?: number;
+  noEmail?: number;
+  lowScore?: number;
+  errors?: number;
+  durationMs?: number;
+  message?: string;
+  error?: string;
+}
+
 export default function HealthStatus() {
   const [data, setData] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +50,8 @@ export default function HealthStatus() {
   const [smsLoading, setSmsLoading] = useState(false);
   const [botRunning, setBotRunning] = useState(false);
   const [botResult, setBotResult] = useState<LeadBotResult | null>(null);
+  const [outreachRunning, setOutreachRunning] = useState(false);
+  const [outreachResult, setOutreachResult] = useState<OutreachResult | null>(null);
 
   const runLeadBot = async () => {
     setBotRunning(true);
@@ -48,6 +64,20 @@ export default function HealthStatus() {
       setBotResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
     } finally {
       setBotRunning(false);
+    }
+  };
+
+  const runAutoOutreach = async () => {
+    setOutreachRunning(true);
+    setOutreachResult(null);
+    try {
+      const r = await fetch("/api/cron/auto-outreach", { method: "POST" });
+      const d = await r.json() as OutreachResult;
+      setOutreachResult(d);
+    } catch (err) {
+      setOutreachResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
+    } finally {
+      setOutreachRunning(false);
     }
   };
 
@@ -110,12 +140,12 @@ export default function HealthStatus() {
   return (
     <>
       {/* ── LeadBot manuel kørsel ─────────────────────────────────── */}
-      <div className="mb-4 rounded-[2px] border border-[rgba(242,238,230,0.07)] bg-gray px-4 py-3 flex flex-wrap items-center gap-4">
+      <div className="mb-2 rounded-[2px] border border-[rgba(242,238,230,0.07)] bg-gray px-4 py-3 flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <span className="text-[18px] leading-none">◆</span>
           <div className="min-w-0">
             <p className="text-[12px] font-condensed font-bold tracking-[.12em] uppercase text-cream">LeadBot</p>
-            <p className="text-[11px] text-muted font-condensed">Kører automatisk 08:00 UTC (10:00 DK) · Sidst: se Vercel dashboard</p>
+            <p className="text-[11px] text-muted font-condensed">Kører automatisk kl. 08:00 DK · Finder &amp; importerer nye leads</p>
           </div>
         </div>
 
@@ -161,6 +191,56 @@ export default function HealthStatus() {
             </>
           ) : (
             <>▶ Kør nu</>
+          )}
+        </button>
+      </div>
+
+      {/* ── Auto-Outreach manuel kørsel ───────────────────────────── */}
+      <div className="mb-4 rounded-[2px] border border-[rgba(242,238,230,0.07)] bg-gray px-4 py-3 flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <span className="text-[18px] leading-none">✉</span>
+          <div className="min-w-0">
+            <p className="text-[12px] font-condensed font-bold tracking-[.12em] uppercase text-cream">Auto-Outreach</p>
+            <p className="text-[11px] text-muted font-condensed">Kører automatisk kl. 13:00 DK · Council → Sarah → Send (score ≥ 5)</p>
+          </div>
+        </div>
+
+        {outreachResult && (
+          <div className={`text-[11px] font-condensed leading-snug ${outreachResult.ok ? "text-green-400" : "text-red-400"}`}>
+            {outreachResult.ok ? (
+              <>
+                {outreachResult.processed === 0
+                  ? "Ingen New leads at behandle"
+                  : `✓ ${outreachResult.sent} mails sendt · ${outreachResult.analyzed} analyseret · ${Math.round((outreachResult.durationMs || 0) / 1000)}s`
+                }
+                {(outreachResult.lowScore ?? 0) > 0 && (
+                  <span className="block text-yellow mt-[2px]">⏸ {outreachResult.lowScore} leads venter (score under 5)</span>
+                )}
+                {(outreachResult.noEmail ?? 0) > 0 && (
+                  <span className="block text-muted mt-[2px]">📭 {outreachResult.noEmail} mangler email</span>
+                )}
+                {(outreachResult.errors ?? 0) > 0 && (
+                  <span className="block text-red-400 mt-[2px]">⚠ {outreachResult.errors} fejl</span>
+                )}
+              </>
+            ) : (
+              <>✗ Fejl: {outreachResult.error}</>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={runAutoOutreach}
+          disabled={outreachRunning}
+          className="flex-shrink-0 flex items-center gap-2 bg-yellow text-black font-condensed font-black text-[11px] tracking-[.12em] uppercase px-4 py-[7px] rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-50"
+        >
+          {outreachRunning ? (
+            <>
+              <span className="inline-block w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              Sender... (op til 5 min)
+            </>
+          ) : (
+            <>✉ Kør outreach</>
           )}
         </button>
       </div>

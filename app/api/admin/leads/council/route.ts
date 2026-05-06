@@ -53,10 +53,16 @@ function buildLearningContext(industry: string | undefined, customerHint: string
   const angles = [...new Set(top.map((m) => m.angle))].slice(0, 3);
   const tones = [...new Set(top.map((m) => m.tone))].slice(0, 3);
 
+  // Saml redaktions-signaler: admin har rettet disse ting
+  const editEntries = top.filter((m) => m.wasEdited && m.editSummary);
+  const editHints = editEntries.length > 0
+    ? `\n- Admin har tidligere rettet disse mails (lær af det): ${editEntries.map((m) => m.editSummary).join(" / ")}`
+    : "";
+
   return `Læring fra ${top.length} tidligere mails i samme segment:
 - Gennemsnitlig længde der blev sendt: ${avgLen} tegn
 - Vinkler der har virket: ${angles.join(", ")}
-- Toner der har virket: ${tones.join(", ")}
+- Toner der har virket: ${tones.join(", ")}${editHints}
 Brug dette som rettesnor — uden at kopiere blindt.`;
 }
 
