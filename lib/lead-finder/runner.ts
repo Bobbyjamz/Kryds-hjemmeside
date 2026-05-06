@@ -43,6 +43,12 @@ export async function runLeadFinder(): Promise<RunResult> {
   ]);
 
   // Saml company-leads (CVR + Google + Jobindex = company-typen)
+  // Employee-source returnerer både company- og employee-leads — split her
+  const employeeSourceRaw =
+    employeeResults.status === "fulfilled" ? employeeResults.value : [];
+  const employeeSourceCompanies = employeeSourceRaw.filter((c) => c.leadType === "company");
+  const employeeSourceEmployees = employeeSourceRaw.filter((c) => c.leadType === "employee");
+
   const companyRaw: LeadCandidate[] = [
     ...(cvrResults.status === "fulfilled" ? cvrResults.value : []),
     ...(googleResults.status === "fulfilled"
@@ -51,13 +57,13 @@ export async function runLeadFinder(): Promise<RunResult> {
     ...(jobindexResults.status === "fulfilled"
       ? jobindexResults.value.map((c) => ({ ...c, leadType: "company" as const }))
       : []),
-  ].slice(0, 30);
+    ...employeeSourceCompanies, // bonus company-leads fra rekrutteringssignaler
+  ].slice(0, 40);
 
   const privateRaw: LeadCandidate[] =
-    (privateResults.status === "fulfilled" ? privateResults.value : []).slice(0, 30);
+    (privateResults.status === "fulfilled" ? privateResults.value : []).slice(0, 40);
 
-  const employeeRaw: LeadCandidate[] =
-    (employeeResults.status === "fulfilled" ? employeeResults.value : []).slice(0, 30);
+  const employeeRaw: LeadCandidate[] = employeeSourceEmployees.slice(0, 40);
 
   // ── Generer AI-noter for alle leads (parallel batch) ──────────────────────
   // Vi kører note-generering kun for leads uden email (de trænger mest til en god note)

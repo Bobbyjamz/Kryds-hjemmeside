@@ -26,14 +26,14 @@ export async function fetchJobindexLeads(dayOfYear: number): Promise<LeadCandida
   const results: LeadCandidate[] = [];
   const seenCompanies = new Set<string>();
 
-  // 2 søgninger per dag
-  const queries = [0, 1].map((o) => JOBINDEX_QUERIES[(dayOfYear + o) % JOBINDEX_QUERIES.length]);
+  // 4 søgninger per dag (var 2)
+  const queries = [0, 1, 2, 3].map((o) => JOBINDEX_QUERIES[(dayOfYear + o) % JOBINDEX_QUERIES.length]);
 
   for (const query of queries) {
     try {
       const url =
         `https://api.jobindex.dk/api/search/v1/jobs` +
-        `?q=${encodeURIComponent(query)}&area=storkøbenhavn&limit=10`;
+        `?q=${encodeURIComponent(query)}&area=storkøbenhavn&limit=25`;
 
       const res = await fetch(url, {
         headers: { "User-Agent": "KrydsByg-LeadFinder/1.0" },

@@ -47,7 +47,8 @@ export async function fetchGooglePlacesLeads(dayOfYear: number): Promise<LeadCan
   if (!apiKey) return [];
 
   const results: LeadCandidate[] = [];
-  const queries = [0, 1, 2].map((offset) =>
+  // 6 queries per dag (var 3) — roterer
+  const queries = [0, 1, 2, 3, 4, 5].map((offset) =>
     SEARCH_QUERIES[(dayOfYear + offset) % SEARCH_QUERIES.length]
   );
 
@@ -63,8 +64,8 @@ export async function fetchGooglePlacesLeads(dayOfYear: number): Promise<LeadCan
       const data: PlacesTextResponse = await res.json();
       if (data.status !== "OK") continue;
 
-      // Hent Details for de første 5 resultater (telefon + website)
-      for (const place of data.results.slice(0, 5)) {
+      // Hent Details for de første 15 resultater (telefon + website)
+      for (const place of data.results.slice(0, 15)) {
         const addressParts = place.formatted_address.split(",");
         const city = addressParts[addressParts.length - 2]?.trim() || "København";
 

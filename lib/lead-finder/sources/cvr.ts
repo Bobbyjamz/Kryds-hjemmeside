@@ -120,10 +120,10 @@ export async function fetchCVRLeads(
   const results: LeadCandidate[] = [];
   const seen = new Set<string>();
 
-  // Vælg 35 termer (lidt over målet så vi stadig rammer 30 efter filtrering)
-  const startIdx = (dayOfYear * 35) % SEARCH_TERMS.length;
+  // Vælg 55 termer (lidt over målet så vi stadig rammer 40 efter filtrering)
+  const startIdx = (dayOfYear * 55) % SEARCH_TERMS.length;
   const dailyTerms: string[] = [];
-  for (let i = 0; i < 35; i++) {
+  for (let i = 0; i < 55; i++) {
     dailyTerms.push(SEARCH_TERMS[(startIdx + i) % SEARCH_TERMS.length]);
   }
   const terms = Object.keys(weights).length > 0
@@ -131,7 +131,7 @@ export async function fetchCVRLeads(
     : dailyTerms;
 
   for (const term of terms) {
-    if (results.length >= 30) break;
+    if (results.length >= 40) break;
 
     const data = await cvrLookup(term);
     if (!data?.name) continue;

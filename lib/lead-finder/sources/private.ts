@@ -46,7 +46,7 @@ export async function fetchPrivateLeads(dayOfYear: number): Promise<LeadCandidat
   if (boligsiden.status === "fulfilled") results.push(...boligsiden.value);
   if (andelsforeninger.status === "fulfilled") results.push(...andelsforeninger.value);
 
-  return results.slice(0, 30);
+  return results.slice(0, 60);
 }
 
 // ── Boligsiden: nyligt solgte boliger ──────────────────────────────────────
@@ -54,13 +54,13 @@ export async function fetchPrivateLeads(dayOfYear: number): Promise<LeadCandidat
 async function fetchBoligsidenSales(dayOfYear: number, seen: Set<string>): Promise<LeadCandidate[]> {
   const results: LeadCandidate[] = [];
 
-  // Rotér postnumre — 8 per dag dækker alle KBH på 5 dage
-  const startIdx = (dayOfYear * 8) % CPH_ZIPS.length;
-  const todayZips = CPH_ZIPS.slice(startIdx, startIdx + 8);
+  // Rotér postnumre — 16 per dag dækker alle KBH på ~3 dage
+  const startIdx = (dayOfYear * 16) % CPH_ZIPS.length;
+  const todayZips = CPH_ZIPS.slice(startIdx, startIdx + 16);
 
   // Prøv begge API-endpoints (ny og gammel Boligsiden API)
   for (const zip of todayZips) {
-    if (results.length >= 20) break;
+    if (results.length >= 50) break;
 
     const sales = await fetchBoligsidenZip(zip);
     for (const sale of sales) {
@@ -98,7 +98,7 @@ async function fetchBoligsidenZip(zip: string): Promise<BoligsidenSale[]> {
 
   // Endpoint 1: ny API
   try {
-    const url = `https://api.boligsiden.dk/addresses?zipCode=${zip}&salesDateFrom=${from}&pageSize=5`;
+    const url = `https://api.boligsiden.dk/addresses?zipCode=${zip}&salesDateFrom=${from}&pageSize=25`;
     const res = await fetch(url, {
       headers: { "Accept": "application/json", "User-Agent": "KrydsByg-LeadFinder/1.0" },
       signal: AbortSignal.timeout(8000),
@@ -112,7 +112,7 @@ async function fetchBoligsidenZip(zip: string): Promise<BoligsidenSale[]> {
 
   // Endpoint 2: alternativ Boligsiden URL
   try {
-    const url = `https://www.boligsiden.dk/api/sales?zipCodes=${zip}&maxResults=5`;
+    const url = `https://www.boligsiden.dk/api/sales?zipCodes=${zip}&maxResults=25`;
     const res = await fetch(url, {
       headers: { "Accept": "application/json", "User-Agent": "KrydsByg-LeadFinder/1.0" },
       signal: AbortSignal.timeout(8000),
@@ -167,12 +167,12 @@ const ANDELS_NAMES = [
 async function fetchAndelsforeninger(dayOfYear: number, seen: Set<string>): Promise<LeadCandidate[]> {
   const results: LeadCandidate[] = [];
 
-  // 10 foreninger per dag
-  const startIdx = (dayOfYear * 10) % ANDELS_NAMES.length;
-  const todayForeninger = ANDELS_NAMES.slice(startIdx, startIdx + 10);
+  // 20 foreninger per dag
+  const startIdx = (dayOfYear * 20) % ANDELS_NAMES.length;
+  const todayForeninger = ANDELS_NAMES.slice(startIdx, startIdx + 20);
 
   for (const name of todayForeninger) {
-    if (results.length >= 10) break;
+    if (results.length >= 20) break;
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
