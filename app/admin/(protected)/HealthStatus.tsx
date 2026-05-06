@@ -14,12 +14,40 @@ interface HealthData {
   timestamp: string;
 }
 
+interface LeadBotResult {
+  ok: boolean;
+  found?: number;
+  imported?: number;
+  byType?: { company: number; private: number; employee: number };
+  durationMs?: number;
+  smsSent?: boolean;
+  hasGatewayToken?: boolean;
+  hasAdminPhone?: boolean;
+  error?: string;
+}
+
 export default function HealthStatus() {
   const [data, setData] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [smsResult, setSmsResult] = useState<string | null>(null);
   const [smsLoading, setSmsLoading] = useState(false);
+  const [botRunning, setBotRunning] = useState(false);
+  const [botResult, setBotResult] = useState<LeadBotResult | null>(null);
+
+  const runLeadBot = async () => {
+    setBotRunning(true);
+    setBotResult(null);
+    try {
+      const r = await fetch("/api/admin/run-leadbot", { method: "POST" });
+      const d = await r.json() as LeadBotResult;
+      setBotResult(d);
+    } catch (err) {
+      setBotResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
+    } finally {
+      setBotRunning(false);
+    }
+  };
 
   const sendTestSMS = async () => {
     setSmsLoading(true);
@@ -78,6 +106,60 @@ export default function HealthStatus() {
   const totalCount = data.checks.length;
 
   return (
+    <>
+      {/* ── LeadBot manuel kørsel ─────────────────────────────────── */}
+      <div className="mb-4 rounded-[2px] border border-[rgba(242,238,230,0.07)] bg-gray px-4 py-3 flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <span className="text-[18px] leading-none">◆</span>
+          <div className="min-w-0">
+            <p className="text-[12px] font-condensed font-bold tracking-[.12em] uppercase text-cream">LeadBot</p>
+            <p className="text-[11px] text-muted font-condensed">Kører automatisk 08:00 UTC (10:00 DK) · Sidst: se Vercel dashboard</p>
+          </div>
+        </div>
+
+        {/* Resultat */}
+        {botResult && (
+          <div className={`text-[11px] font-condensed leading-snug ${botResult.ok ? "text-green-400" : "text-red-400"}`}>
+            {botResult.ok ? (
+              <>
+                ✓ {botResult.imported} nye leads importeret ({botResult.found} fundet, {Math.round((botResult.durationMs || 0) / 1000)}s)
+                {botResult.byType && (
+                  <span className="text-muted ml-1">
+                    · Virk: {botResult.byType.company} · Priv: {botResult.byType.private} · Medarb: {botResult.byType.employee}
+                  </span>
+                )}
+                {!botResult.hasGatewayToken && (
+                  <span className="block text-orange-400 mt-[2px]">⚠ GATEWAYAPI_TOKEN mangler — ingen SMS sendt</span>
+                )}
+                {botResult.hasGatewayToken && !botResult.hasAdminPhone && (
+                  <span className="block text-orange-400 mt-[2px]">⚠ ADMIN_PHONE mangler — ingen SMS sendt</span>
+                )}
+                {botResult.smsSent && (
+                  <span className="block text-green-400 mt-[2px]">✓ SMS notifikation sendt</span>
+                )}
+              </>
+            ) : (
+              <>✗ Fejl: {botResult.error}</>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={runLeadBot}
+          disabled={botRunning}
+          className="flex-shrink-0 flex items-center gap-2 bg-yellow text-black font-condensed font-black text-[11px] tracking-[.12em] uppercase px-4 py-[7px] rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-50"
+        >
+          {botRunning ? (
+            <>
+              <span className="inline-block w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin" />
+              Kører... (op til 5 min)
+            </>
+          ) : (
+            <>▶ Kør nu</>
+          )}
+        </button>
+      </div>
+
     <div className={`mb-6 rounded-[2px] border ${data.ok ? "bg-green-500/[.04] border-green-500/20" : "bg-yellow/[.04] border-yellow/30"}`}>
       <button
         onClick={() => setOpen((v) => !v)}
@@ -160,5 +242,6 @@ export default function HealthStatus() {
         </div>
       )}
     </div>
+    </>
   );
 }
