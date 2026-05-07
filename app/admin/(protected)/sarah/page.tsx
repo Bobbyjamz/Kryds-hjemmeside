@@ -665,7 +665,7 @@ export default function SarahPage() {
                       Fortæl LeadBot hvad vi leder efter
                     </h2>
                     <p className="text-muted text-[12px] mt-1">
-                      Bot'en henter denne config hver gang den starter et scrape-loop.
+                      Bot&apos;en henter denne config hver gang den starter et scrape-loop.
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -687,7 +687,7 @@ export default function SarahPage() {
                 {/* Fritekst-fokus */}
                 <label className="block mb-5">
                   <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-2">
-                    Fokus (fritekst — Sarah læser dette højt for bot'en)
+                    Fokus (fritekst — Sarah læser dette højt for bot&apos;en)
                   </span>
                   <textarea
                     value={lbConfig.focus}
