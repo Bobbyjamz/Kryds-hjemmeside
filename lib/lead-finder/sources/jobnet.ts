@@ -58,8 +58,8 @@ export async function fetchJobnetLeads(
   const employees: LeadCandidate[] = [];
   const seen = new Set<string>();
 
-  // 5 søgetermer per dag
-  const queries = [0, 1, 2, 3, 4].map(
+  // 10 søgetermer per dag (var 5)
+  const queries = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(
     (o) => TRADE_QUERIES[(dayOfYear + o) % TRADE_QUERIES.length]
   );
 
@@ -72,7 +72,7 @@ export async function fetchJobnetLeads(
       const city = job.WorkPlaceCity?.trim() || "Storkøbenhavn";
 
       // Firma-lead — virksomhed der rekrutterer = klart kapacitetsbehov
-      if (company && companies.length < 30) {
+      if (company && companies.length < 60) {
         const cKey = `jobnet-c-${query}-${company}`.toLowerCase();
         if (!seen.has(cKey)) {
           seen.add(cKey);
@@ -89,7 +89,7 @@ export async function fetchJobnetLeads(
       }
 
       // Medarbejder-lead per stilling — talent pool signal
-      if (employees.length < 30) {
+      if (employees.length < 120) {
         const eKey = `jobnet-e-${title}-${city}-${company || ""}`.toLowerCase();
         if (!seen.has(eKey)) {
           seen.add(eKey);

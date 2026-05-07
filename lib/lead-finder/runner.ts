@@ -7,6 +7,7 @@ import { fetchOISLeads } from "./sources/ois";
 import { fetchTinglysningLeads } from "./sources/tinglysning";
 import { fetchBoligaListings } from "./sources/boliga";
 import { fetchJobnetLeads } from "./sources/jobnet";
+import { fetchStepstoneLeads } from "./sources/stepstone";
 import { fetchDirectoryLeads } from "./sources/directories";
 import { getIndustryWeights } from "./scoring";
 import { qualifyLeads, QUALIFY_THRESHOLD } from "./qualifier";
@@ -35,7 +36,7 @@ export async function runLeadFinder(): Promise<RunResult> {
 
   const weights = await getIndustryWeights().catch(() => ({} as Record<string, number>));
 
-  // ── Kør ALLE 10 kilder parallelt ─────────────────────────────────────────
+  // ── Kør ALLE 11 kilder parallelt ─────────────────────────────────────────
   const [
     cvrResults,
     googleResults,
@@ -46,6 +47,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     tinglysningResults,
     boligaResults,
     jobnetResults,
+    stepstoneResults,
     directoryResults,
   ] = await Promise.allSettled([
     fetchCVRLeads(dayOfYear, weights),
@@ -57,6 +59,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     fetchTinglysningLeads(dayOfYear),
     fetchBoligaListings(dayOfYear),
     fetchJobnetLeads(dayOfYear),
+    fetchStepstoneLeads(dayOfYear),
     fetchDirectoryLeads(dayOfYear),
   ]);
 
@@ -71,6 +74,11 @@ export async function runLeadFinder(): Promise<RunResult> {
       ? jobnetResults.value
       : { companies: [], employees: [] };
 
+  const stepstoneData =
+    stepstoneResults.status === "fulfilled"
+      ? stepstoneResults.value
+      : { companies: [], employees: [] };
+
   // ── Saml rådata per kategori ──────────────────────────────────────────────
   const companyRaw: LeadCandidate[] = [
     ...(cvrResults.status === "fulfilled" ? cvrResults.value : []),
@@ -82,8 +90,9 @@ export async function runLeadFinder(): Promise<RunResult> {
       : []),
     ...employeeSourceCompanies,
     ...jobnetData.companies,
+    ...stepstoneData.companies,
     ...(directoryResults.status === "fulfilled" ? directoryResults.value : []),
-  ].slice(0, 100); // Stort buffer — qualifier kaster dårlige fra
+  ].slice(0, 150); // Stort buffer — qualifier kaster dårlige fra
 
   const privateRaw: LeadCandidate[] = [
     ...(oisResults.status === "fulfilled"
@@ -97,30 +106,31 @@ export async function runLeadFinder(): Promise<RunResult> {
   const employeeRaw: LeadCandidate[] = [
     ...employeeSourceEmployees,
     ...jobnetData.employees,
-  ].slice(0, 80);
+    ...stepstoneData.employees,
+  ].slice(0, 300); // Tre kilder: Jobindex + Jobnet + Stepstone — stort buffer
 
   // ── Qualifier: scorer og filtrerer (sorterer bedste øverst) ──────────────
-  const companyQ = qualifyLeads(companyRaw).slice(0, 50);
+  const companyQ = qualifyLeads(companyRaw).slice(0, 60);
   const privateQ = qualifyLeads(privateRaw).slice(0, 50);
-  const employeeQ = qualifyLeads(employeeRaw).slice(0, 50);
+  const employeeQ = qualifyLeads(employeeRaw).slice(0, 150); // BUMP: var 50
 
   const totalRaw = companyRaw.length + privateRaw.length + employeeRaw.length;
   const totalQ = companyQ.length + privateQ.length + employeeQ.length;
 
   // ── Email-enrichment (Hunter.io → Apollo → website-scraper) ──────────────
   const [companyEnriched, privateEnriched, employeeEnriched] = await Promise.all([
-    enrichEmailsBatch(companyQ, { maxEnrich: 20 }),
+    enrichEmailsBatch(companyQ, { maxEnrich: 25 }),
     enrichEmailsBatch(privateQ, { maxEnrich: 8 }),
-    enrichEmailsBatch(employeeQ, { maxEnrich: 12 }),
+    enrichEmailsBatch(employeeQ, { maxEnrich: 30 }),  // BUMP: var 12
   ]);
 
   // ── Phone-enrichment (Krak → 118.dk → CVR) — kun company ─────────────────
   const companyPhoneEnriched = await enrichPhonesBatch(companyEnriched, { maxEnrich: 12 });
 
   const allQualified = [
-    ...companyPhoneEnriched.slice(0, 35),
+    ...companyPhoneEnriched.slice(0, 40),
     ...privateEnriched.slice(0, 35),
-    ...employeeEnriched.slice(0, 35),
+    ...employeeEnriched.slice(0, 100), // BUMP: var 35 — vi vil have flere medarbejdere at skrive til
   ];
 
   // ── AI-noter (struktureret Sarah-brief m/ KVALIFIKATION + DECISION-MAKER + TIMING) ─

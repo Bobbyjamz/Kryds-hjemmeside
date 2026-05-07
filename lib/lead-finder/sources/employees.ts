@@ -14,6 +14,10 @@ const EMPLOYEE_QUERIES = [
   "VVS montør", "elektriker", "gartner anlæg", "bygningsarbejder",
   "flyttemand", "bud transport", "anlægsgartner", "malerlærling",
   "rengøringshjælper", "bygningsservice medhjælper",
+  "håndværker deltid", "byggepladsmedhjælper", "vicevært medhjælper",
+  "rengøring weekend", "lagermedhjælper deltid", "rengøringsleder",
+  "ejendomsservicemedarbejder", "facility medarbejder", "spartling lærling",
+  "tømrermedhjælper", "murermedhjælper", "byggehjælper",
 ];
 
 interface JobindexJob {
@@ -27,8 +31,8 @@ interface JobindexResponse {
 }
 
 const CV_SEARCH_URLS = [
-  "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=storkøbenhavn&limit=25",
-  "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=sjælland&limit=15",
+  "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=storkøbenhavn&limit=40",
+  "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=sjælland&limit=25",
 ];
 
 export async function fetchEmployeeLeads(dayOfYear: number): Promise<LeadCandidate[]> {
@@ -36,8 +40,8 @@ export async function fetchEmployeeLeads(dayOfYear: number): Promise<LeadCandida
   const employeeResults: LeadCandidate[] = [];
   const seen = new Set<string>();
 
-  // 6 søgninger per dag — roterer (var 4)
-  const queries = [0, 1, 2, 3, 4, 5].map(
+  // 12 søgninger per dag — roterer (var 6)
+  const queries = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(
     (o) => EMPLOYEE_QUERIES[(dayOfYear + o) % EMPLOYEE_QUERIES.length]
   );
 
@@ -56,8 +60,8 @@ export async function fetchEmployeeLeads(dayOfYear: number): Promise<LeadCandida
   const wid = await fetchWorkindenmark(dayOfYear, seen);
   employeeResults.push(...wid);
 
-  // Returner generøst — runner slicer til 30 hver
-  return [...companyResults.slice(0, 40), ...employeeResults.slice(0, 40)];
+  // Returner generøst — runner slicer til de endelige tal selv
+  return [...companyResults.slice(0, 80), ...employeeResults.slice(0, 120)];
 }
 
 async function fetchJobindexResults(
@@ -148,8 +152,8 @@ async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise
     { q: "kitchen helper", label: "Køkkenhjælper (international)" },
   ];
 
-  // Kør 3 forskellige søgninger per dag (var 1)
-  const todaySearches = [0, 1, 2].map((o) => searches[(dayOfYear + o) % searches.length]);
+  // Kør 6 forskellige søgninger per dag (var 3)
+  const todaySearches = [0, 1, 2, 3, 4, 5].map((o) => searches[(dayOfYear + o) % searches.length]);
 
   for (const { q, label } of todaySearches) {
     try {
