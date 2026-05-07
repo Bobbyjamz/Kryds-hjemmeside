@@ -24,6 +24,7 @@ interface LeadBotResult {
   ok: boolean;
   found?: number;
   imported?: number;
+  cleanedUp?: number;
   qualified?: number;
   discarded?: number;
   byType?: { company: number; private: number; employee: number };
@@ -194,6 +195,9 @@ export default function HealthStatus() {
                 )}
                 {botResult.discarded !== undefined && botResult.discarded > 0 && (
                   <span className="block text-muted mt-[2px]">🔁 {botResult.discarded} kasseret af qualifier (score for lav)</span>
+                )}
+                {botResult.cleanedUp !== undefined && botResult.cleanedUp > 0 && (
+                  <span className="block text-muted mt-[2px]">🗑 {botResult.cleanedUp} udløbne &quot;New&quot; leads ryddet op (&gt;7 dage)</span>
                 )}
                 {!botResult.hasGatewayToken && (
                   <span className="block text-orange-400 mt-[2px]">⚠ GATEWAYAPI_TOKEN mangler — ingen SMS sendt</span>

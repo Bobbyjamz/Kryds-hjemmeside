@@ -70,6 +70,29 @@ const SEARCH_TERMS = [
   // Events
   "Eventbureau København", "Messearrangør KBH", "Konferencearrangør",
   "Cateringfirma København", "Teltudlejning KBH",
+  // Brede branche-søgeord (returnerer forskellige firmaer afhængigt af cvrapi rangering)
+  "rengøring", "facility", "ejendomsservice", "vicevært", "håndværker",
+  "byggefirma", "renoveringsfirma", "vedligehold", "ejendomsadministration",
+  "boligselskab", "andelsforening", "tagrenovering", "facaderenovering",
+  "trappevask", "kontorrengøring", "kontorhotel", "coworking",
+  "messerengøring", "byggepladsservice", "hovedrengøring",
+  "fraflytningsrengøring", "vinduespudsning", "graffitirens",
+  "skadeservice", "skimmelsanering", "asbestsanering", "indeklimaservice",
+  "totalrenovering", "totalentreprise", "underentreprenør",
+  "rådgivende ingeniør", "byggeteknisk rådgivning",
+  "aircondition service", "ventilation service", "el-installatør",
+  "vvs installatør", "tagdækker", "isolering", "tagisolering",
+  "termovinduer", "døre vinduer", "carportbygger",
+  "udestue", "havemand", "havefirma", "anlægsgartner københavn",
+  "snerydning", "saltning", "vinterservice",
+  "flyttefirma", "flytteservice", "godstransport", "kurer",
+  "lager logistik", "nedrivning", "containerudlejning",
+  "byggeplads sikkerhed", "stillads", "lift udlejning",
+  "ejendomsmægler erhverv", "boligvurdering", "syn og skøn",
+  "overvågning", "vagtservice", "alarmservice",
+  "skadedyrsbekæmpelse", "rotteforebyggelse",
+  "trædrift", "stubfræsning", "beskæring",
+  "byggepladsledelse", "byggestyring",
 ];
 
 interface CVRApiResponse {
@@ -120,10 +143,10 @@ export async function fetchCVRLeads(
   const results: LeadCandidate[] = [];
   const seen = new Set<string>();
 
-  // Vælg 55 termer (lidt over målet så vi stadig rammer 40 efter filtrering)
-  const startIdx = (dayOfYear * 55) % SEARCH_TERMS.length;
+  // Vælg 90 termer/dag (var 55) — vi vil have 70+ leads efter filtrering
+  const startIdx = (dayOfYear * 90) % SEARCH_TERMS.length;
   const dailyTerms: string[] = [];
-  for (let i = 0; i < 55; i++) {
+  for (let i = 0; i < 90; i++) {
     dailyTerms.push(SEARCH_TERMS[(startIdx + i) % SEARCH_TERMS.length]);
   }
   const terms = Object.keys(weights).length > 0
@@ -131,7 +154,7 @@ export async function fetchCVRLeads(
     : dailyTerms;
 
   for (const term of terms) {
-    if (results.length >= 40) break;
+    if (results.length >= 70) break;
 
     const data = await cvrLookup(term);
     if (!data?.name) continue;

@@ -126,12 +126,22 @@ export async function enrichPhonesBatch(
   const toEnrich = needsPhone.slice(0, maxEnrich);
   const skipped = needsPhone.slice(maxEnrich);
 
+  // Parallel 5 ad gangen — sparer ca. 70% tid
+  const PARALLEL = 5;
   const enriched: LeadCandidate[] = [];
 
-  for (const c of toEnrich) {
-    const phone = await findPhone(c);
-    enriched.push(phone ? { ...c, phone } : c);
-    await new Promise((r) => setTimeout(r, 400));
+  for (let i = 0; i < toEnrich.length; i += PARALLEL) {
+    const batch = toEnrich.slice(i, i + PARALLEL);
+    const results = await Promise.allSettled(
+      batch.map(async (c) => {
+        const phone = await findPhone(c);
+        return phone ? { ...c, phone } : c;
+      })
+    );
+    for (let j = 0; j < results.length; j++) {
+      const r = results[j];
+      enriched.push(r.status === "fulfilled" ? r.value : batch[j]);
+    }
   }
 
   return [...hasPhone, ...enriched, ...skipped];

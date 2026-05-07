@@ -153,12 +153,22 @@ export async function enrichEmailsBatch(
   const toEnrich = needsEmail.slice(0, maxEnrich);
   const skipped = needsEmail.slice(maxEnrich);
 
+  // Kør 5 ad gangen — sparer ~70% tid sammenlignet med sekventielt
+  const PARALLEL = 5;
   const enriched: LeadCandidate[] = [];
 
-  for (const c of toEnrich) {
-    const email = await findEmail(c);
-    enriched.push(email ? { ...c, email } : c);
-    await new Promise((r) => setTimeout(r, 300)); // Lille pause
+  for (let i = 0; i < toEnrich.length; i += PARALLEL) {
+    const batch = toEnrich.slice(i, i + PARALLEL);
+    const results = await Promise.allSettled(
+      batch.map(async (c) => {
+        const email = await findEmail(c);
+        return email ? { ...c, email } : c;
+      })
+    );
+    for (let j = 0; j < results.length; j++) {
+      const r = results[j];
+      enriched.push(r.status === "fulfilled" ? r.value : batch[j]);
+    }
   }
 
   return [...hasEmail, ...enriched, ...skipped];

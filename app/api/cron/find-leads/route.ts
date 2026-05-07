@@ -19,8 +19,19 @@ export async function GET(req: Request) {
   try {
     const result = await runLeadFinder();
 
-    // Hent eksisterende leads for deduplicering
-    const existingLeads = await readLeads();
+    // Hent eksisterende leads for deduplicering + auto-cleanup
+    let existingLeads = await readLeads();
+
+    // Ryd op: gamle "New" leads (>7 dage uden handling) udløber så vi kan
+    // hente dem igen med friske AI-noter. Kontaktede leads bevares altid.
+    const PERMANENT_STATUSES = new Set(["Sent", "Drafted", "Approved", "Analyzed", "Rejected"]);
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    existingLeads = existingLeads.filter((l) => {
+      if (PERMANENT_STATUSES.has(l.status)) return true;
+      if (l.status !== "New") return true;
+      return new Date(l.createdAt).getTime() >= cutoff;
+    });
+
     const existingNames = new Set(
       existingLeads.map((l) => l.companyName.toLowerCase().trim())
     );
@@ -69,10 +80,8 @@ export async function GET(req: Request) {
       });
     }
 
-    // Gem nye leads i KV
-    if (newLeads.length > 0) {
-      await writeLeads([...existingLeads, ...newLeads]);
-    }
+    // Gem nye leads i KV (existingLeads er allerede ryddet for udløbne "New"s)
+    await writeLeads([...existingLeads, ...newLeads]);
 
     // SMS notifikation til admin
     const sourceBreakdown = Object.entries(result.bySource)

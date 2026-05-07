@@ -20,7 +20,26 @@ export async function POST() {
     const result = await runLeadFinder();
 
     // Hent eksisterende leads for deduplicering
-    const existingLeads = await readLeads();
+    let existingLeads = await readLeads();
+
+    // Smartere dedup-strategi:
+    //   1. Kontaktede leads (Sent/Drafted/Approved/Analyzed/Rejected) = perm. duplicat
+    //   2. Gamle "New" leads (>7 dage uden nogen handling) ryddes op — de udløber
+    //      og må gerne komme igen med friske AI-noter
+    const PERMANENT_STATUSES = new Set(["Sent", "Drafted", "Approved", "Analyzed", "Rejected"]);
+    const STALE_NEW_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 dage
+    const cutoff = Date.now() - STALE_NEW_THRESHOLD_MS;
+
+    const beforeCount = existingLeads.length;
+    existingLeads = existingLeads.filter((l) => {
+      if (PERMANENT_STATUSES.has(l.status)) return true;       // Behold altid
+      if (l.status !== "New") return true;                     // Behold "Needs Review" etc.
+      const created = new Date(l.createdAt).getTime();
+      return created >= cutoff;                                // Behold New < 7 dage
+    });
+    const cleanedUp = beforeCount - existingLeads.length;
+
+    // Dedup mod alle leads vi stadig har
     const existingNames = new Set(
       existingLeads.map((l) => l.companyName.toLowerCase().trim())
     );
@@ -68,8 +87,8 @@ export async function POST() {
       });
     }
 
-    // Gem nye leads
-    if (newLeads.length > 0) {
+    // Gem nye leads (existingLeads er allerede ryddet for >7 dage gamle "New"s)
+    if (newLeads.length > 0 || cleanedUp > 0) {
       await writeLeads([...existingLeads, ...newLeads]);
     }
 
@@ -92,6 +111,7 @@ export async function POST() {
       ok: true,
       found: result.candidates.length,
       imported: newLeads.length,
+      cleanedUp,
       qualified: result.qualifiedCount,
       discarded: result.discardedCount,
       bySource: result.bySource,
