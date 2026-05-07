@@ -118,32 +118,45 @@ export async function runLeadFinder(): Promise<RunResult> {
   const totalQ = companyQ.length + privateQ.length + employeeQ.length;
 
   // ── Email-enrichment (Hunter.io → Apollo → website-scraper) ──────────────
+  // Hvert kald tager ~3-5s, så vi holder maxEnrich konservativt for at undgå timeout
   const [companyEnriched, privateEnriched, employeeEnriched] = await Promise.all([
-    enrichEmailsBatch(companyQ, { maxEnrich: 25 }),
-    enrichEmailsBatch(privateQ, { maxEnrich: 8 }),
-    enrichEmailsBatch(employeeQ, { maxEnrich: 30 }),  // BUMP: var 12
+    enrichEmailsBatch(companyQ, { maxEnrich: 18 }),
+    enrichEmailsBatch(privateQ, { maxEnrich: 6 }),
+    enrichEmailsBatch(employeeQ, { maxEnrich: 22 }),  // var 12 — vi vil have flere medarb. med email
   ]);
 
   // ── Phone-enrichment (Krak → 118.dk → CVR) — kun company ─────────────────
   const companyPhoneEnriched = await enrichPhonesBatch(companyEnriched, { maxEnrich: 12 });
 
   const allQualified = [
-    ...companyPhoneEnriched.slice(0, 40),
-    ...privateEnriched.slice(0, 35),
-    ...employeeEnriched.slice(0, 100), // BUMP: var 35 — vi vil have flere medarbejdere at skrive til
-  ];
+    ...companyPhoneEnriched.slice(0, 35),
+    ...privateEnriched.slice(0, 30),
+    ...employeeEnriched.slice(0, 70), // var 35 — vi vil have flere medarbejdere at skrive til
+  ]; // Total ~135 leads — passer med Anthropic batch-grænserne
 
   // ── AI-noter (struktureret Sarah-brief m/ KVALIFIKATION + DECISION-MAKER + TIMING) ─
+  // VIGTIGT: vi batcher Anthropic-kald 8 ad gangen for at undgå rate limits +
+  // timeout når der er mange leads. Hvis tidsbudget overskrides, dropper vi
+  // resten — eksisterende notater fra kilderne bevares.
   const needsNote = allQualified.filter(
     (c) => !c.notes || !c.notes.includes("---SARAH NOTE")
   );
-  if (needsNote.length > 0) {
-    const notes = await generateNotes(needsNote).catch(() =>
-      needsNote.map(() => "")
-    );
-    needsNote.forEach((c, i) => {
-      if (notes[i]) c.notes = notes[i];
-    });
+  const NOTE_BATCH = 8;
+  const NOTE_TIME_BUDGET_MS = 180_000; // 3 min max på AI-noter
+  const noteStart = Date.now();
+
+  for (let i = 0; i < needsNote.length; i += NOTE_BATCH) {
+    if (Date.now() - noteStart > NOTE_TIME_BUDGET_MS) {
+      console.log(`[runner] AI-note tidsbudget nået ved ${i}/${needsNote.length} — resten beholder kilde-noter`);
+      break;
+    }
+    const batch = needsNote.slice(i, i + NOTE_BATCH);
+    try {
+      const notes = await generateNotes(batch);
+      batch.forEach((c, j) => { if (notes[j]) c.notes = notes[j]; });
+    } catch (err) {
+      console.warn(`[runner] AI-note batch ${i} fejlede:`, err);
+    }
   }
 
   // ── Statistik ─────────────────────────────────────────────────────────────

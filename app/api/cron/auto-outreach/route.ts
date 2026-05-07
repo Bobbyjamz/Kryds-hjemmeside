@@ -199,12 +199,14 @@ ${briefingBlock}`,
 // ── Delt pipeline-logik ───────────────────────────────────────────────────
 
 async function runOutreachPipeline() {
-  const stats = { analyzed: 0, drafted: 0, sent: 0, noEmail: 0, lowScore: 0, errors: 0 };
+  const stats = { analyzed: 0, drafted: 0, sent: 0, noEmail: 0, lowScore: 0, errors: 0, hitTimeBudget: false };
+  const startMs = Date.now();
+  const TIME_BUDGET_MS = 240_000; // 240s = 4 min — gemmer 60s buffer til writeLeads + SMS
 
   const allLeads = await readLeads();
 
-  // Kun "New" leads — max 25 per kørsel (timeout-sikkert)
-  const toProcess = allLeads.filter((l) => l.status === "New").slice(0, 25);
+  // Kun "New" leads — max 12 per kørsel (var 25 — timeout ved tunge AI-kald)
+  const toProcess = allLeads.filter((l) => l.status === "New").slice(0, 12);
 
   if (toProcess.length === 0) {
     return { stats, toProcess: 0, message: "Ingen New leads" };
@@ -213,6 +215,11 @@ async function runOutreachPipeline() {
   const updatedLeads = [...allLeads];
 
   for (const lead of toProcess) {
+    // Tids-budget: hvis vi har brugt 4 min, stop og gem hvad vi har
+    if (Date.now() - startMs > TIME_BUDGET_MS) {
+      stats.hitTimeBudget = true;
+      break;
+    }
     try {
       // ── 1. Council ──────────────────────────────────────────────────
       const council = await runCouncil(lead);

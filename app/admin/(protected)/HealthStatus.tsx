@@ -58,7 +58,20 @@ export default function HealthStatus() {
     setBotResult(null);
     try {
       const r = await fetch("/api/admin/run-leadbot", { method: "POST" });
-      const d = await r.json() as LeadBotResult;
+      const text = await r.text();
+      let d: LeadBotResult;
+      try {
+        d = JSON.parse(text) as LeadBotResult;
+      } catch {
+        // Non-JSON svar — typisk Vercel timeout-side eller crash
+        const snippet = text.slice(0, 120).replace(/\s+/g, " ");
+        d = {
+          ok: false,
+          error: r.status === 504 || r.status === 502
+            ? "Timeout — funktionen blev for langsom (>5 min). Prøv igen senere."
+            : `HTTP ${r.status}: ${snippet}...`,
+        };
+      }
       setBotResult(d);
     } catch (err) {
       setBotResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
@@ -72,7 +85,19 @@ export default function HealthStatus() {
     setOutreachResult(null);
     try {
       const r = await fetch("/api/cron/auto-outreach", { method: "POST" });
-      const d = await r.json() as OutreachResult;
+      const text = await r.text();
+      let d: OutreachResult;
+      try {
+        d = JSON.parse(text) as OutreachResult;
+      } catch {
+        const snippet = text.slice(0, 120).replace(/\s+/g, " ");
+        d = {
+          ok: false,
+          error: r.status === 504 || r.status === 502
+            ? "Timeout — for mange leads i ét hug. Prøv igen, så tager den næste batch."
+            : `HTTP ${r.status}: ${snippet}...`,
+        };
+      }
       setOutreachResult(d);
     } catch (err) {
       setOutreachResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
