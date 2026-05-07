@@ -1,52 +1,66 @@
-import { promises as fs } from "fs";
-import path from "path";
+/**
+ * Analytics — gemmer page views i Upstash Redis i stedet for fil.
+ * Filen analytics.json eksisterede ikke på Vercel (read-only filesystem).
+ *
+ * Redis-nøgler:
+ *   analytics:views   JSON-array af PageView (max 10.000 — ældste smides væk)
+ */
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const ANALYTICS_FILE = path.join(DATA_DIR, "analytics.json");
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
+
+const KEY = "analytics:views";
+const MAX_VIEWS = 10_000;
 
 export interface PageView {
   id: string;
   path: string;
-  country: string;   // ISO 3166-1 alpha-2, e.g. "DK"
+  country: string;
   city: string;
   timestamp: string; // ISO 8601
-  duration: number;  // seconds on page (updated on exit)
+  duration: number;  // sekunder på siden (opdateres ved exit)
   referrer: string;
 }
 
-async function ensureDir() {
-  try { await fs.mkdir(DATA_DIR, { recursive: true }); } catch {}
-}
-
 export async function readAnalytics(): Promise<PageView[]> {
-  await ensureDir();
   try {
-    const raw = await fs.readFile(ANALYTICS_FILE, "utf8");
-    return JSON.parse(raw) as PageView[];
+    const raw = await redis.get<PageView[]>(KEY);
+    return Array.isArray(raw) ? raw : [];
   } catch {
     return [];
   }
 }
 
 export async function appendPageView(view: PageView): Promise<void> {
-  await ensureDir();
-  const views = await readAnalytics();
-  // Keep max 10 000 entries — drop oldest
-  const trimmed = views.length >= 10000 ? views.slice(-9999) : views;
-  trimmed.push(view);
-  await fs.writeFile(ANALYTICS_FILE, JSON.stringify(trimmed, null, 2), "utf8");
-}
-
-export async function updateDuration(id: string, duration: number): Promise<void> {
-  const views = await readAnalytics();
-  const idx = views.findLastIndex((v) => v.id === id);
-  if (idx !== -1) {
-    views[idx] = { ...views[idx], duration };
-    await fs.writeFile(ANALYTICS_FILE, JSON.stringify(views, null, 2), "utf8");
+  try {
+    const views = await readAnalytics();
+    // Behold max MAX_VIEWS — kasser de ældste
+    const trimmed = views.length >= MAX_VIEWS ? views.slice(-(MAX_VIEWS - 1)) : views;
+    trimmed.push(view);
+    await redis.set(KEY, trimmed);
+  } catch (err) {
+    console.error("[analytics] appendPageView fejl:", err);
   }
 }
 
-// ── Aggregation helpers used by admin dashboard ──────────────────────────────
+export async function updateDuration(id: string, duration: number): Promise<void> {
+  try {
+    const views = await readAnalytics();
+    const idx = views.findLastIndex((v) => v.id === id);
+    if (idx !== -1) {
+      views[idx] = { ...views[idx], duration };
+      await redis.set(KEY, views);
+    }
+  } catch (err) {
+    console.error("[analytics] updateDuration fejl:", err);
+  }
+}
+
+// ── Aggregation helpers ──────────────────────────────────────────────────────
 
 export function last7Days(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
@@ -63,7 +77,7 @@ export function aggregate(views: PageView[]) {
   const todayViews = views.filter((v) => v.timestamp.startsWith(today));
   const weekViews = views.filter((v) => week.some((d) => v.timestamp.startsWith(d)));
 
-  // Top pages
+  // Top sider
   const pageCounts: Record<string, number> = {};
   for (const v of weekViews) {
     pageCounts[v.path] = (pageCounts[v.path] ?? 0) + 1;
@@ -73,7 +87,7 @@ export function aggregate(views: PageView[]) {
     .slice(0, 8)
     .map(([path, count]) => ({ path, count }));
 
-  // Top countries
+  // Top lande
   const countryCounts: Record<string, number> = {};
   for (const v of weekViews) {
     const c = v.country || "Ukendt";
@@ -84,13 +98,13 @@ export function aggregate(views: PageView[]) {
     .slice(0, 6)
     .map(([country, count]) => ({ country, count }));
 
-  // Daily counts for sparkline
+  // Daglige tal til graf
   const daily = week.map((date) => ({
     date,
     count: views.filter((v) => v.timestamp.startsWith(date)).length,
   }));
 
-  // Avg duration (only sessions > 2s to filter bots)
+  // Gns. varighed (kun sessioner > 2s for at filtrere bots)
   const realViews = weekViews.filter((v) => v.duration > 2);
   const avgDuration = realViews.length
     ? Math.round(realViews.reduce((s, v) => s + v.duration, 0) / realViews.length)
