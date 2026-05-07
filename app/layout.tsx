@@ -26,19 +26,20 @@ const barlow = Barlow({
 export const metadata: Metadata = {
   metadataBase: new URL("https://krydsbyg.com"),
   title: {
-    default: "KrydsByg — Bemanding til byggeri i København",
-    template: "%s — Kryds",
+    default: "KrydsByg — Vikarbureau til håndværk & byggeplads i København",
+    template: "%s | KrydsByg",
   },
   description:
-    "Hurtig, kompetent bemanding til bygge- og anlægsprojekter. Tømrer, murer, stillads, VVS, el og mere. Ring +45 42 77 88 66.",
+    "KrydsByg er Storkøbenhavns hurtige vikarbureau til håndværk, rengøring, flytning og byggepladsbemanding. Erfarne folk leveret inden for 24 timer. Ring +45 42 77 88 66.",
   alternates: {
     canonical: "https://krydsbyg.com",
   },
   keywords: [
-    "byggebemanding", "KrydsByg", "Kryds", "håndværkere København",
-    "byggefolk", "renovering", "bemanding", "byggepladsbemanding",
-    "maling", "havearbejde", "montering", "byggeleder",
-    "koordinator", "vikarbureau København", "byggevikar",
+    "vikarbureau København", "håndværkere til leje", "rengøringsfirma København",
+    "malere til leje", "flytning hjælp", "byggepladsbehjælp", "bemanding byggeri",
+    "vikarer håndværk", "KrydsByg", "byggevikar", "facility management",
+    "ejendomsservice", "anlægsgartner til leje", "montørhjælp",
+    "midlertidig arbejdskraft", "daglejere byggeri", "renoveringsfirma",
   ],
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
@@ -46,18 +47,18 @@ export const metadata: Metadata = {
     apple: "/favicon.svg",
   },
   openGraph: {
-    title: "Kryds — Stærke hænder til byggeprojekter",
+    title: "KrydsByg — Stærke hænder til håndværk & byggeri i København",
     description:
-      "Kryds leverer erfarne byggefolk til renovering, maling, havearbejde, montering og byggepladsbemanding i København. Sæt et kryds i kalenderen.",
+      "Hurtige vikarer til rengøring, flytning, maling, montering, have, håndværk og byggeplads. Leveringstid: 24 timer. Timepris fra 345 kr/t ekskl. moms.",
     url: "https://krydsbyg.com",
-    siteName: "Kryds",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Kryds" }],
+    siteName: "KrydsByg",
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "KrydsByg" }],
     type: "website",
     locale: "da_DK",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kryds — Stærke hænder til byggeprojekter",
+    title: "KrydsByg — Stærke hænder til byggeprojekter",
     description: "Kryds leverer erfarne byggefolk til renovering, maling og byggepladsbemanding i København.",
     images: ["/og-image.svg"],
   },

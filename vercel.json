@@ -5,6 +5,10 @@
   "installCommand": "npm install",
   "crons": [
     {
+      "path": "/api/cron/morning-report",
+      "schedule": "0 6 * * *"
+    },
+    {
       "path": "/api/cron/find-leads",
       "schedule": "0 7 * * *"
     },

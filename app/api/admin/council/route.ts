@@ -14,7 +14,7 @@ const SYSTEM_PROMPTS: Record<AdvisorRole, string> = {
 ## KrydsByg — virksomhedsprofil
 - Dansk vikarbureau, fokus på håndværk og byggeplads i København og omegn
 - Ydelser: Rengøring, Flytning, Maling, Montering, Have, Håndværk, Byggepladsbehjælp, Events, Kombineret
-- Priser: Handyman 320 kr/t · Faglært håndværker 410 kr/t · Specialist 525 kr/t (alle ekskl. moms)
+- Priser: Handyman 345 kr/t · Faglært håndværker 430 kr/t · Specialist 550 kr/t (alle ekskl. moms)
 - Tillæg: overtid +50% · weekend/helligdag +75% · nat (22-06) +75%
 - Minimum: 4 timer pr. dag pr. medarbejder · Fastpris minimum 15.000 kr ekskl. moms
 - Retainer: Bronze 5 dage/md (9.500 kr, -5%) · Sølv 10 dage/md (17.500 kr, -8%) · Guld 20+ dage/md (individuel, -10%)

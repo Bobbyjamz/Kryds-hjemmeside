@@ -324,6 +324,87 @@ async function runOutreachPipeline() {
   return { stats, toProcess: toProcess.length };
 }
 
+// ── Auto follow-up (leads sendt >5 dage siden, ingen svar) ──────────────────
+
+async function runFollowUpPipeline() {
+  const fiveDAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
+  const allLeads = await readLeads();
+
+  // Leads der er sendt > 5 dage siden og stadig har status=Sent (ingen svar = ingen opdatering)
+  const toFollow = allLeads
+    .filter(
+      (l) =>
+        l.status === "Sent" &&
+        l.email &&
+        l.sentAt &&
+        l.sentAt <= fiveDAgo &&
+        !l.draftSubject?.includes("[follow-up]") // undgå at sende 2 gange
+    )
+    .slice(0, 8); // max 8 follow-ups per kørsel
+
+  if (toFollow.length === 0) return { followUpsSent: 0 };
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
+  let followUpsSent = 0;
+  const updatedLeads = [...allLeads];
+
+  for (const lead of toFollow) {
+    try {
+      const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
+      const subject = `Re: ${lead.draftSubject ?? "KrydsByg — opfølgning"}`;
+
+      const body = [
+        `Hej ${firstName},`,
+        ``,
+        `Jeg sendte dig en mail for et par dage siden om hvad KrydsByg kan gøre for ${lead.companyName}.`,
+        ``,
+        `Jeg vil bare høre om du fik den — og om det er noget der er relevant for jer lige nu.`,
+        ``,
+        `Det tager blot 10 minutter at afklare om vi kan hjælpe. Ring gerne på +45 42 77 88 66 eller svar direkte på denne mail.`,
+        ``,
+        `Med venlig hilsen,`,
+      ].join("\n");
+
+      const html = buildEmailHtml({ body, preheader: "Bare en kort opfølgning fra KrydsByg" });
+      const textVersion = buildEmailText(body);
+
+      await resend.emails.send({
+        from,
+        to: [lead.email!],
+        bcc: ["kontakt@krydsbyg.com"],
+        replyTo: "kontakt@krydsbyg.com",
+        subject,
+        html,
+        text: textVersion,
+        headers: {
+          "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      });
+
+      const now = new Date().toISOString();
+      const idx = updatedLeads.findIndex((l) => l.id === lead.id);
+      if (idx !== -1) {
+        updatedLeads[idx] = {
+          ...updatedLeads[idx],
+          // Marker at follow-up er sendt — brug draftSubject som flag
+          draftSubject: `[follow-up] ${lead.draftSubject ?? ""}`,
+          updatedAt: now,
+        };
+      }
+
+      followUpsSent++;
+      await new Promise((r) => setTimeout(r, 400));
+    } catch (err) {
+      console.error(`[follow-up] fejl for lead ${lead.id}:`, err);
+    }
+  }
+
+  if (followUpsSent > 0) await writeLeads(updatedLeads);
+  return { followUpsSent };
+}
+
 // ── GET — Vercel Cron (kl. 13:00 DK / 11:00 UTC) ────────────────────────
 
 export async function GET(req: Request) {
@@ -335,24 +416,30 @@ export async function GET(req: Request) {
   }
 
   try {
-    const { stats, toProcess, message } = await runOutreachPipeline();
+    const [outreachResult, followUpResult] = await Promise.allSettled([
+      runOutreachPipeline(),
+      runFollowUpPipeline(),
+    ]);
 
-    if (toProcess === 0) {
-      await notifyAdmin("Hej chef! 🤖 Auto-outreach kl. 13: ingen nye leads at behandle i dag.");
-      return NextResponse.json({ ok: true, message });
-    }
+    const { stats, toProcess, message } =
+      outreachResult.status === "fulfilled"
+        ? outreachResult.value
+        : { stats: { sent: 0, lowScore: 0, noEmail: 0, errors: 0, analyzed: 0, drafted: 0, hitTimeBudget: false }, toProcess: 0, message: "Outreach fejlede" };
+
+    const followUpsSent =
+      followUpResult.status === "fulfilled" ? followUpResult.value.followUpsSent : 0;
 
     const smsLines = [
-      `Hej chef! 🤖 Auto-outreach kl. 13 er færdig:`,
-      `✅ ${stats.sent} mails sendt af Sarah`,
-      stats.lowScore > 0 ? `⏸ ${stats.lowScore} venter på dig (lav score)` : null,
-      stats.noEmail > 0 ? `📭 ${stats.noEmail} mangler email` : null,
+      `Hej chef! 🤖 Auto-outreach kl. 13:`,
+      toProcess > 0 ? `✅ ${stats.sent} nye mails sendt` : `📭 Ingen nye leads i dag`,
+      followUpsSent > 0 ? `🔁 ${followUpsSent} opfølgninger sendt` : null,
+      stats.lowScore > 0 ? `⏸ ${stats.lowScore} afventer dig (lav score)` : null,
       stats.errors > 0 ? `⚠️ ${stats.errors} fejl — tjek admin` : null,
     ].filter(Boolean).join("\n");
 
     await notifyAdmin(smsLines);
 
-    return NextResponse.json({ ok: true, processed: toProcess, ...stats });
+    return NextResponse.json({ ok: true, processed: toProcess, followUpsSent, message, ...stats });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

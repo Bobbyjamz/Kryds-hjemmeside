@@ -76,15 +76,15 @@ export default function PriserClient() {
                 <tbody>
                   <tr className="border-b border-[rgba(242,238,230,0.07)]">
                     <td className="py-3 text-muted">Handyman</td>
-                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 320/t</td>
+                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 345/t</td>
                   </tr>
                   <tr className="border-b border-[rgba(242,238,230,0.07)]">
                     <td className="py-3 text-muted">Faglært håndværker</td>
-                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 410/t</td>
+                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 430/t</td>
                   </tr>
                   <tr>
                     <td className="py-3 text-muted">Specialist</td>
-                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 525/t</td>
+                    <td className="py-3 text-right font-condensed font-bold text-cream">kr. 550/t</td>
                   </tr>
                 </tbody>
               </table>
