@@ -54,6 +54,14 @@ interface JobnetResponse {
 export async function fetchJobnetLeads(
   dayOfYear: number
 ): Promise<{ companies: LeadCandidate[]; employees: LeadCandidate[] }> {
+  // ⚠️ DEAKTIVERET: Jobnet er flyttet til STAR Login (kræver auth).
+  // Det offentlige search-endpoint er væk. Vi henter employee-leads fra
+  // Jobindex HTML-scraping i stedet — se employees.ts.
+  if (process.env.JOBNET_ENABLED !== "true") {
+    console.log("[jobnet] Skipped — flyttet til STAR Login (kræver auth)");
+    return { companies: [], employees: [] };
+  }
+
   const companies: LeadCandidate[] = [];
   const employees: LeadCandidate[] = [];
   const seen = new Set<string>();

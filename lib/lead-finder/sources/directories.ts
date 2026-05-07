@@ -41,6 +41,15 @@ const DIRECTORY_QUERIES = [
 const KBH_AREAS_DIR = ["københavn", "frederiksberg", "amager", "valby", "nørrebro", "østerbro", "vesterbro", "lyngby", "gentofte"];
 
 export async function fetchDirectoryLeads(dayOfYear: number): Promise<LeadCandidate[]> {
+  // ⚠️ DEAKTIVERET: Proff.dk og Degulesider redesignede sites — alle gamle
+  // URL'er returnerer 404. Vi bruger Google Places som primær firma-kilde.
+  //
+  // For at prøve igen (efter scrapere er rebuildt): sæt DIRECTORIES_ENABLED=true
+  if (process.env.DIRECTORIES_ENABLED !== "true") {
+    console.log("[directories] Skipped — Proff/Degulesider URL-struktur ændret (404)");
+    return [];
+  }
+
   const results: LeadCandidate[] = [];
   const seen = new Set<string>();
 

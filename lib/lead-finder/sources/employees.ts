@@ -140,6 +140,12 @@ async function fetchJobindexResults(
 
 // Workindenmark: udenlandske jobsøgere der ønsker arbejde i DK
 async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise<LeadCandidate[]> {
+  // ⚠️ DEAKTIVERET: Workindenmark API-endpoint er væk (returnerer tom respons).
+  // Sæt WORKINDENMARK_ENABLED=true hvis vi skal prøve igen efter rebuild.
+  if (process.env.WORKINDENMARK_ENABLED !== "true") {
+    return [];
+  }
+
   const results: LeadCandidate[] = [];
 
   const searches = [

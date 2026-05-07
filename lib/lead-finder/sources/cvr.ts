@@ -217,6 +217,16 @@ export async function fetchCVRLeads(
   dayOfYear: number,
   weights: IndustryWeights = {}
 ): Promise<LeadCandidate[]> {
+  // ⚠️ DEAKTIVERET som standard: cvrapi.dk har lukket for vores Vercel-IP
+  // (returnerer "QUOTA_EXCEEDED"). Vi bruger Google Places som primær
+  // firma-kilde i stedet — se google-places.ts.
+  //
+  // For at genaktivere: sæt CVRAPI_ENABLED=true i env (kræver betalt abonnement).
+  if (process.env.CVRAPI_ENABLED !== "true") {
+    console.log("[cvr] Skipped — cvrapi.dk blokerer vores IP (sæt CVRAPI_ENABLED=true for at prøve igen)");
+    return [];
+  }
+
   const results: LeadCandidate[] = [];
   const seen = new Set<string>();
 

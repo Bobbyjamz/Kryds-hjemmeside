@@ -28,6 +28,13 @@ interface StepstoneJob {
 export async function fetchStepstoneLeads(
   dayOfYear: number
 ): Promise<{ companies: LeadCandidate[]; employees: LeadCandidate[] }> {
+  // ⚠️ DEAKTIVERET: Stepstone HTML-scraping er ustabilt og returnerer 0.
+  // Sæt STEPSTONE_ENABLED=true hvis vi skal prøve igen efter rebuild.
+  if (process.env.STEPSTONE_ENABLED !== "true") {
+    console.log("[stepstone] Skipped — HTML-scraping ustabilt");
+    return { companies: [], employees: [] };
+  }
+
   const companies: LeadCandidate[] = [];
   const employees: LeadCandidate[] = [];
   const seen = new Set<string>();
