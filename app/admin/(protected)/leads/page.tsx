@@ -226,6 +226,25 @@ export default function LeadsPage() {
     setActionLoading(null);
   }
 
+  async function runFollowUp(leadId: string) {
+    setActionLoading(leadId + "-followup");
+    try {
+      const r = await fetch("/api/admin/leads/followup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId }),
+      });
+      const d = await r.json();
+      if (!d.ok) alert(d.error || "Opfølgning fejlede");
+      else {
+        const stepLabel = d.step === 1 ? "#1 (dag 5)" : "#2 (dag 14)";
+        alert(`✓ Opfølgning ${stepLabel} sendt af Sarah!\n\nEmne: ${d.subject}`);
+      }
+      await fetchLeads();
+    } catch { alert("Netværksfejl"); }
+    setActionLoading(null);
+  }
+
   async function runBatchCouncil() {
     setActionLoading("batch-council");
     const r = await fetch("/api/admin/leads/council", { method: "PUT" });
@@ -591,6 +610,15 @@ export default function LeadsPage() {
                       <span className={`inline-block font-condensed font-bold text-[10px] tracking-[.1em] uppercase px-[8px] py-[3px] rounded-[2px] border ${STATUS_COLORS[lead.status]}`}>
                         {STATUS_DA[lead.status]}
                       </span>
+                      {lead.status === "Sent" && (
+                        <span className="block mt-[4px] text-[9px] font-condensed font-bold tracking-[.08em] uppercase">
+                          {lead.followUp2SentAt
+                            ? <span className="text-orange-300">F1 ✓ F2 ✓</span>
+                            : lead.followUp1SentAt
+                            ? <span className="text-yellow">F1 ✓ · F2 →</span>
+                            : <span className="text-muted/60">F1 → dag 5</span>}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-1">
@@ -859,6 +887,146 @@ export default function LeadsPage() {
                 )}
               </section>
             )}
+
+            {/* ── Opfølgnings-pipeline (kun for Sent leads) ──────────────────── */}
+            {selectedLead.status === "Sent" && (() => {
+              const sentDate = selectedLead.sentAt ? new Date(selectedLead.sentAt) : null;
+              const plannedF1 = sentDate ? new Date(sentDate.getTime() + 5 * 24 * 60 * 60 * 1000) : null;
+              const plannedF2 = sentDate ? new Date(sentDate.getTime() + 14 * 24 * 60 * 60 * 1000) : null;
+              const plannedClose = sentDate ? new Date(sentDate.getTime() + 21 * 24 * 60 * 60 * 1000) : null;
+              const fmtDate = (d: Date | null) =>
+                d ? d.toLocaleDateString("da-DK", { day: "numeric", month: "short" }) : "–";
+              const fmtDatetime = (s: string) =>
+                new Date(s).toLocaleDateString("da-DK", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+              const steps = [
+                {
+                  key: "sent",
+                  icon: "📧",
+                  label: "Første mail",
+                  sub: "Dag 0",
+                  done: !!selectedLead.sentAt,
+                  doneLabel: selectedLead.sentAt ? `Sendt ${fmtDatetime(selectedLead.sentAt)}` : null,
+                  plannedLabel: null,
+                  color: "border-green-400 bg-green-400/15",
+                  textColor: "text-green-300",
+                },
+                {
+                  key: "f1",
+                  icon: "🔁",
+                  label: "Opfølgning 1",
+                  sub: "Dag 5",
+                  done: !!selectedLead.followUp1SentAt,
+                  doneLabel: selectedLead.followUp1SentAt ? `Sendt ${fmtDatetime(selectedLead.followUp1SentAt)}` : null,
+                  plannedLabel: plannedF1 ? `Planlagt ~${fmtDate(plannedF1)}` : null,
+                  color: "border-yellow bg-yellow/10",
+                  textColor: "text-yellow",
+                },
+                {
+                  key: "f2",
+                  icon: "🎯",
+                  label: "Opfølgning 2",
+                  sub: "Dag 14",
+                  done: !!selectedLead.followUp2SentAt,
+                  doneLabel: selectedLead.followUp2SentAt ? `Sendt ${fmtDatetime(selectedLead.followUp2SentAt)}` : null,
+                  plannedLabel: plannedF2 ? `Planlagt ~${fmtDate(plannedF2)}` : null,
+                  color: "border-orange-400 bg-orange-400/10",
+                  textColor: "text-orange-300",
+                },
+                {
+                  key: "close",
+                  icon: "🗄",
+                  label: "Auto-luk",
+                  sub: "Dag 21",
+                  done: false,
+                  doneLabel: null,
+                  plannedLabel: plannedClose ? `Planlagt ~${fmtDate(plannedClose)}` : null,
+                  color: "border-[rgba(242,238,230,.2)] bg-transparent",
+                  textColor: "text-muted",
+                },
+              ];
+
+              const canSendF1 = !selectedLead.followUp1SentAt;
+              const canSendF2 = !!selectedLead.followUp1SentAt && !selectedLead.followUp2SentAt;
+              const canSendAny = canSendF1 || canSendF2;
+
+              return (
+                <section className="mb-6 p-5 bg-gray rounded-[2px] border border-[rgba(242,238,230,.1)]">
+                  <div className="flex items-center justify-between mb-5">
+                    <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-muted">
+                      📬 Opfølgnings-pipeline
+                    </p>
+                    {selectedLead.emailOpened && (
+                      <span className="font-condensed font-bold text-[10px] tracking-[.08em] uppercase text-green-300 bg-green-400/10 border border-green-400/30 px-2 py-[2px] rounded-[2px]">
+                        ✓ Email åbnet
+                        {selectedLead.emailOpenedAt ? ` ${fmtDate(new Date(selectedLead.emailOpenedAt))}` : ""}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Timeline */}
+                  <div className="space-y-3 mb-5">
+                    {steps.map((s) => (
+                      <div key={s.key} className="flex items-start gap-3">
+                        {/* Dot */}
+                        <div className={`flex-shrink-0 w-[28px] h-[28px] rounded-full border-2 flex items-center justify-center text-[12px] mt-[1px] ${s.done ? s.color : "border-[rgba(242,238,230,.15)] bg-transparent"}`}>
+                          {s.done ? "✓" : s.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className={`font-condensed font-bold text-[12px] tracking-[.06em] uppercase ${s.done ? "text-cream" : "text-muted"}`}>
+                              {s.label}
+                            </p>
+                            <span className="font-condensed text-[10px] tracking-[.08em] uppercase text-muted opacity-60">
+                              {s.sub}
+                            </span>
+                          </div>
+                          {s.done && s.doneLabel && (
+                            <p className={`text-[11px] mt-[1px] ${s.textColor}`}>✓ {s.doneLabel}</p>
+                          )}
+                          {!s.done && s.plannedLabel && (
+                            <p className="text-[11px] text-muted/60 mt-[1px]">{s.plannedLabel}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Connector lines between steps */}
+                  {/* Manual trigger */}
+                  {canSendAny && (
+                    <div className="pt-4 border-t border-[rgba(242,238,230,.08)]">
+                      <p className="text-[11px] text-muted mb-3">
+                        {canSendF1
+                          ? "Klar til opfølgning #1 — Sarah og Council skriver en personlig reminder"
+                          : "Klar til opfølgning #2 — Sarah skriver den afsluttende mail"}
+                      </p>
+                      <button
+                        onClick={() => runFollowUp(selectedLead.id)}
+                        disabled={!!actionLoading}
+                        className="bg-[rgba(251,146,60,.12)] text-orange-300 border border-orange-400/30 font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-5 py-[9px] hover:bg-[rgba(251,146,60,.22)] transition-colors disabled:opacity-40 flex items-center gap-2"
+                      >
+                        {actionLoading === selectedLead.id + "-followup"
+                          ? "Council + Sarah arbejder..."
+                          : canSendF1
+                          ? "🔁 Send opfølgning #1 nu"
+                          : "🎯 Send opfølgning #2 nu"}
+                      </button>
+                      <p className="text-[10px] text-muted/50 mt-2">
+                        Cron sender automatisk på dag {canSendF1 ? "5" : "14"} — brug knappen for at sende nu
+                      </p>
+                    </div>
+                  )}
+                  {!canSendAny && (
+                    <div className="pt-4 border-t border-[rgba(242,238,230,.08)]">
+                      <p className="text-[11px] text-orange-200/70">
+                        Alle opfølgninger er sendt. Auto-luk sker {plannedClose ? `~${fmtDate(plannedClose)}` : "om 21 dage"} hvis ingen svar.
+                      </p>
+                    </div>
+                  )}
+                </section>
+              );
+            })()}
 
             {/* Action buttons */}
             <div className="flex gap-2 flex-wrap">

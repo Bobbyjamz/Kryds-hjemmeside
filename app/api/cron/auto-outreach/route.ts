@@ -358,6 +358,79 @@ function isRetainerCandidate(lead: Lead): boolean {
   return FACILITY_TYPES.some((f) => t.includes(f) || i.includes(f));
 }
 
+// ── Sarah — opfølgnings-tilstand (bruges i cron) ──────────────────────────
+
+const FOLLOWUP_SARAH_SYSTEM = `Du er Sarah Møller, assistent hos KrydsByg. Du skriver korte, menneskelige opfølgningsmails på vegne af Krystian.
+
+DETTE ER EN OPFØLGNING — ikke en ny salgsmail. Regler:
+1. Hold body på MAX 3-4 linjer (inkl. hilsen øverst + CTA)
+2. Referencér naturligt at du har skrevet til dem tidligere
+3. Lyd menneskelig og åben — ikke pressende eller sælgende
+4. Afslut med konkret CTA: ring +45 42 77 88 66 eller svar direkte
+5. Hilsen: "Hej [fornavn]," eller "Hej [Firmanavn]," — ALDRIG "Kære"
+6. Afslut ALTID med "Med venlig hilsen," (systemet tilføjer signatur automatisk)
+
+SPROGREGLER: Klart, naturligt dansk. Ingen klicheer. Ingen bindestreger som sætningskobling. Skriv som et rigtigt menneske ville skrive det.
+
+RETURNER KUN JSON (ingen tekst udenom):
+{"subject":"<emne>","body":"<komplet body med hilsen øverst og 'Med venlig hilsen,' som sidste linje>"}`;
+
+async function runSarahFollowUp(
+  lead: Lead,
+  step: 1 | 2
+): Promise<{ subject: string; body: string } | null> {
+  const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
+  const daysSinceSent = lead.sentAt
+    ? Math.floor((Date.now() - new Date(lead.sentAt).getTime()) / (1000 * 60 * 60 * 24))
+    : 5;
+  const retainerHint = isRetainerCandidate(lead);
+  const isFinal = step === 2;
+
+  try {
+    const msg = await client.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 450,
+      system: FOLLOWUP_SARAH_SYSTEM,
+      messages: [
+        {
+          role: "user",
+          content: `Skriv opfølgning ${step === 1 ? "#1 (venlig dag-5 reminder)" : "#2 (sidste forsøg dag 14)"}.
+
+LEAD: ${lead.companyName} — kontaktperson: ${firstName}
+Branche: ${lead.industry || "ukendt"} | Service: ${lead.serviceType || "generelt"}
+Original mail emne: "${lead.draftSubject || "KrydsByg tilbud"}"
+Dage siden første mail: ${daysSinceSent}
+${lead.councilAnalysis?.recommendedAngle ? `Vinkel: ${lead.councilAnalysis.recommendedAngle}` : ""}
+
+INSTRUKTIONER:
+- Åbningslinje: referencér naturligt at du sendte dem en mail for ${daysSinceSent} dage siden
+- Tone: ${isFinal ? "varm men afsluttende" : "venlig og nysgerrig"}
+- CTA: ring +45 42 77 88 66 eller svar direkte
+${retainerHint && isFinal ? `- Nævn retainer-modellen i én linje: "Vi tilbyder også fast månedlig aftale fra 5 dage/md."` : ""}
+${isFinal ? "- Lov IKKE at skrive igen. Giv slip med værdighed." : ""}
+
+Emne: ${isFinal ? "Sidste besked fra KrydsByg" : `Re: ${(lead.draftSubject ?? "KrydsByg").replace(/^\[.*?\]\s*/, "")}`}`,
+        },
+      ],
+    });
+
+    const text = msg.content[0].type === "text" ? msg.content[0].text : "{}";
+    let result: { subject: string; body: string };
+    try {
+      result = JSON.parse(text.replace(/```json|```/g, "").trim());
+    } catch {
+      const m = text.match(/\{[\s\S]*\}/);
+      result = m ? JSON.parse(m[0]) : { subject: "", body: "" };
+    }
+
+    if (!result.subject || !result.body) return null;
+    return result;
+  } catch (err) {
+    console.error(`[follow-up sarah trin ${step}] AI fejl:`, err);
+    return null;
+  }
+}
+
 async function runFollowUpPipeline() {
   const allLeads = await readLeads();
   const now = Date.now();
@@ -375,9 +448,9 @@ async function runFollowUpPipeline() {
         l.sentAt <= fiveDaysAgo &&
         !l.followUp1SentAt
     )
-    .slice(0, 8);
+    .slice(0, 4); // Max 4 pr. kørsel — Sarah er AI og tager tid
 
-  // ── Trin 2: dag 14 efter første mail (= dag 9 efter trin 1) ─────────────
+  // ── Trin 2: dag 14 efter første mail ─────────────────────────────────────
   const trin2 = allLeads
     .filter(
       (l) =>
@@ -388,7 +461,7 @@ async function runFollowUpPipeline() {
         l.followUp1SentAt &&
         !l.followUp2SentAt
     )
-    .slice(0, 6);
+    .slice(0, 3); // Max 3 pr. kørsel
 
   // ── Auto-close: trin 2 sendt + 7 dage uden svar = lukket ─────────────────
   const toClose = allLeads.filter(
@@ -409,28 +482,24 @@ async function runFollowUpPipeline() {
   let followUp1Sent = 0;
   let followUp2Sent = 0;
 
-  // ── Send trin 1 ──────────────────────────────────────────────────────────
+  // ── Send trin 1 (Sarah skriver) ───────────────────────────────────────────
   for (const lead of trin1) {
     try {
-      const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
-      const subject = `Re: ${(lead.draftSubject ?? "KrydsByg").replace(/^\[.*?\]\s*/, "")}`;
-      const body = [
-        `Hej ${firstName},`,
-        ``,
-        `Jeg sendte dig en mail for et par dage siden om hvad KrydsByg kan gøre for ${lead.companyName}.`,
-        ``,
-        `Jeg vil bare høre om du fik den, og om det er noget der er relevant for jer lige nu.`,
-        ``,
-        `Det tager blot 10 minutter at afklare om vi kan hjælpe. Ring gerne på +45 42 77 88 66 eller svar direkte på denne mail.`,
-        ``,
-        `Med venlig hilsen,`,
-      ].join("\n");
+      const draft = await runSarahFollowUp(lead, 1);
+      if (!draft) {
+        console.warn(`[follow-up trin 1] Sarah returnerede intet for ${lead.id}`);
+        continue;
+      }
 
-      const html = buildEmailHtml({ body, preheader: "Bare en kort opfølgning fra KrydsByg" });
+      const html = buildEmailHtml({ body: draft.body, preheader: draft.subject });
       await resend.emails.send({
-        from, to: [lead.email!], bcc: ["kontakt@krydsbyg.com"],
+        from,
+        to: [lead.email!],
+        bcc: ["kontakt@krydsbyg.com"],
         replyTo: "kontakt@krydsbyg.com",
-        subject, html, text: buildEmailText(body),
+        subject: draft.subject,
+        html,
+        text: buildEmailText(draft.body),
         headers: {
           "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
@@ -439,46 +508,33 @@ async function runFollowUpPipeline() {
 
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);
       const ts = new Date().toISOString();
-      if (idx !== -1) updatedLeads[idx] = { ...updatedLeads[idx], followUp1SentAt: ts, updatedAt: ts };
+      if (idx !== -1)
+        updatedLeads[idx] = { ...updatedLeads[idx], followUp1SentAt: ts, updatedAt: ts };
       followUp1Sent++;
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((r) => setTimeout(r, 500));
     } catch (err) {
       console.error(`[follow-up trin 1] fejl for ${lead.id}:`, err);
     }
   }
 
-  // ── Send trin 2 (m. retainer-pitch hvis facility/ejendom) ────────────────
+  // ── Send trin 2 (Sarah skriver — m. retainer-hint hvis relevant) ──────────
   for (const lead of trin2) {
     try {
-      const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
-      const subject = `Sidste mail fra KrydsByg`;
-      const isRetainer = isRetainerCandidate(lead);
+      const draft = await runSarahFollowUp(lead, 2);
+      if (!draft) {
+        console.warn(`[follow-up trin 2] Sarah returnerede intet for ${lead.id}`);
+        continue;
+      }
 
-      const retainerPitch = isRetainer
-        ? [
-            ``,
-            `For virksomheder som jer ser jeg ofte at en fast månedlig aftale (retainer) giver god mening — fra 5 dage/md får I prioriteret booking og 5-10% rabat på alle vores satser.`,
-            ``,
-          ]
-        : [``, `Vi tilbyder også fastpris-aftaler hvis det passer bedre end timepris.`, ``];
-
-      const body = [
-        `Hej ${firstName},`,
-        ``,
-        `Jeg har skrevet til dig et par gange og forstår godt hvis det ikke er aktuelt lige nu — så vil jeg ikke fylde din indbakke mere.`,
-        ...retainerPitch,
-        `Hvis det bliver relevant senere, så er vi altid kun en opringning væk på +45 42 77 88 66.`,
-        ``,
-        `Tak for din tid.`,
-        ``,
-        `Med venlig hilsen,`,
-      ].join("\n");
-
-      const html = buildEmailHtml({ body, preheader: "Sidste opfølgning fra KrydsByg" });
+      const html = buildEmailHtml({ body: draft.body, preheader: draft.subject });
       await resend.emails.send({
-        from, to: [lead.email!], bcc: ["kontakt@krydsbyg.com"],
+        from,
+        to: [lead.email!],
+        bcc: ["kontakt@krydsbyg.com"],
         replyTo: "kontakt@krydsbyg.com",
-        subject, html, text: buildEmailText(body),
+        subject: draft.subject,
+        html,
+        text: buildEmailText(draft.body),
         headers: {
           "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
@@ -487,23 +543,28 @@ async function runFollowUpPipeline() {
 
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);
       const ts = new Date().toISOString();
-      if (idx !== -1) updatedLeads[idx] = { ...updatedLeads[idx], followUp2SentAt: ts, updatedAt: ts };
+      if (idx !== -1)
+        updatedLeads[idx] = { ...updatedLeads[idx], followUp2SentAt: ts, updatedAt: ts };
       followUp2Sent++;
-      await new Promise((r) => setTimeout(r, 400));
+      await new Promise((r) => setTimeout(r, 500));
     } catch (err) {
       console.error(`[follow-up trin 2] fejl for ${lead.id}:`, err);
     }
   }
 
-  // ── Auto-close ───────────────────────────────────────────────────────────
+  // ── Auto-close ────────────────────────────────────────────────────────────
   for (const lead of toClose) {
     const idx = updatedLeads.findIndex((l) => l.id === lead.id);
     if (idx !== -1) {
       updatedLeads[idx] = {
         ...updatedLeads[idx],
         status: "Rejected",
-        notes: [updatedLeads[idx].notes, "Auto-lukket: ingen svar efter 3 mails over 21 dage."]
-          .filter(Boolean).join("\n\n"),
+        notes: [
+          updatedLeads[idx].notes,
+          "Auto-lukket: ingen svar efter 3 mails over 21 dage.",
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
         updatedAt: new Date().toISOString(),
       };
     }
