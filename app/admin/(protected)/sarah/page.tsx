@@ -1,7 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { SarahContact, SarahLog, SarahStatus } from "@/lib/types";
+import type { SarahContact, SarahLog, SarahStatus, LeadBotConfig } from "@/lib/types";
+
+interface LeadBotBatch {
+  batchId: string;
+  generatedAt: string;
+  receivedAt: string;
+  total: number;
+  accepted: number;
+  rejected: number;
+  sourceBreakdown: Record<string, number>;
+}
 
 const STATUS_LABELS: Record<SarahStatus, string> = {
   pending: "Afventer",
@@ -66,7 +76,7 @@ interface SentEmail {
 }
 
 export default function SarahPage() {
-  const [tab, setTab] = useState<"overview" | "contacts" | "sent" | "inbox" | "log">("overview");
+  const [tab, setTab] = useState<"overview" | "contacts" | "sent" | "inbox" | "leadbot" | "log">("overview");
   const [contacts, setContacts] = useState<SarahContact[]>([]);
   const [log, setLog] = useState<SarahLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +89,13 @@ export default function SarahPage() {
   const [sentLoading, setSentLoading] = useState(false);
   const [sentFilter, setSentFilter] = useState<"all" | "lead" | "contact">("all");
   const [expandedSentId, setExpandedSentId] = useState<string | null>(null);
+  // LeadBot tab state
+  const [lbConfig, setLbConfig] = useState<LeadBotConfig | null>(null);
+  const [lbBatches, setLbBatches] = useState<LeadBotBatch[]>([]);
+  const [lbTotals, setLbTotals] = useState<{ batches: number; totalLeads: number; accepted: number; rejected: number } | null>(null);
+  const [lbLoading, setLbLoading] = useState(false);
+  const [lbSaving, setLbSaving] = useState(false);
+  const [lbSaveOk, setLbSaveOk] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -114,6 +131,56 @@ export default function SarahPage() {
       loadSentEmails();
     }
   }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const loadLeadBot = async () => {
+    setLbLoading(true);
+    try {
+      const [cfgRes, batchRes] = await Promise.all([
+        fetch("/api/admin/leadbot/config"),
+        fetch("/api/admin/leadbot"),
+      ]);
+      if (cfgRes.ok) {
+        const d = await cfgRes.json();
+        setLbConfig(d.config);
+      }
+      if (batchRes.ok) {
+        const d = await batchRes.json();
+        setLbBatches(d.batches ?? []);
+        setLbTotals(d.totals ?? null);
+      }
+    } finally {
+      setLbLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tab === "leadbot" && !lbConfig) {
+      loadLeadBot();
+    }
+  }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const saveLeadBotConfig = async () => {
+    if (!lbConfig) return;
+    setLbSaving(true);
+    setLbSaveOk(null);
+    try {
+      const r = await fetch("/api/admin/leadbot/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lbConfig),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        setLbConfig(d.config);
+        setLbSaveOk("Gemt ✓");
+        setTimeout(() => setLbSaveOk(null), 2500);
+      } else {
+        setLbSaveOk("Fejl ved gem");
+      }
+    } finally {
+      setLbSaving(false);
+    }
+  };
 
   const stats = {
     pending: contacts.filter((c) => c.status === "pending").length,
@@ -241,6 +308,7 @@ export default function SarahPage() {
         <TabBtn id="contacts" label="Kontakter" count={contacts.length} />
         <TabBtn id="sent" label="Sendte mails" count={sentEmails.length || undefined} />
         <TabBtn id="inbox" label="Indbakke" count={stats.replied} />
+        <TabBtn id="leadbot" label="LeadBot" count={lbBatches.length || undefined} />
         <TabBtn id="log" label="Log" count={log.length} />
       </div>
 
@@ -572,6 +640,241 @@ export default function SarahPage() {
         </div>
       )}
 
+      {/* ── LEADBOT ── */}
+      {tab === "leadbot" && (
+        <div className="space-y-8">
+          {lbLoading && <p className="text-muted text-[13px]">Indlæser LeadBot-konfiguration…</p>}
+
+          {lbConfig && (
+            <>
+              {/* Stats */}
+              {lbTotals && (
+                <div className="grid grid-cols-4 gap-3 max-[700px]:grid-cols-2">
+                  <StatCard label="Batches" value={lbTotals.batches} />
+                  <StatCard label="Modtagne leads" value={lbTotals.totalLeads} />
+                  <StatCard label="Accepteret" value={lbTotals.accepted} color="bg-green-500/10" />
+                  <StatCard label="Afvist" value={lbTotals.rejected} color="bg-red-500/10" />
+                </div>
+              )}
+
+              {/* Focus-editor */}
+              <div className="border border-[rgba(242,238,230,.08)] rounded-[4px] bg-black2 p-6">
+                <div className="flex items-start justify-between mb-4 flex-wrap gap-3">
+                  <div>
+                    <h2 className="font-condensed font-black text-[20px] uppercase text-cream tracking-[-.01em]">
+                      Fortæl LeadBot hvad vi leder efter
+                    </h2>
+                    <p className="text-muted text-[12px] mt-1">
+                      Bot'en henter denne config hver gang den starter et scrape-loop.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {lbSaveOk && (
+                      <span className="text-[11px] font-condensed font-bold tracking-[.1em] uppercase text-green-400">
+                        {lbSaveOk}
+                      </span>
+                    )}
+                    <button
+                      onClick={saveLeadBotConfig}
+                      disabled={lbSaving}
+                      className="bg-yellow text-black font-condensed font-bold text-[11px] tracking-[.14em] uppercase px-5 py-2.5 rounded-[2px] hover:bg-yellow/90 disabled:opacity-50"
+                    >
+                      {lbSaving ? "Gemmer…" : "💾 Gem"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Fritekst-fokus */}
+                <label className="block mb-5">
+                  <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-2">
+                    Fokus (fritekst — Sarah læser dette højt for bot'en)
+                  </span>
+                  <textarea
+                    value={lbConfig.focus}
+                    onChange={(e) => setLbConfig({ ...lbConfig, focus: e.target.value })}
+                    rows={4}
+                    placeholder="Lige nu vil vi fokusere på malerfirmaer i Storkøbenhavn der er ved at ansætte. Spring forsikringsselskaber over."
+                    className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-4 py-3 rounded-[2px] focus:border-yellow/60 focus:outline-none"
+                  />
+                </label>
+
+                {/* Prioritet + Eksklud */}
+                <div className="grid grid-cols-2 gap-4 mb-5 max-[700px]:grid-cols-1">
+                  <ChipEditor
+                    label="Prioritets-søgeord"
+                    placeholder="malerfirma, facademaling, …"
+                    items={lbConfig.priorityQueries}
+                    onChange={(items) => setLbConfig({ ...lbConfig, priorityQueries: items })}
+                    color="yellow"
+                  />
+                  <ChipEditor
+                    label="Eksklud-søgeord"
+                    placeholder="forsikring, advokat, …"
+                    items={lbConfig.excludeQueries}
+                    onChange={(items) => setLbConfig({ ...lbConfig, excludeQueries: items })}
+                    color="red"
+                  />
+                </div>
+
+                {/* Byer */}
+                <ChipEditor
+                  label="Geografi (byer/kommuner — tomt = hele DK)"
+                  placeholder="København, Frederiksberg, Lyngby, …"
+                  items={lbConfig.cities}
+                  onChange={(items) => setLbConfig({ ...lbConfig, cities: items })}
+                  color="blue"
+                />
+
+                {/* Lead-type focus */}
+                <div className="mt-5">
+                  <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-2">
+                    Lead-type fokus
+                  </span>
+                  <div className="flex gap-2 flex-wrap">
+                    {(["company", "employee", "both"] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setLbConfig({ ...lbConfig, leadTypeFocus: t })}
+                        className={`font-condensed font-bold text-[11px] tracking-[.14em] uppercase px-4 py-2 rounded-[2px] border transition-colors ${
+                          lbConfig.leadTypeFocus === t
+                            ? "bg-yellow text-black border-yellow"
+                            : "bg-black border-[rgba(242,238,230,.12)] text-muted hover:text-cream"
+                        }`}
+                      >
+                        {t === "company" ? "🏢 Virksomheder" : t === "employee" ? "👷 Medarbejdere" : "🔄 Begge"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Source toggles */}
+                <div className="mt-6">
+                  <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-3">
+                    Aktive kilder
+                  </span>
+                  <div className="grid grid-cols-4 gap-2 max-[700px]:grid-cols-2">
+                    {(Object.keys(lbConfig.enabledSources) as Array<keyof typeof lbConfig.enabledSources>).map((src) => (
+                      <label
+                        key={src}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-[2px] border cursor-pointer transition-colors ${
+                          lbConfig.enabledSources[src]
+                            ? "bg-green-500/10 border-green-500/30"
+                            : "bg-black border-[rgba(242,238,230,.08)]"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={lbConfig.enabledSources[src]}
+                          onChange={(e) =>
+                            setLbConfig({
+                              ...lbConfig,
+                              enabledSources: { ...lbConfig.enabledSources, [src]: e.target.checked },
+                            })
+                          }
+                          className="accent-yellow"
+                        />
+                        <span className="font-condensed text-[12px] text-cream uppercase tracking-[.05em]">
+                          {src}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Kvalitetsfilter */}
+                <div className="grid grid-cols-2 gap-4 mt-6 max-[700px]:grid-cols-1">
+                  <label className="block">
+                    <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-2">
+                      Min email-confidence ({lbConfig.minEmailConfidence.toFixed(2)})
+                    </span>
+                    <input
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.05}
+                      value={lbConfig.minEmailConfidence}
+                      onChange={(e) =>
+                        setLbConfig({ ...lbConfig, minEmailConfidence: parseFloat(e.target.value) })
+                      }
+                      className="w-full accent-yellow"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-2">
+                      Max leads pr. døgn (0 = ubegrænset)
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={lbConfig.dailyLeadCap}
+                      onChange={(e) =>
+                        setLbConfig({ ...lbConfig, dailyLeadCap: parseInt(e.target.value || "0", 10) })
+                      }
+                      className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-4 py-2 rounded-[2px] focus:border-yellow/60 focus:outline-none"
+                    />
+                  </label>
+                </div>
+
+                {lbConfig.updatedAt && lbConfig.updatedAt !== "1970-01-01T00:00:00.000Z" && (
+                  <p className="text-[11px] text-muted mt-5">
+                    Sidst opdateret {new Date(lbConfig.updatedAt).toLocaleString("da-DK")}
+                    {lbConfig.updatedBy && ` af ${lbConfig.updatedBy}`}
+                  </p>
+                )}
+              </div>
+
+              {/* Recent batches */}
+              <div>
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <h2 className="font-condensed font-black text-[16px] uppercase text-cream tracking-[.05em]">
+                    Seneste batches
+                  </h2>
+                  <button
+                    onClick={loadLeadBot}
+                    className="text-[10px] font-condensed font-bold tracking-[.14em] uppercase text-muted hover:text-cream border border-[rgba(242,238,230,.12)] px-3 py-1.5 rounded-[2px]"
+                  >
+                    ↻ Opdater
+                  </button>
+                </div>
+                {lbBatches.length === 0 ? (
+                  <p className="text-muted text-[13px]">Ingen batches modtaget endnu. Når LeadBot poster til <code className="text-cream/80 bg-black2 px-1 rounded-[2px]">/api/leadbot/ingest</code> dukker de op her.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {lbBatches.map((b) => (
+                      <div key={b.batchId} className="border border-[rgba(242,238,230,.05)] bg-black2 rounded-[2px] p-3">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[11px] text-muted font-mono truncate">{b.batchId}</p>
+                            <p className="text-[12px] text-cream mt-1">
+                              {new Date(b.receivedAt).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                              <span className="text-muted"> · </span>
+                              <span className="text-green-400 font-bold">{b.accepted} accepteret</span>
+                              {b.rejected > 0 && (
+                                <>
+                                  <span className="text-muted"> · </span>
+                                  <span className="text-red-400">{b.rejected} afvist</span>
+                                </>
+                              )}
+                            </p>
+                          </div>
+                          <div className="flex gap-1.5 flex-wrap">
+                            {Object.entries(b.sourceBreakdown).map(([src, n]) => (
+                              <span key={src} className="text-[9px] font-condensed font-bold tracking-[.08em] uppercase bg-white/5 text-cream/70 px-1.5 py-0.5 rounded-[2px]">
+                                {src} {n}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* ── LOG ── */}
       {!loading && tab === "log" && (
         <div>
@@ -603,6 +906,85 @@ export default function SarahPage() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function ChipEditor({
+  label,
+  placeholder,
+  items,
+  onChange,
+  color = "yellow",
+}: {
+  label: string;
+  placeholder: string;
+  items: string[];
+  onChange: (next: string[]) => void;
+  color?: "yellow" | "red" | "blue";
+}) {
+  const [draft, setDraft] = useState("");
+  const colorClass =
+    color === "red"
+      ? "bg-red-500/15 text-red-300 border-red-500/30"
+      : color === "blue"
+      ? "bg-blue-500/15 text-blue-300 border-blue-500/30"
+      : "bg-yellow/15 text-yellow border-yellow/30";
+
+  const add = (raw: string) => {
+    const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length === 0) return;
+    const next = Array.from(new Set([...items, ...parts]));
+    onChange(next);
+    setDraft("");
+  };
+
+  return (
+    <div>
+      <span className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-yellow block mb-2">
+        {label}
+      </span>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {items.map((it) => (
+          <span
+            key={it}
+            className={`inline-flex items-center gap-1.5 text-[11px] font-condensed font-bold tracking-[.05em] px-2 py-1 rounded-[2px] border ${colorClass}`}
+          >
+            {it}
+            <button
+              onClick={() => onChange(items.filter((x) => x !== it))}
+              className="hover:text-cream text-cream/60"
+              aria-label={`Fjern ${it}`}
+            >
+              ×
+            </button>
+          </span>
+        ))}
+        {items.length === 0 && (
+          <span className="text-[11px] text-muted italic">Ingen — tilføj nedenfor</span>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === ",") {
+              e.preventDefault();
+              add(draft);
+            }
+          }}
+          placeholder={placeholder}
+          className="flex-1 bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] focus:border-yellow/60 focus:outline-none"
+        />
+        <button
+          onClick={() => add(draft)}
+          className="bg-white/10 hover:bg-white/20 text-cream font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-3 py-2 rounded-[2px]"
+        >
+          + Tilføj
+        </button>
+      </div>
     </div>
   );
 }

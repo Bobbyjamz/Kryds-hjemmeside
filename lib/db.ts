@@ -19,7 +19,9 @@ import type {
   EmailVerificationToken,
   Lead,
   EmailMemoryEntry,
+  LeadBotConfig,
 } from "./types";
+import { DEFAULT_LEADBOT_CONFIG } from "./types";
 
 // ── Generic helpers ────────────────────────────────────────────────────────
 
@@ -198,4 +200,24 @@ export async function appendEmailMemory(entry: EmailMemoryEntry): Promise<void> 
   const existing = await readEmailMemory();
   const next = [...existing, entry].slice(-500);
   await writeEmailMemory(next);
+}
+
+// ── LeadBot config ─────────────────────────────────────────────────────────
+
+export async function readLeadBotConfig(): Promise<LeadBotConfig> {
+  const stored = await kvGet<Partial<LeadBotConfig> | null>("leadbot:config", null);
+  if (!stored) return DEFAULT_LEADBOT_CONFIG;
+  // Merge med defaults så nye felter altid har en værdi
+  return {
+    ...DEFAULT_LEADBOT_CONFIG,
+    ...stored,
+    enabledSources: {
+      ...DEFAULT_LEADBOT_CONFIG.enabledSources,
+      ...(stored.enabledSources ?? {}),
+    },
+  };
+}
+
+export async function writeLeadBotConfig(config: LeadBotConfig): Promise<void> {
+  return kvSet("leadbot:config", config);
 }

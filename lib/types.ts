@@ -281,6 +281,67 @@ export interface Lead {
   updatedAt: string;
 }
 
+// ── LeadBot – ekstern scraper-konfiguration ────────────────────────────────
+
+export interface LeadBotConfig {
+  updatedAt: string;
+  updatedBy?: string;
+
+  /** Fritekst-fokus som Sarah skriver til LeadBot — "lige nu vil vi gerne…" */
+  focus: string;
+
+  /** Søgeord der skal prioriteres på alle kilder. Tomt = brug adapters defaults. */
+  priorityQueries: string[];
+
+  /** Søgeord/firmanavne der skal filtreres fra. */
+  excludeQueries: string[];
+
+  /** Geografiske områder (byer/kommuner). Tomt = hele DK. */
+  cities: string[];
+
+  /** Hvilken lead-type vil vi helst have? */
+  leadTypeFocus: "company" | "employee" | "both";
+
+  /** Toggle hver kilde til/fra. */
+  enabledSources: {
+    jobindex: boolean;
+    linkedin: boolean;
+    facebook: boolean;
+    cvr: boolean;
+    googlemaps: boolean;
+    thehub: boolean;
+    jobnet: boolean;
+    indeed: boolean;
+  };
+
+  /** Kvalitetsfilter — 0–1, default 0.5 (kun emails ≥ denne tærskel pushes). */
+  minEmailConfidence: number;
+
+  /** Max antal leads pr. døgn — hvis 0 = ingen begrænsning. */
+  dailyLeadCap: number;
+}
+
+export const DEFAULT_LEADBOT_CONFIG: LeadBotConfig = {
+  updatedAt: "1970-01-01T00:00:00.000Z",
+  focus: "",
+  priorityQueries: [],
+  excludeQueries: [],
+  cities: [],
+  leadTypeFocus: "both",
+  enabledSources: {
+    jobindex: true,
+    linkedin: true,
+    facebook: true,
+    cvr: true,
+    googlemaps: true,
+    thehub: true,
+    jobnet: true,
+    indeed: false, // lavt volumen, proxy-only — default fra
+  },
+  minEmailConfidence: 0.5,
+  dailyLeadCap: 100,
+};
+
 // ── Tilbud – Council-assisteret ────────────────────────────────────────────
 
 export type TilbudStatus = "draft" | "sent" | "accepted" | "rejected";
