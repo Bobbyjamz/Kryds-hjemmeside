@@ -38,8 +38,35 @@ function Badge({ status }: { status: SarahStatus }) {
   );
 }
 
+interface SentEmail {
+  id: string;
+  source: "lead" | "contact";
+  recipient: string;
+  recipientName?: string;
+  subject: string;
+  bodyPreview?: string;
+  sentAt: string;
+  industry?: string;
+  serviceType?: string;
+  angle?: string;
+  tone?: string;
+  bodyLength?: number;
+  councilScore?: number;
+  customerType?: string;
+  wasEdited?: boolean;
+  editSummary?: string;
+  city?: string;
+  phone?: string;
+  leadStatus?: string;
+  contactType?: string;
+  contactTrade?: string;
+  contactStatus?: string;
+  followUpSentAt?: string;
+  repliedAt?: string;
+}
+
 export default function SarahPage() {
-  const [tab, setTab] = useState<"overview" | "contacts" | "inbox" | "log">("overview");
+  const [tab, setTab] = useState<"overview" | "contacts" | "sent" | "inbox" | "log">("overview");
   const [contacts, setContacts] = useState<SarahContact[]>([]);
   const [log, setLog] = useState<SarahLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +75,10 @@ export default function SarahPage() {
   const [uploadResult, setUploadResult] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<SarahStatus | "all">("all");
+  const [sentEmails, setSentEmails] = useState<SentEmail[]>([]);
+  const [sentLoading, setSentLoading] = useState(false);
+  const [sentFilter, setSentFilter] = useState<"all" | "lead" | "contact">("all");
+  const [expandedSentId, setExpandedSentId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -64,6 +95,25 @@ export default function SarahPage() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const loadSentEmails = async () => {
+    setSentLoading(true);
+    try {
+      const r = await fetch("/api/admin/sarah/sent-emails");
+      if (r.ok) {
+        const d = await r.json();
+        setSentEmails(d.emails ?? []);
+      }
+    } finally {
+      setSentLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (tab === "sent" && sentEmails.length === 0) {
+      loadSentEmails();
+    }
+  }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stats = {
     pending: contacts.filter((c) => c.status === "pending").length,
@@ -186,9 +236,10 @@ export default function SarahPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[rgba(242,238,230,.07)] mb-8">
+      <div className="flex border-b border-[rgba(242,238,230,.07)] mb-8 flex-wrap">
         <TabBtn id="overview" label="Oversigt" />
         <TabBtn id="contacts" label="Kontakter" count={contacts.length} />
+        <TabBtn id="sent" label="Sendte mails" count={sentEmails.length || undefined} />
         <TabBtn id="inbox" label="Indbakke" count={stats.replied} />
         <TabBtn id="log" label="Log" count={log.length} />
       </div>
@@ -362,6 +413,142 @@ export default function SarahPage() {
                   )}
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── SENDTE MAILS ── */}
+      {tab === "sent" && (
+        <div>
+          {/* Filter + refresh */}
+          <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
+            <div className="flex gap-2 flex-wrap">
+              {(["all", "lead", "contact"] as const).map((s) => {
+                const count = s === "all"
+                  ? sentEmails.length
+                  : sentEmails.filter((e) => e.source === s).length;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => setSentFilter(s)}
+                    className={`font-condensed font-semibold text-[10px] tracking-[.15em] uppercase px-3 py-1.5 rounded-[2px] border transition-colors ${
+                      sentFilter === s
+                        ? "border-yellow bg-yellow/10 text-yellow"
+                        : "border-[rgba(242,238,230,.1)] text-muted hover:text-cream"
+                    }`}
+                  >
+                    {s === "all" ? `Alle (${count})` : s === "lead" ? `Lead-pipeline (${count})` : `Sarah-kontakter (${count})`}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={loadSentEmails}
+              disabled={sentLoading}
+              className="text-[10px] font-condensed font-bold tracking-[.12em] uppercase text-muted hover:text-yellow transition-colors disabled:opacity-50"
+            >
+              {sentLoading ? "..." : "↻ Opdatér"}
+            </button>
+          </div>
+
+          {sentLoading && sentEmails.length === 0 ? (
+            <p className="text-muted text-[13px]">Henter sendte mails...</p>
+          ) : sentEmails.length === 0 ? (
+            <p className="text-muted text-[13px]">Ingen mails er sendt endnu.</p>
+          ) : (
+            <div className="space-y-1">
+              {sentEmails
+                .filter((e) => sentFilter === "all" || e.source === sentFilter)
+                .slice(0, 200)
+                .map((e) => (
+                <div key={e.id}>
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-[2px] border border-[rgba(242,238,230,.06)] bg-black2 hover:bg-white/[.02] cursor-pointer"
+                    onClick={() => setExpandedSentId(expandedSentId === e.id ? null : e.id)}
+                  >
+                    <span className={`text-[10px] font-condensed font-bold tracking-[.1em] uppercase px-2 py-0.5 rounded-[2px] shrink-0 ${
+                      e.source === "lead" ? "bg-yellow/15 text-yellow" : "bg-blue-500/15 text-blue-300"
+                    }`}>
+                      {e.source === "lead" ? "Lead" : "Kontakt"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-condensed font-bold text-[13px] text-cream truncate">
+                        {e.recipientName || e.recipient}
+                      </p>
+                      <p className="text-[11px] text-muted truncate">
+                        {e.subject}
+                        {e.industry ? ` · ${e.industry}` : ""}
+                      </p>
+                    </div>
+                    {e.councilScore !== undefined && (
+                      <span className={`text-[10px] font-condensed font-bold px-2 py-0.5 rounded-[2px] shrink-0 ${
+                        e.councilScore >= 7 ? "bg-green-500/15 text-green-300"
+                        : e.councilScore >= 5 ? "bg-yellow/15 text-yellow"
+                        : "bg-red-500/15 text-red-300"
+                      }`}>
+                        {e.councilScore.toFixed(1)}
+                      </span>
+                    )}
+                    {e.wasEdited && (
+                      <span className="text-[10px] font-condensed text-purple-300 shrink-0" title={e.editSummary || "Rettet manuelt"}>
+                        ✎ Rettet
+                      </span>
+                    )}
+                    <p className="text-[11px] text-muted whitespace-nowrap shrink-0 hidden min-[700px]:block">
+                      {new Date(e.sentAt).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  </div>
+                  {expandedSentId === e.id && (
+                    <div className="border border-t-0 border-[rgba(242,238,230,.06)] bg-black p-4 rounded-b-[2px] grid grid-cols-2 max-[700px]:grid-cols-1 gap-4 text-[12px]">
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-condensed font-bold tracking-[.15em] uppercase text-muted">Modtager</p>
+                        <p className="text-cream"><span className="text-muted">Email:</span> {e.recipient}</p>
+                        {e.recipientName && <p className="text-cream"><span className="text-muted">Navn:</span> {e.recipientName}</p>}
+                        {e.city && <p className="text-cream"><span className="text-muted">By:</span> {e.city}</p>}
+                        {e.phone && <p className="text-cream"><span className="text-muted">Tlf:</span> {e.phone}</p>}
+                        {e.contactType && <p className="text-cream"><span className="text-muted">Type:</span> {e.contactType}</p>}
+                        {e.contactTrade && <p className="text-cream"><span className="text-muted">Fag:</span> {e.contactTrade}</p>}
+                        {e.industry && <p className="text-cream"><span className="text-muted">Branche:</span> {e.industry}</p>}
+                        {e.serviceType && <p className="text-cream"><span className="text-muted">Service:</span> {e.serviceType}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-condensed font-bold tracking-[.15em] uppercase text-muted">Mail-detaljer</p>
+                        <p className="text-cream"><span className="text-muted">Sendt:</span> {new Date(e.sentAt).toLocaleString("da-DK")}</p>
+                        <p className="text-cream"><span className="text-muted">Emne:</span> {e.subject}</p>
+                        {e.angle && <p className="text-cream"><span className="text-muted">Vinkel:</span> {e.angle}</p>}
+                        {e.tone && <p className="text-cream"><span className="text-muted">Tone:</span> {e.tone}</p>}
+                        {e.bodyLength !== undefined && <p className="text-cream"><span className="text-muted">Længde:</span> {e.bodyLength} tegn</p>}
+                        {e.councilScore !== undefined && <p className="text-cream"><span className="text-muted">Council-score:</span> {e.councilScore.toFixed(1)} / 10</p>}
+                        {e.customerType && <p className="text-cream"><span className="text-muted">Kundetype:</span> {e.customerType}</p>}
+                        {e.leadStatus && <p className="text-cream"><span className="text-muted">Lead-status:</span> {e.leadStatus}</p>}
+                        {e.contactStatus && <p className="text-cream"><span className="text-muted">Kontakt-status:</span> {e.contactStatus}</p>}
+                        {e.followUpSentAt && <p className="text-cream"><span className="text-muted">Opfølgning:</span> {new Date(e.followUpSentAt).toLocaleString("da-DK")}</p>}
+                        {e.repliedAt && <p className="text-green-300"><span className="text-muted">✓ Svar:</span> {new Date(e.repliedAt).toLocaleString("da-DK")}</p>}
+                        {e.wasEdited && e.editSummary && (
+                          <div className="pt-2 mt-2 border-t border-[rgba(242,238,230,.06)]">
+                            <p className="text-[10px] font-condensed font-bold tracking-[.15em] uppercase text-purple-300 mb-1">✎ Manuel redigering</p>
+                            <p className="text-cream/80 text-[11px] leading-relaxed">{e.editSummary}</p>
+                          </div>
+                        )}
+                      </div>
+                      {e.bodyPreview && (
+                        <div className="col-span-2">
+                          <p className="text-[10px] font-condensed font-bold tracking-[.15em] uppercase text-muted mb-2">Body-preview</p>
+                          <pre className="whitespace-pre-wrap text-cream/80 bg-white/[.03] p-3 rounded-[2px] text-[11px] leading-relaxed border border-[rgba(242,238,230,.05)]">
+                            {e.bodyPreview}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {sentEmails.length > 200 && (
+                <p className="text-muted text-[11px] mt-4 text-center font-condensed">
+                  Viser de seneste 200 af {sentEmails.length} mails
+                </p>
+              )}
             </div>
           )}
         </div>
