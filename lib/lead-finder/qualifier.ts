@@ -11,8 +11,14 @@
 
 import type { LeadCandidate } from "./types";
 
-/** Minimum score for at et lead medtages */
-export const QUALIFY_THRESHOLD = 45;
+/**
+ * Minimum score for at et lead medtages.
+ *
+ * VIGTIGT: Qualifikatoren kører FØR email-enrichment, så de fleste leads
+ * har endnu ingen email. Threshold sættes lavt (15) og filtrerer kun helt
+ * tomme / meningsløse entries. Email-enrichment løfter leads efterfølgende.
+ */
+export const QUALIFY_THRESHOLD = 15;
 
 /** Scorer ét lead og sætter `.score` på det */
 export function scoreCandidate(c: LeadCandidate): LeadCandidate {
@@ -67,9 +73,12 @@ function scoreCompany(c: LeadCandidate): number {
   // Kontaktperson = bedre åbning (op til 5 point)
   if (c.contactName) s += 5;
 
-  // Kilde-bonus — Jobindex-firmaer der rekrutterer = klart kapacitetsbehov
+  // Kilde-bonus — hvem der rekrutterer aktivt = klart kapacitetsbehov
   if (c.source.includes("Jobindex")) s += 8;
-  if (c.source.includes("Google Places")) s += 3;
+  if (c.source.includes("Jobnet")) s += 12;    // Aktiv stillingsopslag = klart behov
+  if (c.source.includes("Google Places")) s += 5;
+  if (c.source.includes("Proff")) s += 6;
+  if (c.source.includes("Degulesider")) s += 6;
 
   // Branchekode-match — bygge/anlæg/facility er premium leads
   if (c.branchekode) {
@@ -87,10 +96,14 @@ function scoreCompany(c: LeadCandidate): number {
 function scorePrivate(c: LeadCandidate): number {
   let s = 0;
 
-  // Signal-styrke — byggetilladelse er det stærkeste signal (op til 45 point)
+  // Signal-styrke — byggetilladelse er det stærkeste signal
   if (c.buildingPermit) s += 45;
-  else if (c.source === "Boligsiden") s += 30;
-  else if (c.source === "Andelsguide") s += 20;
+
+  // Kilde-bonus — alle private-kilder giver signal om behov
+  if (c.source === "Boligsiden") s += 30;           // Nyligt solgt = renovering
+  else if (c.source.includes("Boliga")) s += 20;    // Til salg = opfriskning
+  else if (c.source === "Tinglysning") s += 25;     // Ny ejer = renovering
+  else if (c.source === "Andelsguide") s += 20;     // Andelsbestyrelse = vedligehold
 
   // Kontaktdata
   if (c.email) s += 20;
@@ -129,6 +142,7 @@ function scoreEmployee(c: LeadCandidate): number {
   if (c.openToWork) s += 20;
   if (c.source.includes("Jobindex")) s += 20;
   if (c.source.includes("Workindenmark")) s += 15;
+  if (c.source.includes("Jobnet")) s += 12;         // Aktiv jobsøgning = interesseret kandidat
 
   // Fagkategori match — KrydsBygs 9 fagområder
   if (c.tradeCategory || c.industry) {
