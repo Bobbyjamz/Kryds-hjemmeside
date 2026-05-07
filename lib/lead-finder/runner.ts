@@ -16,6 +16,12 @@ import { enrichEmailsBatch } from "./enrichment/email-finder";
 import { enrichPhonesBatch } from "./enrichment/phone-enricher";
 import type { LeadCandidate } from "./types";
 
+export interface SourceDiagnostic {
+  status: "ok" | "failed" | "empty";
+  rawCount: number;
+  error?: string;
+}
+
 export interface RunResult {
   candidates: LeadCandidate[];
   bySource: Record<string, number>;
@@ -24,6 +30,8 @@ export interface RunResult {
   discardedCount: number;
   durationMs: number;
   industryWeightsApplied: number;
+  // Diagnostik per kilde — hjælper med at finde hvilke kilder der svigter
+  sourceDiagnostics: Record<string, SourceDiagnostic>;
 }
 
 export async function runLeadFinder(): Promise<RunResult> {
@@ -62,6 +70,43 @@ export async function runLeadFinder(): Promise<RunResult> {
     fetchStepstoneLeads(dayOfYear),
     fetchDirectoryLeads(dayOfYear),
   ]);
+
+  // ── Per-kilde diagnostik så vi kan se hvad der virker ────────────────────
+  const sourceDiagnostics: Record<string, SourceDiagnostic> = {};
+  const buildDiag = (
+    name: string,
+    res: PromiseSettledResult<unknown>,
+    counter: (v: unknown) => number
+  ) => {
+    if (res.status === "rejected") {
+      sourceDiagnostics[name] = {
+        status: "failed",
+        rawCount: 0,
+        error: res.reason instanceof Error ? res.reason.message : String(res.reason).slice(0, 100),
+      };
+    } else {
+      const c = counter(res.value);
+      sourceDiagnostics[name] = { status: c > 0 ? "ok" : "empty", rawCount: c };
+    }
+  };
+
+  const arrCount = (v: unknown) => Array.isArray(v) ? v.length : 0;
+  const dualCount = (v: unknown): number => {
+    const x = v as { companies?: unknown[]; employees?: unknown[] };
+    return (x.companies?.length || 0) + (x.employees?.length || 0);
+  };
+
+  buildDiag("CVR", cvrResults, arrCount);
+  buildDiag("Google Places", googleResults, arrCount);
+  buildDiag("Boligsiden+Andelsguide", privateResults, arrCount);
+  buildDiag("Jobindex+Workindenmark", employeeResults, arrCount);
+  buildDiag("Jobindex (firma)", jobindexResults, arrCount);
+  buildDiag("OIS/BBR", oisResults, arrCount);
+  buildDiag("Tinglysning", tinglysningResults, arrCount);
+  buildDiag("Boliga (til salg)", boligaResults, arrCount);
+  buildDiag("Jobnet", jobnetResults, dualCount);
+  buildDiag("Stepstone", stepstoneResults, dualCount);
+  buildDiag("Proff+Degulesider", directoryResults, arrCount);
 
   // ── Del employee + jobnet op i company + employee leads ───────────────────
   const employeeSourceRaw =
@@ -190,6 +235,14 @@ export async function runLeadFinder(): Promise<RunResult> {
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
   ].join("\n"));
 
+  // Log per-kilde diagnostik så det kan ses i Vercel logs
+  console.log("[runner] Per-kilde rådata:");
+  for (const [name, diag] of Object.entries(sourceDiagnostics)) {
+    const icon = diag.status === "ok" ? "✅" : diag.status === "empty" ? "⚪" : "❌";
+    const detail = diag.error ? ` — ${diag.error}` : "";
+    console.log(`  ${icon} ${name}: ${diag.rawCount} leads${detail}`);
+  }
+
   return {
     candidates: allQualified,
     bySource,
@@ -198,5 +251,6 @@ export async function runLeadFinder(): Promise<RunResult> {
     discardedCount: totalRaw - totalQ,
     durationMs: Date.now() - start,
     industryWeightsApplied: Object.keys(weights).length,
+    sourceDiagnostics,
   };
 }

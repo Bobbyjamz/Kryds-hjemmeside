@@ -14,6 +14,12 @@ interface HealthData {
   timestamp: string;
 }
 
+interface SourceDiag {
+  status: "ok" | "failed" | "empty";
+  rawCount: number;
+  error?: string;
+}
+
 interface LeadBotResult {
   ok: boolean;
   found?: number;
@@ -21,6 +27,7 @@ interface LeadBotResult {
   qualified?: number;
   discarded?: number;
   byType?: { company: number; private: number; employee: number };
+  sourceDiagnostics?: Record<string, SourceDiag>;
   durationMs?: number;
   smsSent?: boolean;
   hasGatewayToken?: boolean;
@@ -176,7 +183,7 @@ export default function HealthStatus() {
 
         {/* Resultat */}
         {botResult && (
-          <div className={`text-[11px] font-condensed leading-snug ${botResult.ok ? "text-green-400" : "text-red-400"}`}>
+          <div className={`text-[11px] font-condensed leading-snug w-full ${botResult.ok ? "text-green-400" : "text-red-400"}`}>
             {botResult.ok ? (
               <>
                 ✓ {botResult.imported} nye leads importeret ({botResult.found} fundet, {Math.round((botResult.durationMs || 0) / 1000)}s)
@@ -196,6 +203,25 @@ export default function HealthStatus() {
                 )}
                 {botResult.smsSent && (
                   <span className="block text-green-400 mt-[2px]">✓ SMS notifikation sendt</span>
+                )}
+
+                {/* Per-kilde breakdown — hjælper med at finde brudte kilder */}
+                {botResult.sourceDiagnostics && (
+                  <div className="mt-2 pt-2 border-t border-[rgba(242,238,230,.07)] grid grid-cols-2 gap-x-3 gap-y-[2px]">
+                    {Object.entries(botResult.sourceDiagnostics).map(([name, d]) => {
+                      const icon = d.status === "ok" ? "✅" : d.status === "empty" ? "⚪" : "❌";
+                      const color =
+                        d.status === "ok" ? "text-green-400"
+                        : d.status === "empty" ? "text-muted"
+                        : "text-red-400";
+                      return (
+                        <div key={name} className={`${color} text-[10px]`}>
+                          {icon} <span className="text-cream">{name}:</span> {d.rawCount}
+                          {d.error && <span className="block ml-4 text-red-400/70 text-[9px]">{d.error.slice(0, 60)}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </>
             ) : (

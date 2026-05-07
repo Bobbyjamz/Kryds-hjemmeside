@@ -96,6 +96,7 @@ export async function POST() {
       discarded: result.discardedCount,
       bySource: result.bySource,
       byType: result.byType,
+      sourceDiagnostics: result.sourceDiagnostics,
       durationMs: Date.now() - startMs,
       smsSent: smsResult.sent,
       hasGatewayToken: !!process.env.GATEWAYAPI_TOKEN,
