@@ -36,7 +36,7 @@ export default function LeadsPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"all" | LeadType>("all");
+  const [activeTab, setActiveTab] = useState<"all" | LeadType | "warm">("all");
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
 
   // Upload state
@@ -261,16 +261,46 @@ export default function LeadsPage() {
     alert(`${sent} emails sendt!`);
   }
 
+  // Helper: bestemmer hvornår leadet sidst blev kontaktet (sortering)
+  const lastTouch = (l: Lead): string => {
+    return l.followUp2SentAt || l.followUp1SentAt || l.sentAt || l.createdAt;
+  };
+
+  // Varme leads: status=Sent, har telefonnummer, sendt for >2 dage siden — klar til opkald
+  const isWarm = (l: Lead): boolean => {
+    if (l.status !== "Sent") return false;
+    if (!l.phone || l.phone.trim().length < 6) return false;
+    if (!l.sentAt) return false;
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+    return l.sentAt <= twoDaysAgo;
+  };
+
   // Filter leads baseret på aktiv tab + statusFilter
-  const filteredLeads = leads
-    .filter((l) => activeTab === "all" || (l.leadType || "company") === activeTab)
+  let filteredLeads = leads
+    .filter((l) => {
+      if (activeTab === "all") return true;
+      if (activeTab === "warm") return isWarm(l);
+      return (l.leadType || "company") === activeTab;
+    })
     .filter((l) => statusFilter === "all" || l.status === statusFilter);
 
-  const tabCounts: Record<"all" | LeadType, number> = {
+  // Varme leads sorteres med åbnede + senest kontaktede øverst
+  if (activeTab === "warm") {
+    filteredLeads = [...filteredLeads].sort((a, b) => {
+      // Åbnede emails først
+      if (a.emailOpened && !b.emailOpened) return -1;
+      if (!a.emailOpened && b.emailOpened) return 1;
+      // Derefter senest kontaktede
+      return lastTouch(b).localeCompare(lastTouch(a));
+    });
+  }
+
+  const tabCounts: Record<"all" | LeadType | "warm", number> = {
     all: leads.length,
     company: leads.filter((l) => (l.leadType || "company") === "company").length,
     private: leads.filter((l) => l.leadType === "private").length,
     employee: leads.filter((l) => l.leadType === "employee").length,
+    warm: leads.filter(isWarm).length,
   };
 
   const stats = {
@@ -329,21 +359,47 @@ export default function LeadsPage() {
       </div>
 
       {/* Type-tabs */}
-      <div className="flex gap-1 mb-6 border-b border-[rgba(242,238,230,0.07)] pb-0">
-        {(["all", "company", "private", "employee"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-4 py-[10px] border-b-2 transition-colors -mb-px ${
-              activeTab === tab
-                ? "border-yellow text-yellow"
-                : "border-transparent text-muted hover:text-cream"
-            }`}
-          >
-            {tab === "all" ? "Alle" : LEAD_TYPE_LABELS[tab]} ({tabCounts[tab]})
-          </button>
-        ))}
+      <div className="flex gap-1 mb-6 border-b border-[rgba(242,238,230,0.07)] pb-0 flex-wrap">
+        {(["all", "company", "private", "employee", "warm"] as const).map((tab) => {
+          const isWarmTab = tab === "warm";
+          const label = tab === "all"
+            ? "Alle"
+            : tab === "warm"
+            ? "🔥 Ring til dem"
+            : LEAD_TYPE_LABELS[tab];
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-4 py-[10px] border-b-2 transition-colors -mb-px ${
+                activeTab === tab
+                  ? isWarmTab
+                    ? "border-orange-400 text-orange-400"
+                    : "border-yellow text-yellow"
+                  : isWarmTab && tabCounts.warm > 0
+                  ? "border-transparent text-orange-300/70 hover:text-orange-300"
+                  : "border-transparent text-muted hover:text-cream"
+              }`}
+            >
+              {label} ({tabCounts[tab]})
+            </button>
+          );
+        })}
       </div>
+
+      {/* Hjælpetekst på Varm-fanen */}
+      {activeTab === "warm" && (
+        <div className="mb-4 p-4 rounded-[2px] border border-orange-400/30 bg-orange-400/5">
+          <p className="text-[12px] text-orange-200 leading-[1.6]">
+            <span className="font-condensed font-bold text-[11px] tracking-[.1em] uppercase text-orange-300">
+              🔥 Ring-listen
+            </span>
+            <br />
+            Leads der har modtaget en email fra Sarah for mindst 2 dage siden og har et telefonnummer.
+            Email-konvertering er 1-3% — telefon er 15-25%. Ring til dem nu mens de stadig husker mailen.
+          </p>
+        </div>
+      )}
 
       {/* Stats — klikbare som filter */}
       <div className="grid grid-cols-5 gap-3 mb-4 max-[900px]:grid-cols-3">
@@ -507,7 +563,22 @@ export default function LeadsPage() {
                       {lead.contactName || "–"}
                       {lead.contactTitle && <span className="block text-[10px] text-muted opacity-60">{lead.contactTitle}</span>}
                     </td>
-                    <td className="px-4 py-3 text-muted truncate max-w-[140px] text-[12px]">{lead.email || "–"}</td>
+                    <td className="px-4 py-3 text-muted truncate max-w-[140px] text-[12px]">
+                      {lead.email || "–"}
+                      {activeTab === "warm" && (
+                        <span className="block text-[10px] mt-1">
+                          {lead.emailOpened && <span className="text-green-400 font-bold">✓ Åbnet · </span>}
+                          {lead.followUp2SentAt
+                            ? <span className="text-orange-300">Sidste mail {new Date(lead.followUp2SentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                            : lead.followUp1SentAt
+                            ? <span className="text-yellow">Opfølgning {new Date(lead.followUp1SentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                            : lead.sentAt
+                            ? <span className="text-muted">Sendt {new Date(lead.sentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                            : null}
+                          {lead.phone && <span className="block text-cream/80">{lead.phone}</span>}
+                        </span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-muted text-[12px]">{lead.budget || "–"}</td>
                     <td className="px-4 py-3">
                       {lead.councilScore ? (
@@ -523,6 +594,16 @@ export default function LeadsPage() {
                     </td>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-1">
+                        {/* Varm-fanen: Ring-knap er hovedaktion */}
+                        {activeTab === "warm" && lead.phone && (
+                          <a
+                            href={`tel:${lead.phone}`}
+                            className="bg-orange-400 text-black font-condensed font-extrabold text-[10px] tracking-[.1em] uppercase px-3 py-[5px] rounded-[2px] hover:bg-orange-300 transition-colors no-underline flex items-center gap-1"
+                            title={`Ring til ${lead.phone}`}
+                          >
+                            📞 Ring
+                          </a>
+                        )}
                         <button
                           onClick={() => runCouncil(lead.id)}
                           disabled={!!actionLoading}

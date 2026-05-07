@@ -83,6 +83,9 @@ Brug ALDRIG bindestreger som sætningskobling. Skriv i stedet sætningerne ud. U
 SIGNATUR HÅNDTERES AUTOMATISK:
 Skriv IKKE navn, telefonnummer eller email efter "Med venlig hilsen,". Systemet tilføjer signaturen. Body slutter med "Med venlig hilsen," som sidste linje.
 
+RETAINER-MODEL (NÆVN KUN HVIS RELEVANT):
+Hvis kontekst giver retainerHint=true (sættes for facility managers, ejendomsselskaber, hoteller, plejehjem, restauranter) skal du nævne retainer-aftalen kort i én linje i body — fx: "Vi har også en fast månedlig aftale (retainer) fra 5 dage/md hvis det passer bedre end ad-hoc booking." Nævn ALDRIG retainer for små virksomheder, privatpersoner eller engangskunder.
+
 RETURNER KUN JSON uden tekst udenom:
 {"subject":"<emne>","body":"<body med Hej øverst og 'Med venlig hilsen,' nederst, linjeskift som \\n>","angle":"<kort forklaring>"}`;
 
@@ -144,8 +147,19 @@ JSON-FORMAT:
   return { ...parsed, analyzedAt: new Date().toISOString() } as CouncilAnalysis;
 }
 
+function shouldPitchRetainer(lead: Lead, council: CouncilAnalysis): boolean {
+  const blob = `${council.customerType ?? ""} ${lead.industry ?? ""} ${lead.companyName} ${lead.notes ?? ""}`.toLowerCase();
+  const triggers = [
+    "facility", "ejendom", "boligforening", "andel", "ejerforening",
+    "hotel", "restaurant", "plejehjem", "skole", "børnehave",
+    "konferencecenter", "byggeselskab",
+  ];
+  return triggers.some((t) => blob.includes(t));
+}
+
 async function runSarah(lead: Lead, council: CouncilAnalysis): Promise<{ subject: string; body: string }> {
   const briefing = council.sarahBriefing;
+  const retainerHint = shouldPitchRetainer(lead, council);
   const briefingBlock = briefing
     ? `
 SARAH-BRIEFING FRA COUNCIL (FØLG DETTE):
@@ -179,6 +193,7 @@ COUNCIL:
 Kundetype: ${council.customerType}
 Tone: ${council.tone}
 Risici at undgå: ${council.risks.join(", ")}
+retainerHint: ${retainerHint ? "true (nævn retainer-modellen kort i én linje)" : "false (nævn IKKE retainer)"}
 ${briefingBlock}`,
     }],
   });
@@ -324,42 +339,87 @@ async function runOutreachPipeline() {
   return { stats, toProcess: toProcess.length };
 }
 
-// ── Auto follow-up (leads sendt >5 dage siden, ingen svar) ──────────────────
+// ── Auto follow-up (2-trins kadence) ────────────────────────────────────────
+//
+//   Trin 1 (dag 5):  Venlig "Bare en kort opfølgning"-mail
+//   Trin 2 (dag 14): Sidste forsøg m. retainer-pitch til facility/ejendom-typer
+//
+// Når trin 2 er sendt og der stadig ikke er svar 7 dage senere markeres leadet
+// "Rejected" så Sarah ikke bliver ved at hamre folk.
+
+const FACILITY_TYPES = [
+  "facility", "ejendom", "boligforening", "andel",
+  "ejerforening", "hotel", "restaurant", "plejehjem",
+];
+
+function isRetainerCandidate(lead: Lead): boolean {
+  const t = (lead.councilAnalysis?.customerType || "").toLowerCase();
+  const i = (lead.industry || "").toLowerCase();
+  return FACILITY_TYPES.some((f) => t.includes(f) || i.includes(f));
+}
 
 async function runFollowUpPipeline() {
-  const fiveDAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
   const allLeads = await readLeads();
+  const now = Date.now();
+  const fiveDaysAgo = new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString();
+  const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  // Leads der er sendt > 5 dage siden og stadig har status=Sent (ingen svar = ingen opdatering)
-  const toFollow = allLeads
+  // ── Trin 1: dag 5 efter første mail ──────────────────────────────────────
+  const trin1 = allLeads
     .filter(
       (l) =>
         l.status === "Sent" &&
         l.email &&
         l.sentAt &&
-        l.sentAt <= fiveDAgo &&
-        !l.draftSubject?.includes("[follow-up]") // undgå at sende 2 gange
+        l.sentAt <= fiveDaysAgo &&
+        !l.followUp1SentAt
     )
-    .slice(0, 8); // max 8 follow-ups per kørsel
+    .slice(0, 8);
 
-  if (toFollow.length === 0) return { followUpsSent: 0 };
+  // ── Trin 2: dag 14 efter første mail (= dag 9 efter trin 1) ─────────────
+  const trin2 = allLeads
+    .filter(
+      (l) =>
+        l.status === "Sent" &&
+        l.email &&
+        l.sentAt &&
+        l.sentAt <= fourteenDaysAgo &&
+        l.followUp1SentAt &&
+        !l.followUp2SentAt
+    )
+    .slice(0, 6);
+
+  // ── Auto-close: trin 2 sendt + 7 dage uden svar = lukket ─────────────────
+  const toClose = allLeads.filter(
+    (l) =>
+      l.status === "Sent" &&
+      l.followUp2SentAt &&
+      l.followUp2SentAt <= sevenDaysAgo
+  );
+
+  if (trin1.length === 0 && trin2.length === 0 && toClose.length === 0) {
+    return { followUp1Sent: 0, followUp2Sent: 0, autoClosed: 0 };
+  }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
-  let followUpsSent = 0;
   const updatedLeads = [...allLeads];
 
-  for (const lead of toFollow) {
+  let followUp1Sent = 0;
+  let followUp2Sent = 0;
+
+  // ── Send trin 1 ──────────────────────────────────────────────────────────
+  for (const lead of trin1) {
     try {
       const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
-      const subject = `Re: ${lead.draftSubject ?? "KrydsByg — opfølgning"}`;
-
+      const subject = `Re: ${(lead.draftSubject ?? "KrydsByg").replace(/^\[.*?\]\s*/, "")}`;
       const body = [
         `Hej ${firstName},`,
         ``,
         `Jeg sendte dig en mail for et par dage siden om hvad KrydsByg kan gøre for ${lead.companyName}.`,
         ``,
-        `Jeg vil bare høre om du fik den — og om det er noget der er relevant for jer lige nu.`,
+        `Jeg vil bare høre om du fik den, og om det er noget der er relevant for jer lige nu.`,
         ``,
         `Det tager blot 10 minutter at afklare om vi kan hjælpe. Ring gerne på +45 42 77 88 66 eller svar direkte på denne mail.`,
         ``,
@@ -367,42 +427,93 @@ async function runFollowUpPipeline() {
       ].join("\n");
 
       const html = buildEmailHtml({ body, preheader: "Bare en kort opfølgning fra KrydsByg" });
-      const textVersion = buildEmailText(body);
-
       await resend.emails.send({
-        from,
-        to: [lead.email!],
-        bcc: ["kontakt@krydsbyg.com"],
+        from, to: [lead.email!], bcc: ["kontakt@krydsbyg.com"],
         replyTo: "kontakt@krydsbyg.com",
-        subject,
-        html,
-        text: textVersion,
+        subject, html, text: buildEmailText(body),
         headers: {
           "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
       });
 
-      const now = new Date().toISOString();
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);
-      if (idx !== -1) {
-        updatedLeads[idx] = {
-          ...updatedLeads[idx],
-          // Marker at follow-up er sendt — brug draftSubject som flag
-          draftSubject: `[follow-up] ${lead.draftSubject ?? ""}`,
-          updatedAt: now,
-        };
-      }
-
-      followUpsSent++;
+      const ts = new Date().toISOString();
+      if (idx !== -1) updatedLeads[idx] = { ...updatedLeads[idx], followUp1SentAt: ts, updatedAt: ts };
+      followUp1Sent++;
       await new Promise((r) => setTimeout(r, 400));
     } catch (err) {
-      console.error(`[follow-up] fejl for lead ${lead.id}:`, err);
+      console.error(`[follow-up trin 1] fejl for ${lead.id}:`, err);
     }
   }
 
-  if (followUpsSent > 0) await writeLeads(updatedLeads);
-  return { followUpsSent };
+  // ── Send trin 2 (m. retainer-pitch hvis facility/ejendom) ────────────────
+  for (const lead of trin2) {
+    try {
+      const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
+      const subject = `Sidste mail fra KrydsByg`;
+      const isRetainer = isRetainerCandidate(lead);
+
+      const retainerPitch = isRetainer
+        ? [
+            ``,
+            `For virksomheder som jer ser jeg ofte at en fast månedlig aftale (retainer) giver god mening — fra 5 dage/md får I prioriteret booking og 5-10% rabat på alle vores satser.`,
+            ``,
+          ]
+        : [``, `Vi tilbyder også fastpris-aftaler hvis det passer bedre end timepris.`, ``];
+
+      const body = [
+        `Hej ${firstName},`,
+        ``,
+        `Jeg har skrevet til dig et par gange og forstår godt hvis det ikke er aktuelt lige nu — så vil jeg ikke fylde din indbakke mere.`,
+        ...retainerPitch,
+        `Hvis det bliver relevant senere, så er vi altid kun en opringning væk på +45 42 77 88 66.`,
+        ``,
+        `Tak for din tid.`,
+        ``,
+        `Med venlig hilsen,`,
+      ].join("\n");
+
+      const html = buildEmailHtml({ body, preheader: "Sidste opfølgning fra KrydsByg" });
+      await resend.emails.send({
+        from, to: [lead.email!], bcc: ["kontakt@krydsbyg.com"],
+        replyTo: "kontakt@krydsbyg.com",
+        subject, html, text: buildEmailText(body),
+        headers: {
+          "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      });
+
+      const idx = updatedLeads.findIndex((l) => l.id === lead.id);
+      const ts = new Date().toISOString();
+      if (idx !== -1) updatedLeads[idx] = { ...updatedLeads[idx], followUp2SentAt: ts, updatedAt: ts };
+      followUp2Sent++;
+      await new Promise((r) => setTimeout(r, 400));
+    } catch (err) {
+      console.error(`[follow-up trin 2] fejl for ${lead.id}:`, err);
+    }
+  }
+
+  // ── Auto-close ───────────────────────────────────────────────────────────
+  for (const lead of toClose) {
+    const idx = updatedLeads.findIndex((l) => l.id === lead.id);
+    if (idx !== -1) {
+      updatedLeads[idx] = {
+        ...updatedLeads[idx],
+        status: "Rejected",
+        notes: [updatedLeads[idx].notes, "Auto-lukket: ingen svar efter 3 mails over 21 dage."]
+          .filter(Boolean).join("\n\n"),
+        updatedAt: new Date().toISOString(),
+      };
+    }
+  }
+
+  if (followUp1Sent > 0 || followUp2Sent > 0 || toClose.length > 0) {
+    await writeLeads(updatedLeads);
+  }
+
+  return { followUp1Sent, followUp2Sent, autoClosed: toClose.length };
 }
 
 // ── GET — Vercel Cron (kl. 13:00 DK / 11:00 UTC) ────────────────────────
@@ -426,20 +537,23 @@ export async function GET(req: Request) {
         ? outreachResult.value
         : { stats: { sent: 0, lowScore: 0, noEmail: 0, errors: 0, analyzed: 0, drafted: 0, hitTimeBudget: false }, toProcess: 0, message: "Outreach fejlede" };
 
-    const followUpsSent =
-      followUpResult.status === "fulfilled" ? followUpResult.value.followUpsSent : 0;
+    const followUp = followUpResult.status === "fulfilled"
+      ? followUpResult.value
+      : { followUp1Sent: 0, followUp2Sent: 0, autoClosed: 0 };
 
     const smsLines = [
       `Hej chef! 🤖 Auto-outreach kl. 13:`,
       toProcess > 0 ? `✅ ${stats.sent} nye mails sendt` : `📭 Ingen nye leads i dag`,
-      followUpsSent > 0 ? `🔁 ${followUpsSent} opfølgninger sendt` : null,
+      followUp.followUp1Sent > 0 ? `🔁 ${followUp.followUp1Sent} opfølgning #1 (5d)` : null,
+      followUp.followUp2Sent > 0 ? `🎯 ${followUp.followUp2Sent} sidste mail (14d, m. retainer)` : null,
+      followUp.autoClosed > 0 ? `🗄 ${followUp.autoClosed} lukket auto (ingen svar)` : null,
       stats.lowScore > 0 ? `⏸ ${stats.lowScore} afventer dig (lav score)` : null,
       stats.errors > 0 ? `⚠️ ${stats.errors} fejl — tjek admin` : null,
     ].filter(Boolean).join("\n");
 
     await notifyAdmin(smsLines);
 
-    return NextResponse.json({ ok: true, processed: toProcess, followUpsSent, message, ...stats });
+    return NextResponse.json({ ok: true, processed: toProcess, ...followUp, message, ...stats });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
