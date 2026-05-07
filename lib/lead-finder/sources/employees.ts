@@ -182,6 +182,7 @@ async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise
           city: job.location || "Storkøbenhavn",
           source: "Workindenmark",
           leadType: "employee",
+          tradeCategory: getTradeFromQuery(q),
           serviceType: getServiceType(q),
           notes: `International jobsøger med erfaring inden for "${q}"${job.title ? ` (søger ${job.title})` : ""}. Søger arbejde i ${job.location || "Storkøbenhavn"}. KrydsByg kan tilbyde fleksible timer, god timeløn og varierede opgaver.`,
         });
@@ -192,6 +193,22 @@ async function fetchWorkindenmark(dayOfYear: number, seen: Set<string>): Promise
   }
 
   return results;
+}
+
+function getTradeFromQuery(q: string): string {
+  const query = q.toLowerCase();
+  if (query.includes("paint") || query.includes("maler")) return "Maler";
+  if (query.includes("clean") || query.includes("rengør")) return "Rengøring";
+  if (query.includes("moving") || query.includes("flytt")) return "Flytning";
+  if (query.includes("construction") || query.includes("bygg")) return "Byggepladsbehjælp";
+  if (query.includes("garden") || query.includes("gartner")) return "Anlægsgartner";
+  if (query.includes("warehouse") || query.includes("lager")) return "Lager";
+  if (query.includes("kitchen") || query.includes("køkken")) return "Køkken";
+  if (query.includes("tømrer") || query.includes("carpenter")) return "Tømrer";
+  if (query.includes("murer")) return "Murer";
+  if (query.includes("vvs") || query.includes("plumb")) return "VVS";
+  if (query.includes("electr") || query.includes("elektri")) return "Elektriker";
+  return "Håndværk (alm.)";
 }
 
 function getServiceType(query: string): string {

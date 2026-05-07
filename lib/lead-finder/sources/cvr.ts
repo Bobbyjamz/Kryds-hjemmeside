@@ -11,88 +11,165 @@ import type { LeadCandidate } from "../types";
 import { rankSearchTerms, type IndustryWeights } from "../scoring";
 import { scrapeWebsite } from "../enrichment/website-scraper";
 
-// 120+ søgetermer — roterer så vi aldrig rammer de samme to dage i træk
+// 265+ søgetermer — bredt fordelt på ALLE brancher, ikke kun bolig/ejendom.
+// Roterer så vi aldrig rammer de samme to dage i træk (90 termer/dag).
+// VIGTIGT: ingen specifikke firmanavne — brede branchemønstre giver variation.
 const SEARCH_TERMS = [
-  // Ejendomsadministratorer
-  "CEJ Ejendomsadministration", "AMC North Ejendomsadministration", "By og Bolig Ejendomsadministration",
-  "BtB Consult Ejendomsadministration", "Qvortrup Ejendomsadministration", "COBO Ejendomsadministration",
-  "DEAS Ejendomsadministration", "Azets Ejendomsadministration", "BKM Ejendomsadministration",
-  "Advodan Glostrup Ejendomsadministration", "Newsec Property Management", "NIRAS Ejendomsadministration",
-  "Colliers Property Management", "CBRE Denmark", "JLL Denmark", "Cushman Wakefield Denmark",
-  "Savills Denmark", "Catella Property", "Patrizia Danmark",
-  // Facility Management
-  "ISS Facility Services", "Coor Service Management", "Driftssikker Facility",
-  "Sodexo Danmark", "Compass Group Danmark", "G4S Facility Management",
-  "Securitas Facility", "Bravida Danmark", "NCC Building Services",
-  "YIT Danmark", "Skanska Facility",
-  // Andelsforeninger og boligselskaber
-  "Andelsboligforening Østerbro", "Andelsboligforening Frederiksberg", "Andelsboligforening Nørrebro",
-  "Andelsboligforening Vesterbro", "Andelsboligforening Amager", "Andelsboligforening Valby",
-  "Boligforening København", "Boligselskab Frederiksberg", "Almen boligforening",
-  "Lejerbo", "DAB Boligadministration", "KAB Boligadministration",
-  "Domea", "Boligkontoret Danmark", "3B Boligforening",
-  "Arbejdernes Andelsboligforening", "AAB Bolig", "fsb bolig",
-  // Ejendomsejere og investorer
-  "Ejendomsselskabet Copenhagen", "Ejendomsservice København", "Ejendomsdrift ApS",
-  "Boligadministration ApS", "Ejendomsforvaltning ApS", "Bygningsejer ApS",
-  "Ejendomsprojekt ApS", "Udlejningsejendom ApS",
-  // Rengøring og service
-  "Rengøringsselskab København", "Rengøring Frederiksberg", "Serviceselskab København",
-  "Driftselskab Storkøbenhavn", "Rengøringsfirma Amager", "Erhvervsrengøring København",
-  "Städ og Rengøring ApS", "Professionel rengøring ApS",
-  // Håndværk og byg
-  "Malerfirma København", "Malerentreprenør Frederiksberg", "Gulvlægger København",
-  "Håndværkerservice Storkøbenhavn", "Byggeservice ApS", "Renoveringsfirma København",
-  "Tømrerfirma", "Murerfirma", "VVS firma København",
-  // Mæglere og developere
-  "EDC Mægler", "Nybolig Erhverv", "Danbolig Erhverv",
-  "Realmæglerne Erhverv", "Boligone", "Lokalbolig", "Oline Ejendom",
-  // Revisorer og advokater med ejendomskunder
-  "BDO Ejendomsadministration", "Grant Thornton Ejendom",
-  "Kromann Reumert Ejendom", "Plesner Ejendom", "Gorrissen Federspiel",
-  "Bech-Bruun Ejendom", "Horten Ejendom",
-  // Byggeprojekter og entreprise
-  "Hoffmann Entreprise", "MT Højgaard", "Per Aarsleff",
-  "NCC Danmark", "Skanska Danmark",
-  // Hoteller og konferencecentre
-  "Hotel København", "Konferencecenter KBH", "Vandrehjem København",
-  "Bed Breakfast KBH", "Airbnb management København",
-  // Kontorejendomme
-  "Kontorlejemål København", "Erhvervslejemål Frederiksberg", "Kontorhus ApS",
-  "Coworking København", "Shared office KBH",
-  // Institutioner
-  "Plejehjem København", "Dagcenter KBH", "Daginstitution Frederiksberg",
-  "Skole bygningsdrift", "Sportscenter vedligehold",
-  // Lokale firmaer
-  "Ejendomsservice Gentofte", "Ejendomsdrift Lyngby", "Facility Herlev",
-  "Ejendomsadministration Rødovre", "Boligservice Gladsaxe", "Ejendom Brøndby",
-  "Driftsservice Ballerup", "Ejendom Hvidovre", "Facility Taastrup",
-  // Events
-  "Eventbureau København", "Messearrangør KBH", "Konferencearrangør",
-  "Cateringfirma København", "Teltudlejning KBH",
-  // Brede branche-søgeord (returnerer forskellige firmaer afhængigt af cvrapi rangering)
-  "rengøring", "facility", "ejendomsservice", "vicevært", "håndværker",
-  "byggefirma", "renoveringsfirma", "vedligehold", "ejendomsadministration",
-  "boligselskab", "andelsforening", "tagrenovering", "facaderenovering",
-  "trappevask", "kontorrengøring", "kontorhotel", "coworking",
-  "messerengøring", "byggepladsservice", "hovedrengøring",
-  "fraflytningsrengøring", "vinduespudsning", "graffitirens",
-  "skadeservice", "skimmelsanering", "asbestsanering", "indeklimaservice",
-  "totalrenovering", "totalentreprise", "underentreprenør",
-  "rådgivende ingeniør", "byggeteknisk rådgivning",
-  "aircondition service", "ventilation service", "el-installatør",
-  "vvs installatør", "tagdækker", "isolering", "tagisolering",
-  "termovinduer", "døre vinduer", "carportbygger",
-  "udestue", "havemand", "havefirma", "anlægsgartner københavn",
-  "snerydning", "saltning", "vinterservice",
-  "flyttefirma", "flytteservice", "godstransport", "kurer",
-  "lager logistik", "nedrivning", "containerudlejning",
-  "byggeplads sikkerhed", "stillads", "lift udlejning",
-  "ejendomsmægler erhverv", "boligvurdering", "syn og skøn",
-  "overvågning", "vagtservice", "alarmservice",
-  "skadedyrsbekæmpelse", "rotteforebyggelse",
-  "trædrift", "stubfræsning", "beskæring",
-  "byggepladsledelse", "byggestyring",
+  // ── Rengøring & Facility (30 termer) ─────────────────────────────────────
+  "rengøring", "rengøringsservice", "erhvervsrengøring", "kontorrengøring",
+  "bygningsrengøring", "fraflytningsrengøring", "vinduespudsning",
+  "industrirengøring", "institutionsrengøring", "hotellrengøring",
+  "rengøringsfirma", "professionel rengøring", "rengøringsleder",
+  "ejendomsservice", "viceværtservice", "driftsservice", "trappevask",
+  "skimmelsanering", "graffitirens", "skadedyrsbekæmpelse",
+  "facility management", "facilities service", "teknisk drift",
+  "desinfektion service", "desinfektion", "sanering",
+  "renholdelse", "servicefirma", "servicevirksomhed", "driftsvirksomhed",
+
+  // ── Maling & Overfladebehandling (15 termer) ─────────────────────────────
+  "malerfirma", "malerentreprenør", "malermester", "malerservice",
+  "facadespartling", "overfladebehandling", "spartelfirma", "spartelentreprenør",
+  "gulvlakering", "bejdsning", "facaderenovering", "industrioverflade",
+  "dekoration maling", "malervirksomhed", "bygningsbemaling",
+
+  // ── Flytning & Transport (15 termer) ─────────────────────────────────────
+  "flyttefirma", "flytningsservice", "godstransport", "chaufførservice",
+  "budtjeneste", "kurerfirma", "fragtmand", "budfirma",
+  "distributionsservice", "specialtransport", "pakkeservice",
+  "møbeltransport", "kontorflytning", "virksomhedsflytning", "transportfirma",
+
+  // ── Tømrer & Snedker (15 termer) ─────────────────────────────────────────
+  "tømrerfirma", "tømrermester", "tømrerservice", "snedkerfirma",
+  "snedkermester", "tømrer entreprise", "tømrer renovering",
+  "trækonstruktion", "vinduer og døre", "vinduesmontør",
+  "køkkenmontering", "inventarmontering", "tømrer og snedker",
+  "listesætter", "bygningssnedker",
+
+  // ── Murer & Beton (12 termer) ─────────────────────────────────────────────
+  "murerfirma", "murermester", "murer entreprise", "betonentreprenør",
+  "fundamentsarbejde", "flisebelægning", "stenbelægning",
+  "teglstensmur", "murerservice", "murerforretning",
+  "betonstøbning", "udendørs belægning",
+
+  // ── Gulv & Fliser (10 termer) ─────────────────────────────────────────────
+  "gulvlægger", "gulvfirma", "parketlægger", "flisefirma",
+  "epoxygulv", "gulvslibning", "laminatlægning",
+  "tæppelægning", "gulvafslibning", "gulvbehandling",
+
+  // ── VVS (12 termer) ───────────────────────────────────────────────────────
+  "vvs firma", "vvs installatør", "vvs mester", "rørfirma",
+  "kloakservice", "kloakfirma", "vvs service",
+  "blikkenslager", "sanitetsinstallation", "gulvvarme",
+  "varmepumpe firma", "vvs installation",
+
+  // ── El & Ventilation (10 termer) ─────────────────────────────────────────
+  "el-installatør", "elektriker", "elfirma", "el mester",
+  "ventilationsservice", "aircondition service",
+  "solcelleanlæg", "elinstallation", "el-service", "stærkstrøm",
+
+  // ── Tag & Stillads (10 termer) ────────────────────────────────────────────
+  "tagdækkerfirma", "tagdækker", "tagservice", "tagrenovering",
+  "stilladsopsætning", "stilladsudlejning",
+  "tagisolering", "isoleringsfirma", "facadeisolering", "tagentreprenør",
+
+  // ── Have & Anlæg (20 termer) ─────────────────────────────────────────────
+  "anlægsgartner", "havefirma", "haveservice", "haveanlæg",
+  "beskæringsfirma", "snerydning", "vinterservice", "saltning",
+  "græsslåningsfirma", "ukrudtsbekæmpelse", "stubfræsning",
+  "grønne arealer", "parkvedligehold", "anlæg og beplantning",
+  "plantning og beskæring", "havedesign", "terrasse anlæg",
+  "naturpleje", "trærydning", "skovservice",
+
+  // ── Hotel & Overnatning (15 termer) ─────────────────────────────────────
+  "hotel", "boutique hotel", "konferencehotel", "feriehotel",
+  "vandrehjem", "bed breakfast", "hostel", "kurbad",
+  "spa hotel", "city hotel", "airport hotel",
+  "overnatningsfacilitet", "pensionat", "motel", "sommerhotel",
+
+  // ── Restaurant & Cafe (20 termer) ────────────────────────────────────────
+  "restaurant", "cafe", "bistro", "brasserie",
+  "sushi restaurant", "pizzeria", "grillbar",
+  "burger restaurant", "sandwich bar", "smørrebrød restaurant",
+  "thai restaurant", "indisk restaurant", "kinesisk restaurant",
+  "mexicansk restaurant", "tapas bar", "steakhouse",
+  "brunch restaurant", "café og restaurant", "kantinedrift", "daglig café",
+
+  // ── Catering & Events (15 termer) ────────────────────────────────────────
+  "cateringfirma", "eventbureau", "messearrangør", "konferencearrangør",
+  "teltudlejning", "festlokal", "selskabslokale",
+  "bryllupscatering", "firmacatering", "partyservice",
+  "mad og drikke service", "catering service",
+  "event og konference", "messe og event", "konferencefacilitet",
+
+  // ── IT & Tech (20 termer) ─────────────────────────────────────────────────
+  "it konsulent", "softwareudvikling", "web bureau", "digital bureau",
+  "tech startup", "it support firma", "cloud løsning",
+  "cybersikkerhed firma", "app udvikling", "e-commerce bureau",
+  "digital marketing bureau", "SEO bureau", "UX design bureau",
+  "IT-virksomhed", "systemudvikling", "netværksservice",
+  "it-drift", "managed service", "data analyse firma", "AI konsulent",
+
+  // ── Retail & Handel (15 termer) ─────────────────────────────────────────
+  "tøjbutik", "elektronikforhandler", "sportsbutik",
+  "møbelbutik", "interiørbutik", "hobbybutik",
+  "dagligvarehandel", "delikatesse butik",
+  "isenkræmmer", "legetøjsbutik",
+  "smykkebutik", "ur og guld", "blomsterbutik", "boghandel", "apotek",
+
+  // ── Sundhed & Klinik (15 termer) ─────────────────────────────────────────
+  "lægeklinik", "privat klinik", "speciallæge",
+  "tandlæge", "fysioterapeut", "kiropraktor",
+  "psykolog klinik", "fitnesscenter", "wellnesscenter",
+  "skønhedsklinik", "massage klinik", "akupunktur klinik",
+  "optiker", "høreklinik", "fodterapeut",
+
+  // ── Plejeinstitutioner (8 termer) ────────────────────────────────────────
+  "plejehjem", "hjemmehjælp", "botilbud",
+  "dagcenter", "aktivitetscenter", "rehabiliteringscenter",
+  "plejecenter", "handicapcenter",
+
+  // ── Logistik & Lager (12 termer) ─────────────────────────────────────────
+  "lagervirksomhed", "lagerfirma", "lagerlogistik",
+  "distributionscenter", "speditionsfirma", "frysehus",
+  "kølehus", "pakkelager", "containerservice",
+  "logistikoperatør", "terminal logistik", "fragtcenter",
+
+  // ── Uddannelse (10 termer) ────────────────────────────────────────────────
+  "privatskole", "sprogskole", "erhvervsskole",
+  "kursusudbyder", "kursuscenter", "efteruddannelse",
+  "fitnessinstruktør", "personlig træner",
+  "musikskole", "kunstskole",
+
+  // ── Kultur & Medier (8 termer) ───────────────────────────────────────────
+  "teater", "kulturhus", "museum",
+  "fotograf firma", "reklamefirma", "mediehus",
+  "grafisk design", "filmproduktion",
+
+  // ── Industri & Produktion (15 termer) ────────────────────────────────────
+  "produktionsvirksomhed", "fremstillingsvirksomhed", "industrifirma",
+  "trykkeri", "emballagefirma", "plastproduktion",
+  "metalfirma", "smedjevirksomhed", "maskinfabrik",
+  "elektronikproduktion", "fødevareproduktion",
+  "brødfabrik", "konditori", "bageriet", "konfekture",
+
+  // ── Bilservice & Auto (10 termer) ────────────────────────────────────────
+  "autoværksted", "bilpleje", "autolakereri",
+  "dæk og bilservice", "bilsyn", "autocenter",
+  "taxifirma", "limousinefirma", "busfirma", "lastbil udlejning",
+
+  // ── Bolig & Ejendom (15 termer — kraftigt reduceret fra ~65) ─────────────
+  "ejendomsselskab", "boligudlejning", "ejendomsmægler",
+  "lejeboliger", "udlejningsselskab", "ejendomsinvestor",
+  "andelsforening", "ejendomsadministration",
+  "boligadministration", "husadministration",
+  "ejendomsdrift", "bygningsejer", "lejeforvaltning",
+  "totalrenovering", "underentreprenør",
+
+  // ── Diverse Erhverv (10 termer) ───────────────────────────────────────────
+  "revisionsfirma", "advokatkontor", "inkassofirma",
+  "rekrutteringsbureau", "konsulentfirma",
+  "ingeniørfirma", "arkitektfirma", "rådgivende ingeniør",
+  "laboratorium", "forsikringsmægler",
 ];
 
 interface CVRApiResponse {
