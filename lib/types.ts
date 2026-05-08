@@ -276,11 +276,14 @@ export interface Lead {
   draftCreatedAt?: string;
   approvedAt?: string;
   sentAt?: string;
-  // Opfølgnings-tracking (Sarah pipeline)
+  // Opfølgnings-tracking (Sarah email pipeline)
   followUp1SentAt?: string;   // 5-dages opfølgning
   followUp2SentAt?: string;   // 14-dages sidste forsøg (m. retainer-pitch)
   emailOpened?: boolean;      // Sat af Resend webhook
   emailOpenedAt?: string;
+  // SMS-outreach (leads med telefon men ingen email)
+  smsSentAt?: string;         // Dag 0 SMS — Sarah's korte besked
+  smsBody?: string;           // Teksten der blev sendt
   sourceFile?: string;
   createdAt: string;
   updatedAt: string;

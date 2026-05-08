@@ -44,8 +44,8 @@ export async function GET() {
     { name: "KV-database",        vars: ["UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"],        required: true },
     { name: "Resend (email)",     vars: ["RESEND_API_KEY", "RESEND_FROM"],                            required: true },
     { name: "Anthropic (Council)",vars: ["ANTHROPIC_API_KEY"],                                        required: true },
-    { name: "GatewayAPI (SMS)",   vars: ["GATEWAYAPI_TOKEN", "GATEWAYAPI_SENDER"],                    required: false },
-    { name: "Admin SMS-modtager", vars: ["ADMIN_PHONE"],                                              required: false },
+    { name: "GatewayAPI (SMS)",   vars: ["GATEWAYAPI_TOKEN", "GATEWAYAPI_SENDER"],                    required: true },
+    { name: "Admin SMS-modtager", vars: ["ADMIN_PHONE"],                                              required: true },
   ];
 
   for (const group of ENV_GROUPS) {

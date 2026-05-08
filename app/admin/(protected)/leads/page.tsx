@@ -583,17 +583,25 @@ export default function LeadsPage() {
                       {lead.contactTitle && <span className="block text-[10px] text-muted opacity-60">{lead.contactTitle}</span>}
                     </td>
                     <td className="px-4 py-3 text-muted truncate max-w-[140px] text-[12px]">
-                      {lead.email || "–"}
-                      {activeTab === "warm" && (
+                      {lead.email
+                        ? lead.email
+                        : lead.smsSentAt
+                        ? <span className="text-purple-300 font-condensed font-bold text-[10px] tracking-[.06em] uppercase">📱 SMS-lead</span>
+                        : "–"}
+                      {lead.status === "Sent" && (
                         <span className="block text-[10px] mt-1">
-                          {lead.emailOpened && <span className="text-green-400 font-bold">✓ Åbnet · </span>}
-                          {lead.followUp2SentAt
-                            ? <span className="text-orange-300">Sidste mail {new Date(lead.followUp2SentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
-                            : lead.followUp1SentAt
-                            ? <span className="text-yellow">Opfølgning {new Date(lead.followUp1SentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
-                            : lead.sentAt
-                            ? <span className="text-muted">Sendt {new Date(lead.sentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
-                            : null}
+                          {lead.smsSentAt
+                            ? <span className="text-purple-300">SMS {new Date(lead.smsSentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                            : <>
+                                {lead.emailOpened && <span className="text-green-400 font-bold">✓ Åbnet · </span>}
+                                {lead.followUp2SentAt
+                                  ? <span className="text-orange-300">F2 {new Date(lead.followUp2SentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                                  : lead.followUp1SentAt
+                                  ? <span className="text-yellow">F1 {new Date(lead.followUp1SentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                                  : lead.sentAt
+                                  ? <span className="text-muted">Mail {new Date(lead.sentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}</span>
+                                  : null}
+                              </>}
                           {lead.phone && <span className="block text-cream/80">{lead.phone}</span>}
                         </span>
                       )}
@@ -812,6 +820,32 @@ export default function LeadsPage() {
                     </div>
                   </div>
                 )}
+              </section>
+            )}
+
+            {/* SMS-lead sektion */}
+            {selectedLead.smsSentAt && (
+              <section className="mb-6 p-5 bg-gray rounded-[2px] border border-[rgba(167,139,250,.25)]">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="font-condensed font-semibold text-[10px] tracking-[.2em] uppercase text-purple-300">📱 SMS sendt</p>
+                  <span className="text-[11px] text-muted font-condensed">
+                    {new Date(selectedLead.smsSentAt).toLocaleString("da-DK", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                {selectedLead.smsBody && (
+                  <div className="p-3 bg-[rgba(167,139,250,.06)] border border-purple-400/20 rounded-[2px] mb-3">
+                    <p className="text-cream text-[13px] leading-[1.6]">{selectedLead.smsBody}</p>
+                    <p className="text-muted text-[10px] mt-2">{selectedLead.smsBody.length} tegn · Sendt til {selectedLead.phone}</p>
+                  </div>
+                )}
+                <div className="p-3 bg-[rgba(251,146,60,.05)] border border-orange-400/20 rounded-[2px]">
+                  <p className="text-orange-200 text-[12px] leading-[1.6] font-condensed">
+                    <span className="font-bold text-orange-300">📞 Næste skridt:</span> Ring til dem! SMS-konvertering er lav — et opkald er 10× mere effektivt.
+                    {selectedLead.phone && (
+                      <a href={`tel:${selectedLead.phone}`} className="ml-2 text-orange-300 font-bold hover:underline">{selectedLead.phone}</a>
+                    )}
+                  </p>
+                </div>
               </section>
             )}
 

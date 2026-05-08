@@ -14,7 +14,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readLeads, writeLeads, appendEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
-import { notifyAdmin } from "@/lib/sms";
+import { notifyAdmin, sendSMS } from "@/lib/sms";
 import { buildEmailHtml, buildEmailText } from "@/lib/email-builder";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
@@ -577,6 +577,84 @@ async function runFollowUpPipeline() {
   return { followUp1Sent, followUp2Sent, autoClosed: toClose.length };
 }
 
+// ── SMS-Outreach (leads med telefon men INGEN email) ─────────────────────────
+//
+//   Dag 0: Kort Sarah-SMS (max 160 tegn) sendes via GatewayAPI
+//   Status sættes til "Sent" og smsSentAt + smsBody gemmes.
+//   Max 15 SMS per kørsel (koster penge — hold det lavt).
+//
+//   Leads vises derefter i "🔥 Ring til dem"-fanen så admin kan følge op pr. telefon.
+
+const SMS_TEMPLATE = (lead: Lead): string => {
+  const greeting = lead.contactName
+    ? `Hej ${lead.contactName.split(" ")[0]}`
+    : `Hej ${lead.companyName.split(" ").slice(0, 3).join(" ")}`;
+
+  // Kortere hilsen hvis firmanavn er langt
+  const safe = greeting.length > 25 ? `Hej` : greeting;
+
+  return `${safe}, Sarah fra KrydsByg. Vi hjælper med rengøring, maling & vedligehold i Storkøbenhavn. Interesseret? krydsbyg.com / ring 42778866`;
+};
+
+async function runSMSOutreachPipeline() {
+  if (!process.env.GATEWAYAPI_TOKEN || !process.env.ADMIN_PHONE) {
+    // Ingen SMS-opsætning — spring over uden fejl
+    return { smsSent: 0, smsSkipped: 0, reason: "GATEWAYAPI_TOKEN eller ADMIN_PHONE mangler" };
+  }
+
+  const allLeads = await readLeads();
+
+  // "New" leads med telefon men ingen email — har ikke fået SMS endnu
+  const toSMS = allLeads
+    .filter(
+      (l) =>
+        l.status === "New" &&
+        l.phone && l.phone.replace(/\D/g, "").length >= 8 &&
+        !l.email &&
+        !l.smsSentAt
+    )
+    .slice(0, 15); // Max 15 pr. kørsel
+
+  if (toSMS.length === 0) {
+    return { smsSent: 0, smsSkipped: 0 };
+  }
+
+  const updatedLeads = [...allLeads];
+  let smsSent = 0;
+
+  for (const lead of toSMS) {
+    try {
+      const body = SMS_TEMPLATE(lead);
+      const result = await sendSMS(lead.phone!, body);
+
+      if (result.ok) {
+        const idx = updatedLeads.findIndex((l) => l.id === lead.id);
+        const ts = new Date().toISOString();
+        if (idx !== -1) {
+          updatedLeads[idx] = {
+            ...updatedLeads[idx],
+            status: "Sent",      // Behandlet — synlig i "Ring"-fanen
+            smsSentAt: ts,
+            smsBody: body,
+            sentAt: ts,          // Brug samme felt til sortering i warm-fanen
+            updatedAt: ts,
+          };
+        }
+        smsSent++;
+      }
+      await new Promise((r) => setTimeout(r, 600)); // Undgå GatewayAPI rate limit
+    } catch (err) {
+      console.error(`[sms-outreach] fejl for lead ${lead.id}:`, err);
+    }
+  }
+
+  if (smsSent > 0) {
+    await writeLeads(updatedLeads);
+  }
+
+  return { smsSent, smsSkipped: toSMS.length - smsSent };
+}
+
 // ── GET — Vercel Cron (kl. 13:00 DK / 11:00 UTC) ────────────────────────
 
 export async function GET(req: Request) {
@@ -588,9 +666,10 @@ export async function GET(req: Request) {
   }
 
   try {
-    const [outreachResult, followUpResult] = await Promise.allSettled([
+    const [outreachResult, followUpResult, smsResult] = await Promise.allSettled([
       runOutreachPipeline(),
       runFollowUpPipeline(),
+      runSMSOutreachPipeline(),
     ]);
 
     const { stats, toProcess, message } =
@@ -602,19 +681,24 @@ export async function GET(req: Request) {
       ? followUpResult.value
       : { followUp1Sent: 0, followUp2Sent: 0, autoClosed: 0 };
 
+    const sms = smsResult.status === "fulfilled"
+      ? smsResult.value
+      : { smsSent: 0, smsSkipped: 0 };
+
     const smsLines = [
       `Hej chef! 🤖 Auto-outreach kl. 13:`,
-      toProcess > 0 ? `✅ ${stats.sent} nye mails sendt` : `📭 Ingen nye leads i dag`,
+      toProcess > 0 ? `✅ ${stats.sent} nye emails sendt` : `📭 Ingen nye email-leads`,
+      sms.smsSent > 0 ? `📱 ${sms.smsSent} SMS sendt (tlf-leads)` : null,
       followUp.followUp1Sent > 0 ? `🔁 ${followUp.followUp1Sent} opfølgning #1 (5d)` : null,
-      followUp.followUp2Sent > 0 ? `🎯 ${followUp.followUp2Sent} sidste mail (14d, m. retainer)` : null,
-      followUp.autoClosed > 0 ? `🗄 ${followUp.autoClosed} lukket auto (ingen svar)` : null,
+      followUp.followUp2Sent > 0 ? `🎯 ${followUp.followUp2Sent} sidste mail (14d)` : null,
+      followUp.autoClosed > 0 ? `🗄 ${followUp.autoClosed} lukket auto` : null,
       stats.lowScore > 0 ? `⏸ ${stats.lowScore} afventer dig (lav score)` : null,
       stats.errors > 0 ? `⚠️ ${stats.errors} fejl — tjek admin` : null,
     ].filter(Boolean).join("\n");
 
     await notifyAdmin(smsLines);
 
-    return NextResponse.json({ ok: true, processed: toProcess, ...followUp, message, ...stats });
+    return NextResponse.json({ ok: true, processed: toProcess, ...followUp, ...sms, message, ...stats });
 
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
