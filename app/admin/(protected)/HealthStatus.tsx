@@ -121,15 +121,16 @@ export default function HealthStatus() {
       const r = await fetch("/api/admin/test-sms", { method: "POST" });
       const d = await r.json();
       if (d.ok) {
-        setSmsResult(`✓ Test-SMS sendt til ${d.sentTo}`);
+        setSmsResult(`✓ SMS sendt → ${d.sentTo} (id: ${d.smsId || "?"})`);
       } else {
-        setSmsResult(`✗ ${d.error}`);
+        const hint = d.hint ? ` · ${d.hint.slice(0, 80)}` : "";
+        setSmsResult(`✗ ${d.error}${hint}`);
       }
     } catch (err) {
       setSmsResult(`✗ Netværksfejl: ${err instanceof Error ? err.message : "ukendt"}`);
     } finally {
       setSmsLoading(false);
-      setTimeout(() => setSmsResult(null), 6000);
+      setTimeout(() => setSmsResult(null), 12000); // 12s — tid nok til at læse fejlbesked
     }
   };
 
