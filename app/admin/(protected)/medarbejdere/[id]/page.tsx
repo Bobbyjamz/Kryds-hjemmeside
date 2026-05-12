@@ -17,6 +17,11 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  // Onboarding-mail state — SKAL stå før early returns (Rules of Hooks)
+  const [onboardingLoading, setOnboardingLoading] = useState<string | null>(null);
+  const [onboardingEditing, setOnboardingEditing] = useState(false);
+  const [editedOnboardingSubject, setEditedOnboardingSubject] = useState("");
+  const [editedOnboardingBody, setEditedOnboardingBody] = useState("");
 
   useEffect(() => {
     fetch(`/api/admin/employees/${id}`)
@@ -52,11 +57,6 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
   };
 
   // ── Onboarding-mail (Sarah skriver, du bekræfter) ──────────────────────
-  const [onboardingLoading, setOnboardingLoading] = useState<string | null>(null);
-  const [onboardingEditing, setOnboardingEditing] = useState(false);
-  const [editedOnboardingSubject, setEditedOnboardingSubject] = useState("");
-  const [editedOnboardingBody, setEditedOnboardingBody] = useState("");
-
   async function generateOnboarding(regenerate = false) {
     if (!employee?.email) { setMessage("Tilføj email først"); return; }
     setOnboardingLoading("generate");
