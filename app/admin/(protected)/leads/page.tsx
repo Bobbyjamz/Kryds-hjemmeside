@@ -174,6 +174,42 @@ export default function LeadsPage() {
   const [enrichResult, setEnrichResult] = useState<{ enriched: number; guessed: number; failed: number; remaining: number; hasHunter: boolean; hasApollo: boolean } | null>(null);
   const [enrichLoading, setEnrichLoading] = useState(false);
 
+  // Bulk-firma-søgning (paste navne, få info hentet)
+  const [bulkSearchOpen, setBulkSearchOpen] = useState(false);
+  const [bulkSearchInput, setBulkSearchInput] = useState("");
+  const [bulkSearchType, setBulkSearchType] = useState<LeadType>("company");
+  const [bulkSearchService, setBulkSearchService] = useState("");
+  const [bulkSearchLoading, setBulkSearchLoading] = useState(false);
+  const [bulkSearchResult, setBulkSearchResult] = useState<{ added: number; withEmail: number; withoutEmail: number; failed: number; skipped: number } | null>(null);
+
+  async function runBulkSearch() {
+    const names = bulkSearchInput.split(/[\n,;]/).map((s) => s.trim()).filter((s) => s.length >= 3);
+    if (names.length === 0) { alert("Indtast firmanavne (én pr. linje eller komma-adskilt)"); return; }
+    if (names.length > 50) { alert("Max 50 firmanavne pr. søgning"); return; }
+    if (!confirm(`Søg efter ${names.length} firmaer? Tager ~${Math.ceil(names.length * 2 / 60)} minut${names.length > 30 ? "ter" : ""}.`)) return;
+
+    setBulkSearchLoading(true);
+    setBulkSearchResult(null);
+    try {
+      const r = await fetch("/api/admin/leads/bulk-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ names, leadType: bulkSearchType, serviceType: bulkSearchService || undefined }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        setBulkSearchResult({ added: d.added, withEmail: d.withEmail, withoutEmail: d.withoutEmail, failed: d.failed, skipped: d.skipped });
+        await fetchLeads();
+        setBulkSearchInput("");
+      } else {
+        alert(`Fejl: ${d.error}`);
+      }
+    } catch {
+      alert("Netværksfejl");
+    }
+    setBulkSearchLoading(false);
+  }
+
   async function enrichEmails() {
     const noEmail = leads.filter((l) => !l.email && l.status === "New");
     if (noEmail.length === 0) { alert("Alle New leads har allerede email"); return; }
@@ -400,6 +436,12 @@ export default function LeadsPage() {
             className="border border-[rgba(242,238,230,.2)] text-cream font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-5 py-3 hover:border-yellow hover:text-yellow transition-colors"
           >
             Upload Excel
+          </button>
+          <button
+            onClick={() => { setBulkSearchOpen(true); setBulkSearchResult(null); }}
+            className="border border-yellow/40 text-yellow font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-5 py-3 hover:bg-yellow/10 transition-colors"
+          >
+            🔍 Bulk-søg firmaer
           </button>
           <button
             onClick={enrichEmails}
@@ -1415,6 +1457,93 @@ export default function LeadsPage() {
                 Annuller
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk-søg firmaer modal */}
+      {bulkSearchOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(12,12,10,.88)" }} onClick={() => setBulkSearchOpen(false)}>
+          <div className="bg-gray border border-yellow/30 rounded-[2px] w-full max-w-[640px] p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="font-condensed font-semibold text-[10px] tracking-[.22em] uppercase text-yellow mb-1">Bulk-søgning</p>
+                <h2 className="font-condensed font-black text-[20px] uppercase text-cream">Find firmaer via navn</h2>
+              </div>
+              <button onClick={() => setBulkSearchOpen(false)} className="text-muted hover:text-cream text-[20px] leading-none">✕</button>
+            </div>
+
+            <div className="mb-4 p-3 bg-yellow/[.06] border border-yellow/20 rounded-[2px]">
+              <p className="text-cream/80 text-[12px] leading-[1.6]">
+                Paste en liste af firmanavne (én pr. linje eller komma-adskilt). Systemet søger på OpenStreetMap +
+                website-scraper og opretter dem som leads med email/telefon/website hvor muligt.
+                <br/><br/>
+                <span className="text-yellow">Max 50 navne pr. søgning. ~2 sek pr. firma.</span>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">Type</label>
+                <select
+                  value={bulkSearchType}
+                  onChange={(e) => setBulkSearchType(e.target.value as LeadType)}
+                  className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow"
+                >
+                  <option value="company">🏢 Virksomhed</option>
+                  <option value="private">🏠 Privat</option>
+                  <option value="employee">👷 Medarbejder</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-condensed text-[10px] tracking-[.15em] uppercase text-muted mb-1">Service-type (valgfri)</label>
+                <input
+                  value={bulkSearchService}
+                  onChange={(e) => setBulkSearchService(e.target.value)}
+                  placeholder="fx Malerarbejde"
+                  className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow"
+                />
+              </div>
+            </div>
+
+            <textarea
+              value={bulkSearchInput}
+              onChange={(e) => setBulkSearchInput(e.target.value)}
+              rows={10}
+              placeholder={"AlbertsenFarver ApS\nMalerfirmaet Hansen\nPedersen Byg\n..."}
+              className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow resize-y mb-3 font-mono"
+            />
+
+            <p className="text-[11px] text-muted mb-3">
+              {bulkSearchInput.split(/[\n,;]/).filter((s) => s.trim().length >= 3).length} navne klar
+            </p>
+
+            <div className="flex gap-3 mb-3">
+              <button
+                onClick={runBulkSearch}
+                disabled={bulkSearchLoading || bulkSearchInput.trim().length < 3}
+                className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.08em] uppercase px-6 py-3 hover:bg-yellow2 disabled:opacity-50"
+              >
+                {bulkSearchLoading ? "Søger... (kan tage flere min)" : "🔍 Søg & opret leads"}
+              </button>
+              <button onClick={() => setBulkSearchOpen(false)} className="border border-[rgba(242,238,230,.15)] text-muted font-condensed font-bold text-[12px] uppercase px-5 py-3 hover:text-cream">
+                Annuller
+              </button>
+            </div>
+
+            {bulkSearchResult && (
+              <div className="p-3 rounded-[2px] border border-green-400/30 bg-green-400/[.05]">
+                <p className="text-cream text-[13px] leading-[1.6]">
+                  <span className="text-green-400 font-bold">✓ {bulkSearchResult.added} leads oprettet</span>
+                  {" — "}
+                  <span className="text-green-300">{bulkSearchResult.withEmail} med email</span>
+                  {" · "}
+                  <span className="text-yellow">{bulkSearchResult.withoutEmail} uden email (SMS-kandidater)</span>
+                  {bulkSearchResult.skipped > 0 && <> · <span className="text-muted">{bulkSearchResult.skipped} dubletter sprunget over</span></>}
+                  {bulkSearchResult.failed > 0 && <> · <span className="text-red-400">{bulkSearchResult.failed} fejlede</span></>}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

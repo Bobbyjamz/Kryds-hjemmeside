@@ -1,5 +1,5 @@
 import { fetchCVRLeads } from "./sources/cvr";
-import { fetchVirkCVRLeads } from "./sources/cvr-virk";
+import { fetchOSMLeads } from "./sources/osm";
 import { fetchGooglePlacesLeads } from "./sources/google-places";
 import { fetchPrivateLeads } from "./sources/private";
 import { fetchEmployeeLeads } from "./sources/employees";
@@ -48,7 +48,7 @@ export async function runLeadFinder(): Promise<RunResult> {
   // ── Kør ALLE 12 kilder parallelt ─────────────────────────────────────────
   const [
     cvrResults,
-    virkResults,
+    osmResults,
     googleResults,
     privateResults,
     employeeResults,
@@ -61,7 +61,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     directoryResults,
   ] = await Promise.allSettled([
     fetchCVRLeads(dayOfYear, weights),
-    fetchVirkCVRLeads(dayOfYear),       // ★ NEW: Officiel CVR API m. emails
+    fetchOSMLeads(dayOfYear),           // ★ NEW: OpenStreetMap m. emails (gratis, ingen login)
     fetchGooglePlacesLeads(dayOfYear),
     fetchPrivateLeads(dayOfYear),
     fetchEmployeeLeads(dayOfYear),
@@ -100,7 +100,7 @@ export async function runLeadFinder(): Promise<RunResult> {
   };
 
   buildDiag("CVR (3.part)", cvrResults, arrCount);
-  buildDiag("CVR Virk (officiel)", virkResults, arrCount);
+  buildDiag("OpenStreetMap", osmResults, arrCount);
   buildDiag("Google Places", googleResults, arrCount);
   buildDiag("Boligsiden+Andelsguide", privateResults, arrCount);
   buildDiag("Jobindex+Workindenmark", employeeResults, arrCount);
@@ -131,7 +131,7 @@ export async function runLeadFinder(): Promise<RunResult> {
   // ── Saml rådata per kategori ──────────────────────────────────────────────
   const companyRaw: LeadCandidate[] = [
     ...(cvrResults.status === "fulfilled" ? cvrResults.value : []),
-    ...(virkResults.status === "fulfilled" ? virkResults.value : []),  // ★ Officiel CVR
+    ...(osmResults.status === "fulfilled" ? osmResults.value : []),    // ★ OSM m. emails
     ...(googleResults.status === "fulfilled"
       ? googleResults.value.map((c) => ({ ...c, leadType: "company" as const }))
       : []),
