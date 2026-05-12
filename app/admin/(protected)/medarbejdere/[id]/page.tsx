@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { TRADES } from "@/lib/constants";
 import type { Employee } from "@/lib/types";
 
-const STATUSES = ["LEDIG", "UDSENDT", "INAKTIV"] as const;
+const STATUSES = ["LEDIG", "UDSENDT", "INAKTIV", "AFVENTER_BEKRÆFTELSE"] as const;
 const TYPES = ["MEDARBEJDER", "KOORDINATOR"] as const;
 
 export default function EmployeeDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -50,6 +50,63 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
     const res = await fetch(`/api/admin/employees/${id}`, { method: "DELETE" });
     if (res.ok) router.push("/admin/medarbejdere");
   };
+
+  // ── Onboarding-mail (Sarah skriver, du bekræfter) ──────────────────────
+  const [onboardingLoading, setOnboardingLoading] = useState<string | null>(null);
+  const [onboardingEditing, setOnboardingEditing] = useState(false);
+  const [editedOnboardingSubject, setEditedOnboardingSubject] = useState("");
+  const [editedOnboardingBody, setEditedOnboardingBody] = useState("");
+
+  async function generateOnboarding(regenerate = false) {
+    if (!employee?.email) { setMessage("Tilføj email først"); return; }
+    setOnboardingLoading("generate");
+    try {
+      const r = await fetch("/api/admin/employees/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: id, regenerate }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        setEmployee({ ...employee, onboardingDraftSubject: d.subject, onboardingDraftBody: d.body, onboardingDraftCreatedAt: new Date().toISOString() });
+        setMessage("Udkast genereret — gennemse og bekræft inden afsendelse");
+      } else {
+        setMessage(`Fejl: ${d.error}`);
+      }
+    } catch {
+      setMessage("Netværksfejl");
+    }
+    setOnboardingLoading(null);
+  }
+
+  async function patchOnboarding(action: string, extras?: Record<string, string>) {
+    setOnboardingLoading(action);
+    try {
+      const r = await fetch("/api/admin/employees/onboarding", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ employeeId: id, action, ...extras }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        // Refresh employee
+        const er = await fetch(`/api/admin/employees/${id}`);
+        if (er.ok) {
+          const { employee: fresh } = await er.json();
+          setEmployee(fresh);
+        }
+        if (action === "send") setMessage("✓ Onboarding-mail sendt!");
+        else if (action === "approve") setMessage("Godkendt — klar til afsendelse");
+        else if (action === "reject") setMessage("Udkast slettet");
+        else if (action === "edit") { setMessage("Ændringer gemt"); setOnboardingEditing(false); }
+      } else {
+        setMessage(`Fejl: ${d.error}`);
+      }
+    } catch {
+      setMessage("Netværksfejl");
+    }
+    setOnboardingLoading(null);
+  }
 
   const confirmEmployee = async () => {
     if (!employee.email) {
@@ -153,6 +210,125 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
               </button>
             </div>
           </div>
+
+          {/* ── Onboarding-mail (Sarah) ──────────────────────────────── */}
+          {employee.email && (
+            <div className="mb-6 p-4 rounded-[2px] border border-[rgba(251,146,60,.25)] bg-[rgba(251,146,60,.04)]">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <p className="font-condensed font-bold text-[11px] tracking-[.15em] uppercase text-orange-300">
+                  ✉ Onboarding-mail
+                </p>
+                {employee.onboardingSentAt ? (
+                  <span className="text-[11px] text-green-400 font-condensed font-bold">
+                    ✓ Sendt {new Date(employee.onboardingSentAt).toLocaleDateString("da-DK", { day: "2-digit", month: "2-digit" })}
+                  </span>
+                ) : employee.onboardingApprovedAt ? (
+                  <span className="text-[11px] text-yellow font-condensed font-bold">Godkendt — klar til afsendelse</span>
+                ) : employee.onboardingDraftBody ? (
+                  <span className="text-[11px] text-orange-300 font-condensed font-bold">Udkast klar — gennemse og bekræft</span>
+                ) : (
+                  <span className="text-[11px] text-muted font-condensed">Intet udkast endnu</span>
+                )}
+              </div>
+
+              {!employee.onboardingDraftBody && !employee.onboardingSentAt && (
+                <button
+                  onClick={() => generateOnboarding(false)}
+                  disabled={!!onboardingLoading}
+                  className="bg-[rgba(251,146,60,.15)] text-orange-300 border border-orange-400/30 font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-5 py-2 rounded-[2px] hover:bg-[rgba(251,146,60,.25)] transition-colors disabled:opacity-50"
+                >
+                  {onboardingLoading === "generate" ? "Sarah skriver..." : "✍ Sarah skriver udkast"}
+                </button>
+              )}
+
+              {employee.onboardingDraftBody && !employee.onboardingSentAt && (
+                <>
+                  {onboardingEditing ? (
+                    <>
+                      <input
+                        value={editedOnboardingSubject}
+                        onChange={(e) => setEditedOnboardingSubject(e.target.value)}
+                        className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow mb-2"
+                        placeholder="Emne"
+                      />
+                      <textarea
+                        value={editedOnboardingBody}
+                        onChange={(e) => setEditedOnboardingBody(e.target.value)}
+                        rows={10}
+                        className="w-full bg-black border border-[rgba(242,238,230,.12)] text-cream text-[13px] px-3 py-2 rounded-[2px] outline-none focus:border-yellow resize-y mb-2"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => patchOnboarding("edit", { editedSubject: editedOnboardingSubject, editedBody: editedOnboardingBody })}
+                          disabled={!!onboardingLoading}
+                          className="bg-yellow text-black font-condensed font-extrabold text-[11px] tracking-[.08em] uppercase px-4 py-2 rounded-[2px] hover:bg-yellow2"
+                        >
+                          {onboardingLoading === "edit" ? "Gemmer..." : "Gem ændringer"}
+                        </button>
+                        <button onClick={() => setOnboardingEditing(false)} className="border border-[rgba(242,238,230,.12)] text-muted font-condensed font-bold text-[11px] uppercase px-3 py-2 hover:text-cream">
+                          Annuller
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-3 p-3 bg-black/40 border border-[rgba(242,238,230,.06)] rounded-[2px]">
+                        <p className="text-muted text-[10px] font-condensed tracking-[.1em] uppercase mb-1">Emne</p>
+                        <p className="text-cream text-[14px] font-semibold mb-3">{employee.onboardingDraftSubject}</p>
+                        <p className="text-muted text-[10px] font-condensed tracking-[.1em] uppercase mb-1">Besked</p>
+                        <p className="text-cream text-[13px] leading-[1.7] whitespace-pre-wrap">{employee.onboardingDraftBody}</p>
+                      </div>
+
+                      <div className="flex gap-2 flex-wrap">
+                        {!employee.onboardingApprovedAt && (
+                          <button
+                            onClick={() => patchOnboarding("approve")}
+                            disabled={!!onboardingLoading}
+                            className="bg-[rgba(74,222,128,.15)] text-green-300 border border-green-400/30 font-condensed font-bold text-[11px] tracking-[.08em] uppercase px-4 py-2 rounded-[2px] hover:bg-[rgba(74,222,128,.25)] disabled:opacity-50"
+                          >
+                            Godkend ✓
+                          </button>
+                        )}
+                        {employee.onboardingApprovedAt && (
+                          <button
+                            onClick={() => patchOnboarding("send")}
+                            disabled={!!onboardingLoading}
+                            className="bg-[rgba(34,197,94,.15)] text-green-300 border border-green-400/30 font-condensed font-bold text-[11px] tracking-[.08em] uppercase px-4 py-2 rounded-[2px] hover:bg-[rgba(34,197,94,.25)] disabled:opacity-50"
+                          >
+                            {onboardingLoading === "send" ? "Sender..." : "Send ✉"}
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setEditedOnboardingSubject(employee.onboardingDraftSubject || "");
+                            setEditedOnboardingBody(employee.onboardingDraftBody || "");
+                            setOnboardingEditing(true);
+                          }}
+                          className="border border-[rgba(242,238,230,.12)] text-muted font-condensed font-bold text-[11px] tracking-[.08em] uppercase px-3 py-2 rounded-[2px] hover:text-cream"
+                        >
+                          Rediger
+                        </button>
+                        <button
+                          onClick={() => generateOnboarding(true)}
+                          disabled={!!onboardingLoading}
+                          className="border border-[rgba(251,146,60,.3)] text-orange-300 font-condensed font-bold text-[11px] tracking-[.08em] uppercase px-3 py-2 rounded-[2px] hover:border-orange-300 disabled:opacity-50"
+                        >
+                          {onboardingLoading === "generate" ? "..." : "Regenerer"}
+                        </button>
+                        <button
+                          onClick={() => patchOnboarding("reject")}
+                          disabled={!!onboardingLoading}
+                          className="border border-red-400/30 text-red-300 font-condensed font-bold text-[11px] tracking-[.08em] uppercase px-3 py-2 rounded-[2px] hover:border-red-300 disabled:opacity-50"
+                        >
+                          Slet udkast
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4 mb-4 max-[700px]:grid-cols-1">
             <div>

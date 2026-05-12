@@ -44,6 +44,15 @@ export interface Employee {
   preferredAreas?: string[];
   salaryExpectation?: number;
   bio?: string;
+  // Onboarding-mail (Sarah skriver, admin bekræfter inden afsendelse)
+  onboardingDraftSubject?: string;
+  onboardingDraftBody?: string;
+  onboardingDraftCreatedAt?: string;
+  onboardingApprovedAt?: string;
+  onboardingSentAt?: string;
+  // Vagt-historik
+  completedShifts?: number;        // Antal vagter fuldført (til performance-tracking)
+  rating?: number;                  // 1-5 baseret på admin-vurdering efter vagter
 }
 
 export interface Shift {

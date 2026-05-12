@@ -114,6 +114,29 @@ export default function MedarbejdereListPage() {
     else alert("Kunne ikke aktivere medarbejder");
   }
 
+  // Bulk-generér onboarding-udkast for alle Afventer-medarbejdere
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<string | null>(null);
+
+  async function bulkGenerateOnboarding() {
+    setBulkLoading(true);
+    setBulkResult(null);
+    try {
+      const r = await fetch("/api/admin/employees/onboarding", { method: "PUT" });
+      const d = await r.json();
+      if (d.ok) {
+        setBulkResult(`✓ ${d.generated} udkast genereret — gå ind på hver medarbejder og bekræft afsendelse`);
+        await load();
+      } else {
+        setBulkResult(`Fejl: ${d.error || "ukendt"}`);
+      }
+    } catch {
+      setBulkResult("Netværksfejl");
+    }
+    setBulkLoading(false);
+    setTimeout(() => setBulkResult(null), 12000);
+  }
+
   const filtered = employees.filter((e) => {
     if (tradeFilter !== "ALL" && e.trade !== tradeFilter) return false;
     if (statusFilter !== "ALL" && e.status !== statusFilter) return false;
@@ -179,16 +202,38 @@ export default function MedarbejdereListPage() {
       )}
 
       {/* Afventer-bekræftelse banner */}
-      {!loading && employees.filter((e) => e.status === "AFVENTER_BEKRÆFTELSE").length > 0 && (
-        <div className="mb-6 p-4 rounded-[2px] border border-orange-400/30 bg-orange-400/5">
-          <p className="text-orange-200 text-[12px] leading-[1.6]">
-            <span className="font-condensed font-bold text-[11px] tracking-[.1em] uppercase text-orange-300">⚠ Afventer bekræftelse</span>
-            <br />
-            {employees.filter((e) => e.status === "AFVENTER_BEKRÆFTELSE").length} medarbejdere er importeret men har ikke accepteret kontrakten endnu.
-            Send dem et link til <code className="text-orange-300">krydsbyg.com/tilmeld</code> så de kan udfylde resten af profilen, eller aktiver manuelt fra detalje-siden.
-          </p>
-        </div>
-      )}
+      {!loading && (() => {
+        const afventer = employees.filter((e) => e.status === "AFVENTER_BEKRÆFTELSE");
+        const utenUdkast = afventer.filter((e) => e.email && !e.onboardingDraftBody && !e.onboardingSentAt);
+        if (afventer.length === 0) return null;
+        return (
+          <div className="mb-6 p-4 rounded-[2px] border border-orange-400/30 bg-orange-400/5">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex-1 min-w-[260px]">
+                <p className="font-condensed font-bold text-[11px] tracking-[.1em] uppercase text-orange-300 mb-2">
+                  ⚠ {afventer.length} medarbejder{afventer.length === 1 ? "" : "e"} afventer bekræftelse
+                </p>
+                <p className="text-orange-200 text-[12px] leading-[1.6]">
+                  Sarah kan skrive personlige onboarding-mails som du bekræfter inden afsendelse.
+                  {utenUdkast.length > 0 && <span className="block mt-1 text-orange-300 font-bold">→ {utenUdkast.length} mangler udkast lige nu</span>}
+                </p>
+              </div>
+              {utenUdkast.length > 0 && (
+                <button
+                  onClick={bulkGenerateOnboarding}
+                  disabled={bulkLoading}
+                  className="bg-orange-400 text-black font-condensed font-extrabold text-[11px] tracking-[.1em] uppercase px-4 py-2 rounded-[2px] hover:bg-orange-300 disabled:opacity-50"
+                >
+                  {bulkLoading ? "Sarah skriver..." : `✍ Lav udkast til ${Math.min(utenUdkast.length, 15)}`}
+                </button>
+              )}
+            </div>
+            {bulkResult && (
+              <p className={`mt-3 text-[12px] font-condensed ${bulkResult.startsWith("✓") ? "text-green-400" : "text-red-400"}`}>{bulkResult}</p>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="flex gap-3 mb-6 flex-wrap max-[500px]:flex-col">
         <input
