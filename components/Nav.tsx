@@ -169,69 +169,74 @@ export default function Nav() {
         </ul>
       </nav>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile menu overlay — kun synlig på mobil (≤900px). Desktop er urørt. */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-[490] flex-col justify-center items-start px-8 gap-6 hidden max-[900px]:flex"
+          className="fixed inset-0 z-[490] flex-col justify-start items-stretch px-7 hidden max-[900px]:flex overflow-y-auto"
           style={{
-            paddingTop: scrolled ? 54 : 66,
+            paddingTop: (scrolled ? 54 : 66) + 32,
+            paddingBottom: 32,
             background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
           }}
         >
-          {/* Tilbage-til-forsiden cirkelknap — kun vist på undersider */}
-          {!isHome && (
-            <button
-              onClick={() => { closeMenu(); window.location.href = "/"; }}
-              aria-label="Tilbage til forsiden"
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 hover:shadow-[0_0_0_2px_#F5C400] mb-2"
-              style={{ background: "#111", border: "1px solid rgba(242,238,230,0.2)" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5C400" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-              </svg>
-            </button>
-          )}
-          {[
-            { href: "/",                label: t("nav_forside") },
-            { href: "/ydelser",         label: t("nav_ydelser") },
-            { href: "/priser",          label: t("nav_priser") },
-            { href: "/om-os",           label: t("nav_om_os") },
-            { href: "/#contract",       label: t("nav_kontakt") },
-            { href: "/tilmeld",         label: t("nav_tilmeld") },
-            { href: "/medarbejder/login", label: t("nav_medarbejder_login") },
-          ].map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              onClick={closeMenu}
-              className="font-condensed font-extrabold text-[28px] uppercase tracking-[-.01em] text-cream no-underline transition-colors hover:text-yellow leading-none"
-            >
-              {label}
-            </a>
-          ))}
+          {/* Samme links som desktop — i samme rækkefølge */}
+          <nav className="flex flex-col gap-5">
+            {[
+              { href: "/",                       label: t("nav_forside") },
+              { href: "/ydelser",                label: t("nav_ydelser") },
+              { href: "/priser",                 label: t("nav_priser") },
+              { href: "/om-os",                  label: t("nav_om_os") },
+              { href: "/medarbejder/registrer",  label: lang === "da" ? "Bliv medarbejder" : "Join us" },
+            ].map(({ href, label }) => {
+              const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={closeMenu}
+                  className={`font-condensed font-extrabold text-[26px] uppercase tracking-[-.005em] no-underline leading-none transition-colors ${
+                    active ? "text-yellow" : "text-cream hover:text-yellow"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
 
-          {/* Theme + Language toggles in mobile menu */}
-          <div className="flex items-center gap-3 mt-4">
+          {/* Kontakt CTA — samme gule knap-stil som desktop */}
+          <a
+            href={isHome ? "#contract" : "/#contract"}
+            onClick={(e) => { closeMenu(); if (isHome) handleBookNow(e); }}
+            className="mt-7 font-condensed font-extrabold text-[15px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-3 rounded-none no-underline transition-colors hover:bg-yellow2 self-start"
+          >
+            {t("nav_kontakt")}
+          </a>
+
+          {/* Theme + Language — kompakt, ligesom desktop-toggles */}
+          <div className="flex items-center gap-2 mt-7">
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 font-condensed font-bold text-[13px] tracking-[.1em] uppercase text-muted border border-[rgba(242,238,230,.15)] rounded-full px-4 py-2 hover:border-yellow hover:text-yellow transition-all"
+              aria-label={theme === "dark" ? t("nav_theme_to_light") : t("nav_theme_to_dark")}
+              className="flex items-center gap-[6px] font-condensed font-bold text-[11px] tracking-[.1em] uppercase text-muted hover:text-yellow border border-[rgba(242,238,230,.15)] hover:border-yellow/40 rounded-full px-3 py-[6px] transition-all"
             >
-              {theme === "dark" ? <><SunIcon /><span>{t("nav_theme_light")}</span></> : <><MoonIcon /><span>{t("nav_theme_dark")}</span></>}
+              {theme === "dark" ? <SunIcon /> : <MoonIcon />}
             </button>
             <button
               onClick={toggleLang}
-              className="font-condensed font-bold text-[13px] tracking-[.12em] uppercase text-muted border border-[rgba(242,238,230,.15)] rounded-[2px] px-4 py-2 hover:border-yellow hover:text-yellow transition-all"
+              aria-label={lang === "da" ? "Switch to English" : "Skift til dansk"}
+              className="font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-muted hover:text-yellow border border-[rgba(242,238,230,.15)] hover:border-yellow/40 rounded-[2px] px-3 py-[6px] transition-all min-w-[36px] text-center"
             >
-              {lang === "da" ? t("nav_lang_label_en") : t("nav_lang_label_da")}
+              {lang === "da" ? "EN" : "DA"}
             </button>
           </div>
 
-          <div className="mt-4 border-t border-[rgba(242,238,230,0.07)] pt-5 w-full">
-            <a href="tel:+4542778866" className="text-[15px] text-muted no-underline hover:text-cream transition-colors block mb-1">
+          {/* Direkte-kontakt nederst — diskret, ikke i fokus */}
+          <div className="mt-auto pt-8 border-t border-[rgba(242,238,230,0.07)] flex flex-col gap-1">
+            <a href="tel:+4542778866" className="text-[14px] text-muted no-underline hover:text-cream transition-colors">
               +45 42 77 88 66
             </a>
-            <a href="mailto:Kontakt@KrydsByg.com" className="text-[14px] text-muted no-underline hover:text-cream transition-colors">
+            <a href="mailto:Kontakt@KrydsByg.com" className="text-[13px] text-muted no-underline hover:text-cream transition-colors">
               Kontakt@KrydsByg.com
             </a>
           </div>
