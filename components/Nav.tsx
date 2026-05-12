@@ -89,6 +89,19 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Auto-luk mobilmenu når brugeren navigerer (Link skifter pathname)
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  // Lås body-scroll når menu er åben — så swipe/tap ikke konkurrerer med side-scroll
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [menuOpen]);
+
   const closeMenu = () => setMenuOpen(false);
 
   /* ── Swipe-right to close ── */
@@ -171,11 +184,13 @@ export default function Nav() {
             <button
               aria-label={menuOpen ? t("nav_menu_close") : t("nav_menu_open")}
               onClick={() => setMenuOpen((v) => !v)}
-              className="flex flex-col justify-center gap-[5px] w-[28px] h-[28px] bg-transparent border-none cursor-pointer p-0"
+              className="relative flex items-center justify-center w-11 h-11 bg-transparent border-none cursor-pointer p-0 z-[501]"
             >
-              <span className="block h-[2px] bg-cream rounded-full transition-all duration-300" style={menuOpen ? { transform: "translateY(7px) rotate(45deg)" } : {}} />
-              <span className="block h-[2px] bg-cream rounded-full transition-all duration-300" style={menuOpen ? { opacity: 0 } : {}} />
-              <span className="block h-[2px] bg-cream rounded-full transition-all duration-300" style={menuOpen ? { transform: "translateY(-7px) rotate(-45deg)" } : {}} />
+              <div className="flex flex-col justify-center gap-[5px] w-[28px] h-[28px]">
+                <span className="block h-[2px] bg-cream rounded-full transition-all duration-300" style={menuOpen ? { transform: "translateY(7px) rotate(45deg)" } : {}} />
+                <span className="block h-[2px] bg-cream rounded-full transition-all duration-300" style={menuOpen ? { opacity: 0 } : {}} />
+                <span className="block h-[2px] bg-cream rounded-full transition-all duration-300" style={menuOpen ? { transform: "translateY(-7px) rotate(-45deg)" } : {}} />
+              </div>
             </button>
           </li>
         </ul>
@@ -193,19 +208,8 @@ export default function Nav() {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* X luk-knap — øverst til højre */}
-          <div className="flex justify-end mb-5">
-            <button
-              onClick={closeMenu}
-              aria-label="Luk menu"
-              className="flex items-center justify-center w-10 h-10 rounded-full border border-[rgba(242,238,230,.12)] text-muted hover:text-cream hover:border-[rgba(242,238,230,.3)] transition-all"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
+          {/* Hamburger-knappen i nav'en bliver til X når menuOpen=true.
+              Den ligger ovenpå (z-501) og er den ENESTE luk-knap — én konsistent X. */}
 
           {/* Samme links som desktop — i samme rækkefølge */}
           <nav className="flex flex-col gap-5">
@@ -221,8 +225,7 @@ export default function Nav() {
                 <Link
                   key={href}
                   href={href}
-                  onClick={closeMenu}
-                  className={`font-condensed font-extrabold text-[26px] uppercase tracking-[-.005em] no-underline leading-none transition-colors ${
+                  className={`block py-2 font-condensed font-extrabold text-[26px] uppercase tracking-[-.005em] no-underline leading-none transition-colors ${
                     active ? "text-yellow" : "text-cream hover:text-yellow"
                   }`}
                 >
