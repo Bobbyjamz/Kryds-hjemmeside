@@ -36,6 +36,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     "references",
     "status",
     "employeeType",
+    "acceptedTerms",       // Admin-aktivering: bekræft manuelt
+    "acceptedAt",
+    "contractVersion",
   ];
   const filtered: Record<string, unknown> = {};
   for (const key of allowed) {

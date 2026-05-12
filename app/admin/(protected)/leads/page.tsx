@@ -170,6 +170,29 @@ export default function LeadsPage() {
     setActionLoading(null);
   }
 
+  // Konverter employee-lead → medarbejder i medarbejder-databasen
+  async function convertToEmployee(leadId: string) {
+    if (!confirm("Konverter dette lead til medarbejder? De får status 'Afventer bekræftelse' indtil kontrakt accepteres.")) return;
+    setActionLoading(leadId + "-convert");
+    try {
+      const r = await fetch("/api/admin/employees/from-lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ leadId }),
+      });
+      const d = await r.json();
+      if (d.ok) {
+        alert(`✓ ${d.employee.name} oprettet som medarbejder. Send dem /tilmeld link så de kan acceptere kontrakten.`);
+        await fetchLeads();
+      } else {
+        alert(`Fejl: ${d.error}`);
+      }
+    } catch {
+      alert("Netværksfejl");
+    }
+    setActionLoading(null);
+  }
+
   function openLeadEdit(lead: Lead) {
     setLeadEdit({
       companyName: lead.companyName || "",
@@ -650,8 +673,8 @@ export default function LeadsPage() {
                         </button>
                         <button
                           onClick={() => runSarah(lead.id, !!lead.draftBody)}
-                          disabled={!!actionLoading || !lead.councilAnalysis}
-                          title="Sarah skriver udkast"
+                          disabled={!!actionLoading || (lead.leadType !== "employee" && !lead.councilAnalysis)}
+                          title={lead.leadType === "employee" ? "Sarah skriver onboarding-mail" : "Sarah skriver udkast"}
                           className="text-orange-300 hover:text-orange-200 border border-[rgba(251,146,60,.2)] hover:border-orange-300 font-condensed text-[10px] tracking-[.1em] uppercase px-2 py-[4px] transition-colors disabled:opacity-30"
                         >
                           {isLoading("sarah") ? "..." : "Sarah ✍"}
@@ -700,6 +723,28 @@ export default function LeadsPage() {
               </div>
               <button onClick={() => setSelectedLead(null)} className="text-muted hover:text-cream text-[22px] leading-none flex-shrink-0 ml-4">✕</button>
             </div>
+
+            {/* Employee-lead bekræftelses-banner */}
+            {selectedLead.leadType === "employee" && selectedLead.status !== "Approved" && (
+              <section className="mb-6 p-4 rounded-[2px] border border-yellow/40 bg-yellow/[.06]">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex-1 min-w-[200px]">
+                    <p className="font-condensed font-bold text-[11px] tracking-[.12em] uppercase text-yellow mb-1">👷 Medarbejder-lead</p>
+                    <p className="text-cream text-[12px] leading-[1.5]">
+                      Konverter til medarbejder-databasen, eller lad Sarah skrive en onboarding-mail som du bekræfter inden afsendelse.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => convertToEmployee(selectedLead.id)}
+                    disabled={!!actionLoading || !selectedLead.phone}
+                    title={!selectedLead.phone ? "Mangler telefonnummer" : "Opret som medarbejder"}
+                    className="bg-yellow text-black font-condensed font-extrabold text-[11px] tracking-[.1em] uppercase px-4 py-2 rounded-[2px] hover:bg-yellow2 transition-colors disabled:opacity-40"
+                  >
+                    {actionLoading === selectedLead.id + "-convert" ? "Konverterer..." : "→ Bliv medarbejder"}
+                  </button>
+                </div>
+              </section>
+            )}
 
             {/* Lead info */}
             <section className="mb-6 p-5 bg-gray rounded-[2px] border border-[rgba(242,238,230,0.07)]">
@@ -1064,14 +1109,16 @@ export default function LeadsPage() {
 
             {/* Action buttons */}
             <div className="flex gap-2 flex-wrap">
-              {!selectedLead.councilAnalysis && (
+              {/* Council kræves kun for company/private leads — ikke for medarbejder */}
+              {!selectedLead.councilAnalysis && selectedLead.leadType !== "employee" && (
                 <button onClick={() => runCouncil(selectedLead.id)} disabled={!!actionLoading} className="bg-[rgba(96,165,250,.12)] text-blue-300 border border-blue-400/30 font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-5 py-2 hover:bg-[rgba(96,165,250,.2)] transition-colors disabled:opacity-40">
                   {actionLoading === selectedLead.id + "-council" ? "Analyserer..." : "Kør Council ▶"}
                 </button>
               )}
-              {selectedLead.councilAnalysis && !selectedLead.draftBody && (
+              {/* Sarah: enten kør med Council, eller direkte for employee-leads */}
+              {!selectedLead.draftBody && (selectedLead.councilAnalysis || selectedLead.leadType === "employee") && (
                 <button onClick={() => runSarah(selectedLead.id)} disabled={!!actionLoading} className="bg-[rgba(251,146,60,.12)] text-orange-300 border border-orange-400/30 font-condensed font-bold text-[12px] tracking-[.08em] uppercase px-5 py-2 hover:bg-[rgba(251,146,60,.2)] transition-colors disabled:opacity-40">
-                  {actionLoading === selectedLead.id + "-sarah" ? "Skriver..." : "Skriv udkast (Sarah) ✍"}
+                  {actionLoading === selectedLead.id + "-sarah" ? "Skriver..." : selectedLead.leadType === "employee" ? "Skriv onboarding-mail (Sarah) ✍" : "Skriv udkast (Sarah) ✍"}
                 </button>
               )}
             </div>

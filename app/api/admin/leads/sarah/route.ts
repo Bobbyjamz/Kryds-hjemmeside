@@ -13,6 +13,44 @@ async function isAdmin() {
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+// Prompt brugt til EMPLOYEE-leads (jobsøgere/medarbejder-kandidater)
+const SARAH_ONBOARDING_SYSTEM = `Du er Sarah Møller, rekrutterings-assistent hos KrydsByg. Du skriver venlige, korte mails til håndværkere og medarbejder-kandidater der har vist interesse i KrydsByg eller som vi gerne vil have tilmeldt.
+
+KrydsByg er et bemandingsbureau i Storkøbenhavn der leverer:
+Rengøring, flytning, maling, montering, have/anlæg, mindre håndværk, byggepladsbehjælp, events og sammensatte hold.
+
+Vi tilbyder medarbejderne:
+- Fleksible vagter — du vælger hvilke vagter du tager
+- Aftalt timeløn (overenskomstniveau eller bedre)
+- Hurtig afregning (8 dage efter vagt)
+- Faste kunder og varierede opgaver i hele Storkøbenhavn
+- Ingen bindingsperiode — du er fri til at sige nej til vagter
+
+OBLIGATORISK STRUKTUR:
+1. Hilsen — "Hej [fornavn]," hvis kontaktperson kendt, ellers "Hej,"
+2. Tom linje
+3. Body: 3-5 linjer der nævner hvorfor vi kontakter dem (deres fag/erfaring),
+   hvad vi tilbyder, og inviterer dem til at tilmelde sig
+4. Tom linje
+5. CTA: "Du kan tilmelde dig på krydsbyg.com/tilmeld — det tager 2 minutter.
+   Har du spørgsmål så ring til Krystian på +45 42 77 88 66"
+6. Tom linje
+7. AFSLUTNING: "Med venlig hilsen,"
+   (Systemet tilføjer Sarah Møller + kontaktinfo automatisk)
+
+REGLER:
+- Tone: venlig, ligefrem og respektfuld — som en kollega, ikke en sælger
+- Skriv kort og direkte. Lyd menneskelig.
+- Nævn deres fag/erfaring konkret hvis vi har info
+- Lov ALDRIG noget specifikt om løn eller antal vagter (det aftales individuelt)
+- ALDRIG bindestreger som sætningskobling
+- ALDRIG: "Hi", "Hello", "Kære", klicheer
+
+SIGNATUR HÅNDTERES AUTOMATISK — skriv ikke navn/email/tlf efter "Med venlig hilsen,".
+
+RETURNER KUN JSON:
+{"subject":"<emne>","body":"<body med Hej øverst og 'Med venlig hilsen,' nederst>","angle":"<kort forklaring>"}`;
+
 const SARAH_SYSTEM = `Du er Sarah Møller, assistent hos KrydsByg. Du skriver formelle, professionelle salgsmails på vegne af Krystian.
 
 KrydsByg leverer:
@@ -56,36 +94,55 @@ export async function POST(req: NextRequest) {
   const lead = leads.find((l) => l.id === leadId);
 
   if (!lead) return NextResponse.json({ error: "Lead ikke fundet" }, { status: 404 });
-  if (!lead.councilAnalysis) return NextResponse.json({ error: "Analyser leadet med Council først" }, { status: 400 });
   if (lead.draftBody && !regenerate) return NextResponse.json({ error: "Udkast eksisterer allerede. Brug regenerate: true for at lave nyt." }, { status: 400 });
 
-  const council = lead.councilAnalysis;
-  const briefing = council.sarahBriefing;
+  // Employee-leads bruger onboarding-prompt — Council er ikke krævet
+  const isEmployee = lead.leadType === "employee";
 
-  // Bygger briefing-blok hvis Council har leveret en
-  const briefingBlock = briefing
+  if (!isEmployee && !lead.councilAnalysis) {
+    return NextResponse.json({ error: "Analyser leadet med Council først" }, { status: 400 });
+  }
+
+  const council = lead.councilAnalysis;
+
+  // Bygger briefing-blok hvis Council har leveret en (kun for ikke-employee)
+  const briefingBlock = !isEmployee && council?.sarahBriefing
     ? `
 SARAH-BRIEFING FRA COUNCIL (FØLG DETTE):
-- Åbningslinje: "${briefing.openingLine}"
-- Pain points der skal adresseres: ${briefing.painPoints.join(" | ")}
-- Fokuser på disse KrydsByg-ydelser: ${briefing.keyServices.join(", ")}
-- Foreslåede emnelinjer (vælg den bedste eller skriv en variation): ${briefing.subjectOptions.join(" / ")}
-- Afslut med præcis CTA: "${briefing.callToAction}"
+- Åbningslinje: "${council.sarahBriefing.openingLine}"
+- Pain points der skal adresseres: ${council.sarahBriefing.painPoints.join(" | ")}
+- Fokuser på disse KrydsByg-ydelser: ${council.sarahBriefing.keyServices.join(", ")}
+- Foreslåede emnelinjer (vælg den bedste eller skriv en variation): ${council.sarahBriefing.subjectOptions.join(" / ")}
+- Afslut med præcis CTA: "${council.sarahBriefing.callToAction}"
 
 Brug Council's openingLine som første linje (eller en let variation). Slut body med CTA — IKKE med navn/signatur.`
-    : `
+    : !isEmployee && council
+    ? `
 COUNCIL HAR INGEN BRIEFING — brug egen vurdering baseret på følgende råd:
 Salgsråd: ${council.salesAdvice}
-Vinkel: ${council.recommendedAngle}`;
+Vinkel: ${council.recommendedAngle}`
+    : "";
 
-  try {
-    const msg = await client.messages.create({
-      model: "claude-sonnet-4-5",
-      max_tokens: 700,
-      system: SARAH_SYSTEM,
-      messages: [{
-        role: "user",
-        content: `Skriv en salgsmail til dette lead. Returner KUN JSON.
+  // Prompt-indhold afhænger af lead-type
+  const userContent = isEmployee
+    ? `Skriv en onboarding-mail til denne medarbejder-kandidat. Returner KUN JSON.
+
+KANDIDAT:
+Navn: ${lead.contactName || lead.companyName}
+Email: ${lead.email}
+Telefon: ${lead.phone || "ikke angivet"}
+Fag/erfaring: ${lead.industry || lead.serviceType || "ikke angivet"}
+By: ${lead.city || "Storkøbenhavn"}
+Noter (hvad vi ved om dem): ${lead.notes || "ingen"}
+Personlig vinkel: ${lead.personalAngle || "ingen"}
+
+Mailen skal:
+- Henvende sig venligt med fornavn hvis kendt
+- Nævne deres fag/erfaring konkret hvis vi har info
+- Forklare kort hvad KrydsByg tilbyder
+- Invitere dem til at tilmelde sig på krydsbyg.com/tilmeld
+- Slutte med "Med venlig hilsen,"`
+    : `Skriv en salgsmail til dette lead. Returner KUN JSON.
 
 LEAD:
 Virksomhed: ${lead.companyName}
@@ -97,11 +154,17 @@ Personlig vinkel: ${lead.personalAngle || "ingen specifik vinkel"}
 Noter: ${lead.notes || "ingen"}
 
 COUNCIL:
-Kundetype: ${council.customerType}
-Tone: ${council.tone}
-Risici at undgå: ${council.risks.join(", ")}
-${briefingBlock}`,
-      }],
+Kundetype: ${council!.customerType}
+Tone: ${council!.tone}
+Risici at undgå: ${council!.risks.join(", ")}
+${briefingBlock}`;
+
+  try {
+    const msg = await client.messages.create({
+      model: "claude-sonnet-4-5",
+      max_tokens: 700,
+      system: isEmployee ? SARAH_ONBOARDING_SYSTEM : SARAH_SYSTEM,
+      messages: [{ role: "user", content: userContent }],
     });
 
     const text = msg.content[0].type === "text" ? msg.content[0].text : "{}";
