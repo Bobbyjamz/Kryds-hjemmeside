@@ -1,4 +1,5 @@
 import { fetchCVRLeads } from "./sources/cvr";
+import { fetchVirkCVRLeads } from "./sources/cvr-virk";
 import { fetchGooglePlacesLeads } from "./sources/google-places";
 import { fetchPrivateLeads } from "./sources/private";
 import { fetchEmployeeLeads } from "./sources/employees";
@@ -44,9 +45,10 @@ export async function runLeadFinder(): Promise<RunResult> {
 
   const weights = await getIndustryWeights().catch(() => ({} as Record<string, number>));
 
-  // ── Kør ALLE 11 kilder parallelt ─────────────────────────────────────────
+  // ── Kør ALLE 12 kilder parallelt ─────────────────────────────────────────
   const [
     cvrResults,
+    virkResults,
     googleResults,
     privateResults,
     employeeResults,
@@ -59,6 +61,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     directoryResults,
   ] = await Promise.allSettled([
     fetchCVRLeads(dayOfYear, weights),
+    fetchVirkCVRLeads(dayOfYear),       // ★ NEW: Officiel CVR API m. emails
     fetchGooglePlacesLeads(dayOfYear),
     fetchPrivateLeads(dayOfYear),
     fetchEmployeeLeads(dayOfYear),
@@ -96,7 +99,8 @@ export async function runLeadFinder(): Promise<RunResult> {
     return (x.companies?.length || 0) + (x.employees?.length || 0);
   };
 
-  buildDiag("CVR", cvrResults, arrCount);
+  buildDiag("CVR (3.part)", cvrResults, arrCount);
+  buildDiag("CVR Virk (officiel)", virkResults, arrCount);
   buildDiag("Google Places", googleResults, arrCount);
   buildDiag("Boligsiden+Andelsguide", privateResults, arrCount);
   buildDiag("Jobindex+Workindenmark", employeeResults, arrCount);
@@ -127,6 +131,7 @@ export async function runLeadFinder(): Promise<RunResult> {
   // ── Saml rådata per kategori ──────────────────────────────────────────────
   const companyRaw: LeadCandidate[] = [
     ...(cvrResults.status === "fulfilled" ? cvrResults.value : []),
+    ...(virkResults.status === "fulfilled" ? virkResults.value : []),  // ★ Officiel CVR
     ...(googleResults.status === "fulfilled"
       ? googleResults.value.map((c) => ({ ...c, leadType: "company" as const }))
       : []),
@@ -137,7 +142,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     ...jobnetData.companies,
     ...stepstoneData.companies,
     ...(directoryResults.status === "fulfilled" ? directoryResults.value : []),
-  ].slice(0, 150); // Stort buffer — qualifier kaster dårlige fra
+  ].slice(0, 200); // Stort buffer — qualifier kaster dårlige fra
 
   const privateRaw: LeadCandidate[] = [
     ...(oisResults.status === "fulfilled"

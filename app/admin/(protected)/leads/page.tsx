@@ -170,6 +170,31 @@ export default function LeadsPage() {
     setActionLoading(null);
   }
 
+  // Find emails for leads der mangler email (boligforeninger osv.)
+  const [enrichResult, setEnrichResult] = useState<{ enriched: number; guessed: number; failed: number; remaining: number; hasHunter: boolean; hasApollo: boolean } | null>(null);
+  const [enrichLoading, setEnrichLoading] = useState(false);
+
+  async function enrichEmails() {
+    const noEmail = leads.filter((l) => !l.email && l.status === "New");
+    if (noEmail.length === 0) { alert("Alle New leads har allerede email"); return; }
+    if (!confirm(`Find emails for ${Math.min(noEmail.length, 30)} leads uden email? Tager 2-5 minutter.`)) return;
+    setEnrichLoading(true);
+    setEnrichResult(null);
+    try {
+      const r = await fetch("/api/admin/leads/enrich-emails", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+      const d = await r.json();
+      if (d.ok) {
+        setEnrichResult({ enriched: d.enriched, guessed: d.guessed, failed: d.failed, remaining: d.remaining, hasHunter: d.hasHunter, hasApollo: d.hasApollo });
+        await fetchLeads();
+      } else {
+        alert(`Fejl: ${d.error}`);
+      }
+    } catch {
+      alert("Netværksfejl");
+    }
+    setEnrichLoading(false);
+  }
+
   // Konverter employee-lead → medarbejder i medarbejder-databasen
   async function convertToEmployee(leadId: string) {
     if (!confirm("Konverter dette lead til medarbejder? De får status 'Afventer bekræftelse' indtil kontrakt accepteres.")) return;
@@ -377,6 +402,14 @@ export default function LeadsPage() {
             Upload Excel
           </button>
           <button
+            onClick={enrichEmails}
+            disabled={enrichLoading}
+            title="Forsøg at finde emails for leads der mangler en"
+            className={`${btnClass} border-purple-400/40 text-purple-300 hover:border-purple-300`}
+          >
+            {enrichLoading ? "Søger emails..." : `🔎 Find emails (${leads.filter((l) => !l.email && l.status === "New").length})`}
+          </button>
+          <button
             onClick={runBatchCouncil}
             disabled={actionLoading === "batch-council" || stats.New === 0}
             className={`${btnClass} border-[rgba(96,165,250,.3)] text-blue-300 hover:border-blue-300`}
@@ -399,6 +432,35 @@ export default function LeadsPage() {
           </button>
         </div>
       </div>
+
+      {/* Enrichment-resultat banner */}
+      {enrichResult && (
+        <div className="mb-6 p-4 rounded-[2px] border border-purple-400/30 bg-purple-400/[.05]">
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex-1 min-w-[260px]">
+              <p className="font-condensed font-bold text-[11px] tracking-[.1em] uppercase text-purple-300 mb-2">
+                🔎 Email-søgning færdig
+              </p>
+              <p className="text-cream text-[13px] leading-[1.6]">
+                <span className="text-green-400 font-bold">{enrichResult.enriched - enrichResult.guessed} fundet</span>
+                {" · "}
+                <span className="text-yellow font-bold">{enrichResult.guessed} gættet</span> (info@/kontakt@ mønstre)
+                {" · "}
+                <span className="text-muted">{enrichResult.failed} fejlede</span>
+                {enrichResult.remaining > 0 && (
+                  <> · <span className="text-muted">{enrichResult.remaining} tilbage (kør igen for flere)</span></>
+                )}
+              </p>
+              {!enrichResult.hasHunter && !enrichResult.hasApollo && (
+                <p className="text-purple-200 text-[12px] mt-2">
+                  💡 Tip: Tilføj <code className="text-purple-300">HUNTER_API_KEY</code> i Vercel for at finde flere emails (gratis 25/md på hunter.io)
+                </p>
+              )}
+            </div>
+            <button onClick={() => setEnrichResult(null)} className="text-muted hover:text-cream text-[18px]">✕</button>
+          </div>
+        </div>
+      )}
 
       {/* Type-tabs */}
       <div className="flex gap-1 mb-6 border-b border-[rgba(242,238,230,0.07)] pb-0 flex-wrap">
