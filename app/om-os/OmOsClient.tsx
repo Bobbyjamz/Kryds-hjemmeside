@@ -59,9 +59,9 @@ export default function OmOsClient() {
   return (
     <>
       <Nav />
-      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-5 max-[900px]:pt-[100px] max-[900px]:pb-[70px]">
+      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-4 max-[900px]:pt-[90px] max-[900px]:pb-[60px]">
         {/* Hero */}
-        <div className="max-w-[750px] mx-auto text-center mb-[80px]">
+        <div className="max-w-[750px] mx-auto text-center mb-[80px] max-[900px]:mb-[44px]">
           <div className="flex items-center justify-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-5">
             {t("omos_eyebrow")}
           </div>
@@ -74,7 +74,7 @@ export default function OmOsClient() {
         </div>
 
         {/* Why we started */}
-        <div className="max-w-[800px] mx-auto mb-[80px]">
+        <div className="max-w-[800px] mx-auto mb-[80px] max-[900px]:mb-[48px]">
           <div className="bg-gray p-12 rounded-[2px] border border-[rgba(242,238,230,0.07)] max-[900px]:p-8">
             <h2 className="font-condensed font-bold text-[13px] tracking-[.18em] uppercase text-yellow mb-6">
               {t("omos_why_title")}
@@ -91,18 +91,18 @@ export default function OmOsClient() {
         </div>
 
         {/* Team */}
-        <div className="max-w-[900px] mx-auto mb-[80px]">
-          <div className="text-center mb-12">
+        <div className="max-w-[900px] mx-auto mb-[80px] max-[900px]:mb-[48px]">
+          <div className="text-center mb-12 max-[900px]:mb-8">
             <h2 className="font-condensed font-black text-[clamp(28px,3.5vw,44px)] uppercase leading-[.95] tracking-[-.01em] text-cream">
               {t("omos_team_h2_1")} <span className="text-yellow">{t("omos_team_h2_yellow")}</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
+          <div className="grid grid-cols-2 gap-8 max-[900px]:grid-cols-1 max-[900px]:gap-4">
             {team.map((person) => (
               <div
                 key={person.nameKey}
-                className="bg-gray p-10 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center transition-all duration-300 hover:border-[rgba(245,196,0,.2)]"
+                className="bg-gray p-10 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center transition-all duration-300 hover:border-[rgba(245,196,0,.2)] max-[900px]:p-6"
               >
                 <div className="w-[140px] h-[140px] rounded-full overflow-hidden border-2 border-[rgba(245,196,0,.3)] mx-auto mb-5 relative">
                   <Image
@@ -129,16 +129,16 @@ export default function OmOsClient() {
         </div>
 
         {/* Values */}
-        <div className="max-w-[900px] mx-auto mb-[80px]">
-          <div className="text-center mb-12">
+        <div className="max-w-[900px] mx-auto mb-[80px] max-[900px]:mb-[48px]">
+          <div className="text-center mb-12 max-[900px]:mb-8">
             <h2 className="font-condensed font-black text-[clamp(28px,3.5vw,44px)] uppercase leading-[.95] tracking-[-.01em] text-cream">
               {t("omos_values_h2_1")} <span className="text-yellow">{t("omos_values_h2_yellow")}</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1">
+          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1 max-[900px]:gap-3">
             {values.map((v) => (
-              <div key={v.titleKey} className="bg-gray p-8 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center">
+              <div key={v.titleKey} className="bg-gray p-8 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center max-[900px]:p-5">
                 <div className="w-12 h-12 rounded-full bg-[rgba(245,196,0,.1)] flex items-center justify-center mx-auto mb-4">
                   {v.icon}
                 </div>
@@ -152,7 +152,7 @@ export default function OmOsClient() {
         </div>
 
         {/* CTA */}
-        <div className="max-w-[600px] mx-auto text-center bg-gray p-12 rounded-[2px] border border-[rgba(245,196,0,.15)] shadow-[0_10px_40px_rgba(0,0,0,.15)]">
+        <div className="max-w-[600px] mx-auto text-center bg-gray p-12 rounded-[2px] border border-[rgba(245,196,0,.15)] shadow-[0_10px_40px_rgba(0,0,0,.15)] max-[900px]:p-7">
           <h3 className="font-condensed font-extrabold text-[26px] uppercase tracking-[.02em] text-cream mb-3">
             {t("omos_cta_h3")}
           </h3>

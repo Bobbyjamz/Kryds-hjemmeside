@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "./Logo";
@@ -91,6 +91,18 @@ export default function Nav() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  /* ── Swipe-right to close ── */
+  const touchStartX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (dx > 72) closeMenu();
+    touchStartX.current = null;
+  };
+
   return (
     <>
       <nav
@@ -172,13 +184,29 @@ export default function Nav() {
       {/* Mobile menu overlay — kun synlig på mobil (≤900px). Desktop er urørt. */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-[490] flex-col justify-start items-stretch px-7 hidden max-[900px]:flex overflow-y-auto"
+          className="fixed inset-0 z-[490] flex flex-col justify-start items-stretch px-7 overflow-y-auto min-[901px]:hidden"
           style={{
-            paddingTop: (scrolled ? 54 : 66) + 32,
+            paddingTop: (scrolled ? 54 : 66) + 20,
             paddingBottom: 32,
             background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
           }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
+          {/* X luk-knap — øverst til højre */}
+          <div className="flex justify-end mb-5">
+            <button
+              onClick={closeMenu}
+              aria-label="Luk menu"
+              className="flex items-center justify-center w-10 h-10 rounded-full border border-[rgba(242,238,230,.12)] text-muted hover:text-cream hover:border-[rgba(242,238,230,.3)] transition-all"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
           {/* Samme links som desktop — i samme rækkefølge */}
           <nav className="flex flex-col gap-5">
             {[

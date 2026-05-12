@@ -56,22 +56,22 @@ export default function YdelserPage() {
   return (
     <>
       <Nav />
-      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-5 max-[900px]:pt-[100px] max-[900px]:pb-[70px]">
+      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-4 max-[900px]:pt-[90px] max-[900px]:pb-[60px]">
         {/* Hero */}
-        <div className="text-center max-w-[760px] mx-auto mb-[70px]">
+        <div className="text-center max-w-[760px] mx-auto mb-[70px] max-[900px]:mb-[40px]">
           <div className="eyebrow flex items-center justify-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-5">
             {t("svc_eyebrow")}
           </div>
           <h1 className="font-condensed font-black text-[clamp(38px,5vw,64px)] uppercase leading-[.95] tracking-[-.01em] text-cream mb-5">
             {t("svc_h2")} <span className="text-yellow">{t("svc_h2_yellow")}</span>
           </h1>
-          <p className="text-[17px] leading-[1.75] text-muted max-w-[560px] mx-auto">
+          <p className="text-[17px] leading-[1.75] text-muted max-w-[560px] mx-auto max-[900px]:text-[15px] max-[900px]:leading-[1.65]">
             {t("svc_page_subtitle")}
           </p>
         </div>
 
         {/* Services grid — image cards */}
-        <div className="max-w-[1240px] mx-auto grid grid-cols-3 gap-[18px] max-[1050px]:grid-cols-2 max-[720px]:grid-cols-1">
+        <div className="max-w-[1240px] mx-auto grid grid-cols-3 gap-[18px] max-[1050px]:grid-cols-2 max-[720px]:grid-cols-1 max-[900px]:gap-3">
           {CARDS.map((card, i) => (
             <article
               key={card.num}
@@ -160,7 +160,7 @@ export default function YdelserPage() {
         </div>
 
         {/* Why Kryds */}
-        <section className="max-w-[1100px] mx-auto mt-[90px]">
+        <section className="max-w-[1100px] mx-auto mt-[90px] max-[900px]:mt-[56px]">
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-4">
               {t("ydelser_why_eyebrow")}
@@ -170,7 +170,7 @@ export default function YdelserPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1">
+          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1 max-[900px]:gap-3">
             {[
               {
                 title: t("ydelser_why_1_title"),
@@ -205,7 +205,7 @@ export default function YdelserPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="bg-gray border border-[var(--border)] p-7 rounded-[2px]"
+                className="bg-gray border border-[var(--border)] p-7 rounded-[2px] max-[900px]:p-5"
               >
                 <div
                   className="w-12 h-12 rounded-[12px] flex items-center justify-center text-yellow mb-5"
@@ -223,7 +223,7 @@ export default function YdelserPage() {
         </section>
 
         {/* CTA */}
-        <div className="max-w-[640px] mx-auto text-center bg-gray p-12 rounded-[2px] border border-[var(--border)] mt-[90px] shadow-[0_10px_40px_rgba(0,0,0,.12)]">
+        <div className="max-w-[640px] mx-auto text-center bg-gray p-12 rounded-[2px] border border-[var(--border)] mt-[90px] shadow-[0_10px_40px_rgba(0,0,0,.12)] max-[900px]:p-7 max-[900px]:mt-[56px]">
           <h3 className="font-condensed font-extrabold text-[26px] uppercase tracking-[.02em] text-cream mb-3">
             {t("svc_cta_h3")}
           </h3>

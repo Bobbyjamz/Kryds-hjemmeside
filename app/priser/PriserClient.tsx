@@ -48,10 +48,10 @@ export default function PriserClient() {
   return (
     <>
       <Nav />
-      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-5 max-[900px]:pt-[100px] max-[900px]:pb-[70px]">
+      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-4 max-[900px]:pt-[90px] max-[900px]:pb-[60px]">
 
         {/* Hero */}
-        <div className="text-center max-w-[700px] mx-auto mb-[80px]">
+        <div className="text-center max-w-[700px] mx-auto mb-[80px] max-[900px]:mb-[44px]">
           <div className="flex items-center justify-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-5">
             {t("priser_eyebrow")}
           </div>
@@ -64,11 +64,11 @@ export default function PriserClient() {
         </div>
 
         {/* ── Model A / B side om side ── */}
-        <div className="max-w-[900px] mx-auto mb-[100px]">
-          <div className="grid grid-cols-2 gap-8 max-[900px]:grid-cols-1">
+        <div className="max-w-[900px] mx-auto mb-[100px] max-[900px]:mb-[60px]">
+          <div className="grid grid-cols-2 gap-8 max-[900px]:grid-cols-1 max-[900px]:gap-4">
 
             {/* Model A — Timepris */}
-            <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-10">
+            <div className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-10 max-[900px]:p-6">
               <p className="font-condensed font-bold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Model A</p>
               <h2 className="font-condensed font-black text-[26px] uppercase tracking-[.02em] text-cream mb-6">Timepris</h2>
 
@@ -104,7 +104,7 @@ export default function PriserClient() {
             </div>
 
             {/* Model B — Fastpris */}
-            <div className="bg-black2 border border-yellow shadow-[0_12px_50px_rgba(245,196,0,0.12)] rounded-[2px] p-10 relative">
+            <div className="bg-black2 border border-yellow shadow-[0_12px_50px_rgba(245,196,0,0.12)] rounded-[2px] p-10 relative max-[900px]:p-6 max-[900px]:mt-4">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow text-black font-condensed font-extrabold text-[10px] tracking-[.14em] uppercase px-4 py-[5px] rounded-[2px]">
                 Prissikkerhed
               </span>
@@ -135,8 +135,8 @@ export default function PriserClient() {
         </div>
 
         {/* ── Retainer-model ── */}
-        <div className="max-w-[900px] mx-auto mb-[100px]">
-          <div className="text-center mb-10">
+        <div className="max-w-[900px] mx-auto mb-[100px] max-[900px]:mb-[60px]">
+          <div className="text-center mb-10 max-[900px]:mb-7">
             <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-4">Faste kunder</p>
             <h2 className="font-condensed font-black text-[clamp(28px,3.5vw,44px)] uppercase leading-[.95] tracking-[-.01em] text-cream mb-3">
               Retainer <span className="text-yellow">— spar op til 10%</span>
@@ -145,13 +145,13 @@ export default function PriserClient() {
               Reservér et fast antal medarbejderdage om måneden og få prioriteret respons og rabat.
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1 max-[900px]:max-w-[440px] max-[900px]:mx-auto">
+          <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-1 max-[900px]:gap-3">
             {[
               { name: "Bronze", days: "5 dage/md", price: "kr. 9.500", discount: "5% rabat", color: "#CD7F32", features: ["Prioriteret booking", "Dedikeret kontaktperson", "5% rabat på løbende vagter"] },
               { name: "Sølv", days: "10 dage/md", price: "kr. 17.500", discount: "8% rabat", color: "#C0C0C0", features: ["Alt i Bronze", "Prioriteret respons", "8% rabat på løbende vagter", "Garanti på erstatning inden 2t"] },
               { name: "Guld", days: "20+ dage/md", price: "Individuel aftale", discount: "10% rabat", color: "#F5C400", features: ["Alt i Sølv", "Dedikeret koordinator", "10% rabat på alle vagter", "Månedlig statusrapport"] },
             ].map((tier) => (
-              <div key={tier.name} className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-8 hover:border-[rgba(245,196,0,.25)] transition-colors">
+              <div key={tier.name} className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-8 hover:border-[rgba(245,196,0,.25)] transition-colors max-[900px]:p-5">
                 <p className="font-condensed font-black text-[22px] uppercase tracking-[.02em] mb-1" style={{ color: tier.color }}>{tier.name}</p>
                 <p className="font-condensed font-semibold text-[11px] tracking-[.18em] uppercase text-muted mb-4">{tier.days}</p>
                 <p className="font-condensed font-black text-[26px] text-cream mb-1">{tier.price}</p>
@@ -175,8 +175,8 @@ export default function PriserClient() {
         </div>
 
         {/* ── FAQ Accordion ── */}
-        <div className="max-w-[700px] mx-auto mb-[100px]">
-          <div className="text-center mb-10">
+        <div className="max-w-[700px] mx-auto mb-[100px] max-[900px]:mb-[60px]">
+          <div className="text-center mb-10 max-[900px]:mb-7">
             <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-4">Spørgsmål & svar</p>
             <h2 className="font-condensed font-black text-[clamp(28px,3.5vw,44px)] uppercase leading-[.95] tracking-[-.01em] text-cream">
               Ofte stillede <span className="text-yellow">spørgsmål</span>
@@ -208,7 +208,7 @@ export default function PriserClient() {
         </div>
 
         {/* ── CTA strip ── */}
-        <div className="max-w-[700px] mx-auto text-center bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-10">
+        <div className="max-w-[700px] mx-auto text-center bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-10 max-[900px]:p-7">
           <p className="text-[16px] leading-[1.7] text-muted mb-6 max-w-[460px] mx-auto">
             Usikker på hvilken model der passer dig? Ring til os — vi hjælper dig med at vælge.
           </p>
