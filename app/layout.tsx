@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Barlow } from "next/font/google";
 import "./globals.css";
-import BackToHome from "@/components/BackToHome";
 import CookieBanner from "@/components/CookieBanner";
 import PageTracker from "@/components/PageTracker";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -111,7 +110,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <ThemeProvider>
           <LanguageProvider>
             <ToastProvider>
-              <BackToHome />
               <PageTracker />
               <div className="animate-fadeIn">{children}</div>
               <ScrollToTop />

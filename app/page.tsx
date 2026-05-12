@@ -29,6 +29,7 @@ export default function Home() {
 
       {/* ── MOBILE app (hidden on desktop >900px) ── */}
       <div className="hidden max-[900px]:block">
+        <Nav />
         <MobileApp />
       </div>
     </>

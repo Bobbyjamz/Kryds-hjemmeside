@@ -76,15 +76,27 @@ function LangToggle() {
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
   const { t } = useLanguage();
   const { theme, toggle: toggleTheme } = useTheme();
   const { lang, toggle: toggleLang } = useLanguage();
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 60);
+      // Gem nav ved scroll ned (efter 80px) — vis ØJEBLIKKELIGT ved scroll op
+      if (y > 80) {
+        setNavHidden(y > lastScrollY.current);
+      } else {
+        setNavHidden(false);
+      }
+      lastScrollY.current = y;
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -119,10 +131,12 @@ export default function Nav() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-[500] flex items-center justify-between px-[52px] bg-[rgba(var(--nav-bg-rgb,12,12,10),.92)] backdrop-blur-[14px] border-b border-[rgba(242,238,230,0.07)] transition-[height] duration-300 max-[900px]:px-5"
+        className="fixed top-0 left-0 right-0 z-[500] flex items-center justify-between px-[52px] backdrop-blur-[14px] border-b border-[rgba(242,238,230,0.07)] max-[900px]:px-5"
         style={{
           height: scrolled ? 54 : 66,
           background: "color-mix(in srgb, var(--color-black) 92%, transparent)",
+          transform: navHidden && !menuOpen ? "translateY(-100%)" : "translateY(0)",
+          transition: navHidden ? "height 300ms, transform 180ms ease-in" : "height 300ms, transform 0ms",
         }}
       >
         <Logo />
