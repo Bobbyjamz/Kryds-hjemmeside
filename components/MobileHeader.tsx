@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -27,6 +28,7 @@ function PrettyX({ size = 22 }: { size?: number }) {
 
 export default function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { lang, toggle: toggleLang } = useLanguage();
   const { theme, toggle: toggleTheme } = useTheme();
@@ -38,6 +40,9 @@ export default function MobileHeader() {
   const isHorizontal = useRef(false);
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
+
+  /* Portal mount flag (SSR-safe) */
+  useEffect(() => { setMounted(true); }, []);
 
   /* Auto-close on navigation */
   useEffect(() => { setMenuOpen(false); setDragX(0); setAnimating(false); }, [pathname]);
@@ -157,10 +162,10 @@ export default function MobileHeader() {
         </div>
       </header>
 
-      {/* ── Fullscreen overlay menu — slides like a Tinder card ── */}
-      {menuOpen && (
+      {/* ── Fullscreen overlay menu — rendered via portal to escape transform-parents ── */}
+      {menuOpen && mounted && createPortal(
         <div
-          className="fixed inset-0 z-[400] flex flex-col"
+          className="fixed inset-0 z-[9999] flex flex-col"
           style={{
             background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
             paddingBottom: "calc(40px + env(safe-area-inset-bottom, 0px))",
@@ -221,7 +226,8 @@ export default function MobileHeader() {
               Kontakt@KrydsByg.com
             </a>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

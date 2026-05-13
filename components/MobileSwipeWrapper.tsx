@@ -184,15 +184,19 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         </div>
       )}
 
-      {/* ── Sliding content on top — Tinder card ── */}
+      {/* ── Sliding content on top — Tinder card ──
+          NOTE: only apply transform while dragging/animating so we don't create
+          a stacking context that breaks position:fixed children. */}
       <div
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
         style={{
-          transform: `translateX(${dragX}px) rotate(${dragX * 0.015}deg)`,
+          transform: dragging || animating
+            ? `translateX(${dragX}px) rotate(${dragX * 0.015}deg)`
+            : undefined,
           transition: animating ? "transform 0.24s ease-out" : "none",
-          willChange: "transform",
+          willChange: dragging || animating ? "transform" : undefined,
           position: "relative",
           zIndex: 10,
           background: "var(--color-black)",
