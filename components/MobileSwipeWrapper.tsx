@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -36,14 +36,26 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   const navigating = useRef(false);
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
+  /* Lazy-load iframes only after page has settled so we don't slow first paint */
+  const [previewReady, setPreviewReady] = useState(false);
 
   const currentIdx = PAGE_ORDER.indexOf(pathname ?? "/");
   const prevPage = currentIdx > 0 ? PAGE_ORDER[currentIdx - 1] : null;
   const nextPage = currentIdx >= 0 && currentIdx < PAGE_ORDER.length - 1 ? PAGE_ORDER[currentIdx + 1] : null;
   const enabled = currentIdx !== -1;
 
+  /* Preload destination iframes ~1.2s after navigation so swipe shows real page */
+  useEffect(() => {
+    if (!enabled) return;
+    setPreviewReady(false);
+    const t = setTimeout(() => setPreviewReady(true), 1200);
+    return () => clearTimeout(t);
+  }, [pathname, enabled]);
+
   const onTouchStart = (e: React.TouchEvent) => {
     if (!enabled || navigating.current) return;
+    /* If user touches before our timer, trigger preload immediately */
+    if (!previewReady) setPreviewReady(true);
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
     isHorizontal.current = false;
@@ -60,8 +72,6 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
       if (Math.abs(dx) < 12) return;
       isHorizontal.current = true;
     }
-
-    /* Only allow drag if there is a destination */
     if ((dx > 0 && !prevPage) || (dx < 0 && !nextPage)) {
       setDragX(dx * 0.15);
       return;
@@ -94,7 +104,6 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         setAnimating(false);
       }, 240);
     } else {
-      /* Snap back */
       setAnimating(true);
       setDragX(0);
       setTimeout(() => setAnimating(false), 200);
@@ -104,47 +113,78 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   const dragging = Math.abs(dragX) > 0;
   const direction = dragX > 0 ? "prev" : dragX < 0 ? "next" : null;
-  const destPage = direction === "prev" ? prevPage : direction === "next" ? nextPage : null;
-  const destLabel = destPage ? labels[destPage] : null;
 
-  /* Progress used for fading-in the destination underneath (SSR-safe) */
   const winW = typeof window !== "undefined" ? window.innerWidth : 400;
   const progress = Math.min(Math.abs(dragX) / winW, 1);
 
+  /* Opacity for each preview iframe — only fade in the one matching swipe direction */
+  const prevVisible = dragging && direction === "prev";
+  const nextVisible = dragging && direction === "next";
+
   return (
     <>
-      {/* ── Destination preview underneath — peeking through like a Tinder card stack ── */}
-      {dragging && destLabel && (
-        <div
-          className="fixed inset-0 pointer-events-none flex items-center justify-center"
+      {/* ── Previous page preview (real iframe) ── */}
+      {previewReady && prevPage && (
+        <iframe
+          src={prevPage}
+          title={`${labels[prevPage]} preview`}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="fixed inset-0 w-full h-full pointer-events-none"
           style={{
-            background: "var(--color-black)",
             zIndex: 1,
-            opacity: 0.4 + progress * 0.6,
+            border: "none",
+            opacity: prevVisible ? 0.5 + progress * 0.5 : 0,
+            transition: animating || !dragging ? "opacity 0.22s ease-out" : "opacity 0.05s linear",
+          }}
+        />
+      )}
+
+      {/* ── Next page preview (real iframe) ── */}
+      {previewReady && nextPage && (
+        <iframe
+          src={nextPage}
+          title={`${labels[nextPage]} preview`}
+          tabIndex={-1}
+          aria-hidden="true"
+          className="fixed inset-0 w-full h-full pointer-events-none"
+          style={{
+            zIndex: 1,
+            border: "none",
+            opacity: nextVisible ? 0.5 + progress * 0.5 : 0,
+            transition: animating || !dragging ? "opacity 0.22s ease-out" : "opacity 0.05s linear",
+          }}
+        />
+      )}
+
+      {/* ── Direction hint label (small overlay on top of iframe) ── */}
+      {dragging && (direction === "prev" || direction === "next") && (
+        <div
+          className="fixed top-4 pointer-events-none"
+          style={{
+            zIndex: 2,
+            left: direction === "prev" ? 16 : "auto",
+            right: direction === "next" ? 16 : "auto",
+            opacity: progress,
           }}
         >
-          <div className="text-center px-8" style={{ transform: `scale(${0.9 + progress * 0.1})`, transition: "transform 0.1s" }}>
-            <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-3 flex items-center justify-center gap-[10px]">
-              {direction === "prev" ? (
-                <>
-                  <span style={{ fontSize: 18 }}>←</span>
-                  {isDA ? "Forrige" : "Previous"}
-                </>
-              ) : (
-                <>
-                  {isDA ? "Næste" : "Next"}
-                  <span style={{ fontSize: 18 }}>→</span>
-                </>
-              )}
-            </p>
-            <h2 className="font-condensed font-black text-[44px] uppercase tracking-[-.01em] text-cream leading-none">
-              {destLabel}
-            </h2>
+          <div
+            className="font-condensed font-bold text-[11px] tracking-[.22em] uppercase"
+            style={{
+              background: "var(--color-yellow)",
+              color: "#0C0C0A",
+              padding: "5px 10px",
+              borderRadius: 4,
+            }}
+          >
+            {direction === "prev"
+              ? `← ${prevPage ? labels[prevPage] : ""}`
+              : `${nextPage ? labels[nextPage] : ""} →`}
           </div>
         </div>
       )}
 
-      {/* ── Sliding content on top ── */}
+      {/* ── Sliding content on top — Tinder card ── */}
       <div
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -157,6 +197,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
           zIndex: 10,
           background: "var(--color-black)",
           minHeight: "100vh",
+          boxShadow: dragging ? "0 0 40px rgba(0,0,0,.5)" : undefined,
         }}
       >
         {children}
