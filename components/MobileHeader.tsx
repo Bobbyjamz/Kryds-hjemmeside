@@ -118,7 +118,7 @@ export default function MobileHeader() {
           </button>
 
           {/* Kontakt knap */}
-          <a
+          <Link
             href="/#contract"
             className="font-condensed font-bold text-[9px] tracking-[.12em] uppercase no-underline"
             style={{
@@ -131,7 +131,7 @@ export default function MobileHeader() {
             }}
           >
             {isDA ? "Kontakt" : "Contact"}
-          </a>
+          </Link>
 
           {/* Hamburger — kun nav-links i overlay */}
           <button
