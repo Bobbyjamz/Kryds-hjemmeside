@@ -3,18 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import MobileHeader from "./MobileHeader";
 
 // Images explicitly paired with each tile below so the swipe order never drifts
-
-/* ── SVG icons ── */
-function XLogo() {
-  return (
-    <svg width="32" height="32" viewBox="0 0 90 90" className="text-cream" style={{ marginRight: 10, flexShrink: 0 }}>
-      <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
-      <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 type ServiceTile = {
   cat: string;
@@ -143,8 +134,9 @@ export default function MobileApp() {
   const isDA = lang === "da";
 
   return (
-    <div className="app-mobile-wrapper pt-[66px]">
-      {/* Nav håndteres af den overordnede Nav-komponent — ingen separat header her */}
+    <>
+      <MobileHeader />
+      <div className="app-mobile-wrapper">
 
       {/* ── HERO ── */}
       <section className="px-5 pt-7 pb-4 relative">
@@ -476,6 +468,7 @@ export default function MobileApp() {
           </a>
         ))}
       </nav>
-    </div>
+      </div>
+    </>
   );
 }
