@@ -8,7 +8,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 function XLogo() {
   return (
-    <svg width="26" height="26" viewBox="0 0 90 90" style={{ flexShrink: 0, color: "var(--color-cream)" }}>
+    <svg width="20" height="20" viewBox="0 0 90 90" style={{ flexShrink: 0, color: "var(--color-cream)" }}>
       <line x1="14" y1="14" x2="76" y2="76" stroke="#F5C400" strokeWidth="18" strokeLinecap="round" />
       <line x1="76" y1="14" x2="14" y2="76" stroke="currentColor" strokeWidth="18" strokeLinecap="round" />
     </svg>
@@ -70,12 +70,12 @@ export default function MobileHeader() {
   return (
     <>
       {/* ── Sticky top bar ── */}
-      <header className="app-header" style={{ zIndex: 80, height: 52, padding: "0 16px" }}>
+      <header className="app-header" style={{ zIndex: 80, height: 48, padding: "0 14px" }}>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-[7px] no-underline" style={{ textDecoration: "none" }}>
+        <Link href="/" className="flex items-center gap-[6px] no-underline" style={{ textDecoration: "none" }}>
           <XLogo />
-          <span className="font-condensed font-black text-[18px] tracking-[.02em] uppercase leading-none" style={{ color: "var(--color-cream)" }}>
+          <span className="font-condensed font-black text-[15px] tracking-[.04em] uppercase leading-none" style={{ color: "var(--color-cream)" }}>
             <span style={{ color: "var(--color-yellow)" }}>K</span>RYDS
           </span>
         </Link>
@@ -106,8 +106,8 @@ export default function MobileHeader() {
             onClick={toggleTheme}
             aria-label={theme === "dark" ? "Lys tilstand" : "Mørk tilstand"}
             style={{
-              width: 30, height: 30,
-              borderRadius: 8,
+              width: 28, height: 28,
+              borderRadius: 7,
               background: "var(--color-gray)",
               border: "1px solid rgba(242,238,230,.07)",
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -120,12 +120,12 @@ export default function MobileHeader() {
           {/* Kontakt knap */}
           <a
             href="/#contract"
-            className="font-condensed font-extrabold text-[10px] tracking-[.1em] uppercase no-underline"
+            className="font-condensed font-bold text-[9px] tracking-[.12em] uppercase no-underline"
             style={{
               background: "var(--color-yellow)",
               color: "#0C0C0A",
-              borderRadius: 5,
-              padding: "5px 10px",
+              borderRadius: 4,
+              padding: "4px 8px",
               lineHeight: 1,
               flexShrink: 0,
             }}
@@ -138,7 +138,7 @@ export default function MobileHeader() {
             onClick={() => setMenuOpen((v) => !v)}
             className="app-menu-btn"
             aria-label={menuOpen ? "Luk menu" : "Åbn menu"}
-            style={{ width: 36, height: 36, borderRadius: 8, zIndex: 491, position: "relative" }}
+            style={{ width: 32, height: 32, borderRadius: 7, zIndex: 491, position: "relative" }}
           >
             <span style={menuOpen ? { transform: "translateY(7px) rotate(45deg)" } : {}} />
             <span style={menuOpen ? { opacity: 0 } : {}} />
