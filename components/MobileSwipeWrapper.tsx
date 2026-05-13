@@ -4,8 +4,11 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/* Tinder-style horizontal page navigation.
-   Swipe right = previous page, swipe left = next page.
+/* Tinder-style horizontal page navigation — polished v2.
+   - Pure horizontal slide (NO rotation)
+   - GPU-accelerated translate3d
+   - iOS-style cubic-bezier easing
+   - Smooth iframe fade so background looks like a real underlying page
    Order: / → /ydelser → /priser → /om-os */
 const PAGE_ORDER = ["/", "/ydelser", "/priser", "/om-os"];
 
@@ -23,12 +26,21 @@ const LABELS_EN: Record<string, string> = {
   "/om-os": "About",
 };
 
+/* iOS-like easing — natural inertia feel */
+const IOS_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+
+/* Tuning */
+const HORIZONTAL_LOCK_PX = 8;        // px før vi committer til horisontal swipe
+const VERTICAL_LEAD_PX   = 4;        // dy skal være > dx + dette før vi giver scroll prioritet
+const COMMIT_THRESHOLD_PCT = 0.22;   // 22% af skærmbredde for at navigere
+const EDGE_RESISTANCE     = 0.22;    // dampning når der ikke er prev/next
+const NAV_DURATION_MS     = 280;     // slide / snap animation
+
 export default function MobileSwipeWrapper({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { lang } = useLanguage();
   const labels = lang === "da" ? LABELS_DA : LABELS_EN;
-  const isDA = lang === "da";
 
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
@@ -44,11 +56,11 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   const nextPage = currentIdx >= 0 && currentIdx < PAGE_ORDER.length - 1 ? PAGE_ORDER[currentIdx + 1] : null;
   const enabled = currentIdx !== -1;
 
-  /* Preload destination iframes ~1.2s after navigation so swipe shows real page */
+  /* Preload destination iframes ~1s after navigation so swipe shows real page */
   useEffect(() => {
     if (!enabled) return;
     setPreviewReady(false);
-    const t = setTimeout(() => setPreviewReady(true), 1200);
+    const t = setTimeout(() => setPreviewReady(true), 1000);
     return () => clearTimeout(t);
   }, [pathname, enabled]);
 
@@ -68,12 +80,15 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
     const dy = e.touches[0].clientY - touchStartY.current;
 
     if (!isHorizontal.current) {
-      if (Math.abs(dy) > Math.abs(dx) + 4) return;
-      if (Math.abs(dx) < 12) return;
+      /* Vertical scroll has priority */
+      if (Math.abs(dy) > Math.abs(dx) + VERTICAL_LEAD_PX) return;
+      /* Need a clear horizontal intent */
+      if (Math.abs(dx) < HORIZONTAL_LOCK_PX) return;
       isHorizontal.current = true;
     }
+    /* Edge resistance when no page to navigate to */
     if ((dx > 0 && !prevPage) || (dx < 0 && !nextPage)) {
-      setDragX(dx * 0.15);
+      setDragX(dx * EDGE_RESISTANCE);
       return;
     }
     setDragX(dx);
@@ -81,32 +96,34 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   const onTouchEnd = () => {
     if (!enabled || navigating.current) return;
-    const threshold = window.innerWidth * 0.25;
+    const winW = window.innerWidth;
+    const threshold = winW * COMMIT_THRESHOLD_PCT;
 
     if (dragX > threshold && prevPage) {
       navigating.current = true;
       setAnimating(true);
-      setDragX(window.innerWidth);
+      setDragX(winW);
       setTimeout(() => {
         router.push(prevPage);
         navigating.current = false;
         setDragX(0);
         setAnimating(false);
-      }, 240);
+      }, NAV_DURATION_MS);
     } else if (dragX < -threshold && nextPage) {
       navigating.current = true;
       setAnimating(true);
-      setDragX(-window.innerWidth);
+      setDragX(-winW);
       setTimeout(() => {
         router.push(nextPage);
         navigating.current = false;
         setDragX(0);
         setAnimating(false);
-      }, 240);
+      }, NAV_DURATION_MS);
     } else {
+      /* Snap back — samme duration som transition for at undgå hiccup */
       setAnimating(true);
       setDragX(0);
-      setTimeout(() => setAnimating(false), 200);
+      setTimeout(() => setAnimating(false), NAV_DURATION_MS);
     }
     isHorizontal.current = false;
   };
@@ -117,13 +134,17 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   const winW = typeof window !== "undefined" ? window.innerWidth : 400;
   const progress = Math.min(Math.abs(dragX) / winW, 1);
 
-  /* Opacity for each preview iframe — only fade in the one matching swipe direction */
-  const prevVisible = dragging && direction === "prev";
-  const nextVisible = dragging && direction === "next";
+  /* Iframe opacity: fade in proportional to drag so background page reveals naturally */
+  const prevOpacity = direction === "prev" ? 0.4 + progress * 0.6 : 0;
+  const nextOpacity = direction === "next" ? 0.4 + progress * 0.6 : 0;
+
+  /* Subtle parallax on the background page — feels more natural than static */
+  const prevParallax = direction === "prev" ? -winW * 0.08 * (1 - progress) : 0;
+  const nextParallax = direction === "next" ?  winW * 0.08 * (1 - progress) : 0;
 
   return (
     <>
-      {/* ── Previous page preview (real iframe) ── */}
+      {/* ── Previous page preview (real iframe, no rotation, subtle parallax) ── */}
       {previewReady && prevPage && (
         <iframe
           src={prevPage}
@@ -134,13 +155,17 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
           style={{
             zIndex: 1,
             border: "none",
-            opacity: prevVisible ? 0.5 + progress * 0.5 : 0,
-            transition: animating || !dragging ? "opacity 0.22s ease-out" : "opacity 0.05s linear",
+            opacity: prevOpacity,
+            transform: `translate3d(${prevParallax}px, 0, 0)`,
+            transition: animating
+              ? `opacity 0.28s ${IOS_EASE}, transform 0.28s ${IOS_EASE}`
+              : "none",
+            willChange: dragging || animating ? "opacity, transform" : "auto",
           }}
         />
       )}
 
-      {/* ── Next page preview (real iframe) ── */}
+      {/* ── Next page preview (real iframe, no rotation, subtle parallax) ── */}
       {previewReady && nextPage && (
         <iframe
           src={nextPage}
@@ -151,13 +176,17 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
           style={{
             zIndex: 1,
             border: "none",
-            opacity: nextVisible ? 0.5 + progress * 0.5 : 0,
-            transition: animating || !dragging ? "opacity 0.22s ease-out" : "opacity 0.05s linear",
+            opacity: nextOpacity,
+            transform: `translate3d(${nextParallax}px, 0, 0)`,
+            transition: animating
+              ? `opacity 0.28s ${IOS_EASE}, transform 0.28s ${IOS_EASE}`
+              : "none",
+            willChange: dragging || animating ? "opacity, transform" : "auto",
           }}
         />
       )}
 
-      {/* ── Direction hint label (small overlay on top of iframe) ── */}
+      {/* ── Direction hint label (subtle, slides with content) ── */}
       {dragging && (direction === "prev" || direction === "next") && (
         <div
           className="fixed top-4 pointer-events-none"
@@ -166,6 +195,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
             left: direction === "prev" ? 16 : "auto",
             right: direction === "next" ? 16 : "auto",
             opacity: progress,
+            transform: `translate3d(0, ${(1 - progress) * -4}px, 0)`,
           }}
         >
           <div
@@ -184,7 +214,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         </div>
       )}
 
-      {/* ── Sliding content on top — Tinder card ──
+      {/* ── Sliding content (Tinder card) — pure horizontal translate3d, NO rotation ──
           NOTE: only apply transform while dragging/animating so we don't create
           a stacking context that breaks position:fixed children. */}
       <div
@@ -193,15 +223,21 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         onTouchEnd={onTouchEnd}
         style={{
           transform: dragging || animating
-            ? `translateX(${dragX}px) rotate(${dragX * 0.015}deg)`
+            ? `translate3d(${dragX}px, 0, 0)`
             : undefined,
-          transition: animating ? "transform 0.24s ease-out" : "none",
-          willChange: dragging || animating ? "transform" : undefined,
+          transition: animating
+            ? `transform ${NAV_DURATION_MS}ms ${IOS_EASE}`
+            : "none",
+          willChange: dragging || animating ? "transform" : "auto",
+          touchAction: "pan-y",          // lade browseren håndtere vertikal scroll
           position: "relative",
           zIndex: 10,
           background: "var(--color-black)",
           minHeight: "100vh",
-          boxShadow: dragging ? "0 0 40px rgba(0,0,0,.5)" : undefined,
+          /* Pre-allocér box-shadow så vi ikke skifter property under drag */
+          boxShadow: dragging || animating
+            ? `0 0 40px rgba(0,0,0,${0.35 * progress + 0.15})`
+            : "0 0 0 rgba(0,0,0,0)",
         }}
       >
         {children}
