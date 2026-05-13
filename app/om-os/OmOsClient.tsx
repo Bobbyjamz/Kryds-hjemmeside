@@ -58,12 +58,8 @@ export default function OmOsClient() {
     },
   ];
 
-  return (
+  const body = (
     <>
-      <div className="max-[900px]:hidden"><Nav /></div>
-      <div className="hidden max-[900px]:block"><MobileHeader /></div>
-      <MobileSwipeWrapper>
-      <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px] max-[900px]:px-4 max-[900px]:pt-4 max-[900px]:pb-[60px]">
         {/* Hero */}
         <div className="max-w-[750px] mx-auto text-center mb-[80px] max-[900px]:mb-[44px]">
           <div className="flex items-center justify-center gap-[10px] font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-5">
@@ -170,9 +166,29 @@ export default function OmOsClient() {
             {t("omos_cta_btn")}
           </Link>
         </div>
-      </main>
-      <div className="max-[900px]:hidden"><Footer /></div>
-      </MobileSwipeWrapper>
+    </>
+  );
+
+  return (
+    <>
+      {/* ── DESKTOP (>900px) ── */}
+      <div className="max-[900px]:hidden">
+        <Nav />
+        <main className="bg-black min-h-screen pt-[120px] pb-[100px] px-[52px]">
+          {body}
+        </main>
+        <Footer />
+      </div>
+
+      {/* ── MOBILE (≤900px) ── */}
+      <div className="hidden max-[900px]:block">
+        <MobileHeader />
+        <MobileSwipeWrapper>
+          <main className="bg-black min-h-screen px-4 pt-4 pb-[60px]">
+            {body}
+          </main>
+        </MobileSwipeWrapper>
+      </div>
     </>
   );
 }
