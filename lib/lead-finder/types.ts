@@ -1,5 +1,52 @@
 export type LeadType = "company" | "private" | "employee";
 
+// ── KrydsByg 9 fagområder ───────────────────────────────────────────────────
+export type Faggruppe =
+  | "Tømrer"
+  | "Murer"
+  | "VVS"
+  | "El"
+  | "Maler"
+  | "Gulv"
+  | "Stillads"
+  | "Jord"
+  | "Råbyg";
+
+export const ALL_FAGGRUPPER: Faggruppe[] = [
+  "Tømrer", "Murer", "VVS", "El", "Maler", "Gulv", "Stillads", "Jord", "Råbyg",
+];
+
+/** Faggrupper hvor branchen har størst mangel — Brain prioriterer dem */
+export const KRITISKE_FAGGRUPPER: Faggruppe[] = ["VVS", "El", "Stillads"];
+
+// ── Brain Layer types ───────────────────────────────────────────────────────
+
+/** Tæller af leads per kategori (for én dag eller akkumuleret) */
+export interface CategoryStats {
+  company: number;
+  private: number;
+  employee: number;
+}
+
+/** Tæller af medarbejder-leads per faggruppe */
+export type FaggruppeStats = Partial<Record<Faggruppe, number>>;
+
+/** Komplet gårsdags-statistik som Brain modtager */
+export interface YesterdayStats extends CategoryStats {
+  faggrupper: FaggruppeStats;
+  date?: string;          // ISO yyyy-mm-dd
+  conversionRate?: number;
+}
+
+/** Plan Brain returnerer — bruges af runner og gap-filler */
+export interface DailyPlan {
+  priorities: LeadType[];                            // Rangordnet kategori-fokus
+  scraperOrder: Partial<Record<LeadType, string[]>>; // Hvilke scrapers først
+  missingFaggrupper: Faggruppe[];                    // Hvilke faggrupper mangler
+  adjustScores: CategoryStats;                       // Dynamiske score-tærskler
+  note: string;                                      // Forklaring fra Claude
+}
+
 export interface LeadCandidate {
   companyName: string;       // For private: adresse eller navn
   contactName?: string;
@@ -31,5 +78,6 @@ export interface LeadCandidate {
   // Medarbejder-specifikke felter
   openToWork?: boolean;      // Markeret "Open to Work"
   experienceYears?: number;  // Erfaringsår
-  tradeCategory?: string;    // "Tømrer", "Murer", "VVS", osv.
+  tradeCategory?: Faggruppe | string; // 9 fagområder — fri streng for bagudkompat.
+  lastActiveDays?: number;   // Dage siden CV/profil sidst aktiv (JobIndex/LinkedIn)
 }

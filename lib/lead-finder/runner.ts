@@ -1,4 +1,5 @@
 import { fetchCVRLeads } from "./sources/cvr";
+import { fetchCVREnkeltmandsLeads } from "./sources/cvr-enkeltmands";
 import { fetchOSMLeads } from "./sources/osm";
 import { fetchGooglePlacesLeads } from "./sources/google-places";
 import { fetchPrivateLeads } from "./sources/private";
@@ -15,7 +16,10 @@ import { qualifyLeads, QUALIFY_THRESHOLD } from "./qualifier";
 import { generateNotes } from "./enrichment/note-generator";
 import { enrichEmailsBatch } from "./enrichment/email-finder";
 import { enrichPhonesBatch } from "./enrichment/phone-enricher";
-import type { LeadCandidate } from "./types";
+import type { LeadCandidate, DailyPlan, Faggruppe } from "./types";
+import { decideTodaysPlan } from "./brain/brain";
+import { resetFilters } from "./filters/filter-config";
+import { writeDailyStats } from "@/lib/db";
 
 export interface SourceDiagnostic {
   status: "ok" | "failed" | "empty";
@@ -27,12 +31,15 @@ export interface RunResult {
   candidates: LeadCandidate[];
   bySource: Record<string, number>;
   byType: { company: number; private: number; employee: number };
+  byFaggruppe: Partial<Record<Faggruppe, number>>;  // v2: per-faggruppe count
   qualifiedCount: number;
   discardedCount: number;
   durationMs: number;
   industryWeightsApplied: number;
   // Diagnostik per kilde — hjælper med at finde hvilke kilder der svigter
   sourceDiagnostics: Record<string, SourceDiagnostic>;
+  // v2: Brain Layer's plan og note
+  brainPlan?: DailyPlan;
 }
 
 export async function runLeadFinder(): Promise<RunResult> {
@@ -43,11 +50,22 @@ export async function runLeadFinder(): Promise<RunResult> {
     (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
   );
 
+  // ── v2 Brain Layer ───────────────────────────────────────────────────────
+  // Reset filter-state og lad Claude beslutte dagens prioritet. Brain applicerer
+  // sin plan til runtime filter-config — scrapers og qualifier ser det automatisk.
+  // Fejler det, kører Brain selv en sensibel default-plan baseret på gap-analyzer.
+  resetFilters();
+  const brainPlan = await decideTodaysPlan().catch((err) => {
+    console.warn("[runner] Brain helt utilgængelig — kører med default filter-state:", err);
+    return undefined;
+  });
+
   const weights = await getIndustryWeights().catch(() => ({} as Record<string, number>));
 
-  // ── Kør ALLE 12 kilder parallelt ─────────────────────────────────────────
+  // ── Kør ALLE 13 kilder parallelt ─────────────────────────────────────────
   const [
     cvrResults,
+    cvrEnkeltmandsResults,
     osmResults,
     googleResults,
     privateResults,
@@ -61,7 +79,8 @@ export async function runLeadFinder(): Promise<RunResult> {
     directoryResults,
   ] = await Promise.allSettled([
     fetchCVRLeads(dayOfYear, weights),
-    fetchOSMLeads(dayOfYear),           // ★ NEW: OpenStreetMap m. emails (gratis, ingen login)
+    fetchCVREnkeltmandsLeads(dayOfYear), // ★ v2: selvstændige håndværkere → medarbejder-leads
+    fetchOSMLeads(dayOfYear),
     fetchGooglePlacesLeads(dayOfYear),
     fetchPrivateLeads(dayOfYear),
     fetchEmployeeLeads(dayOfYear),
@@ -100,6 +119,7 @@ export async function runLeadFinder(): Promise<RunResult> {
   };
 
   buildDiag("CVR (3.part)", cvrResults, arrCount);
+  buildDiag("CVR Enkeltmands", cvrEnkeltmandsResults, arrCount);
   buildDiag("OpenStreetMap", osmResults, arrCount);
   buildDiag("Google Places", googleResults, arrCount);
   buildDiag("Boligsiden+Andelsguide", privateResults, arrCount);
@@ -157,7 +177,9 @@ export async function runLeadFinder(): Promise<RunResult> {
     ...employeeSourceEmployees,
     ...jobnetData.employees,
     ...stepstoneData.employees,
-  ].slice(0, 300); // Tre kilder: Jobindex + Jobnet + Stepstone — stort buffer
+    // ★ v2: enkeltmandshåndværkere — vores stærkeste medarbejder-signal
+    ...(cvrEnkeltmandsResults.status === "fulfilled" ? cvrEnkeltmandsResults.value : []),
+  ].slice(0, 300); // Fire kilder: Jobindex + Jobnet + Stepstone + CVR Enkeltmands
 
   // ── Qualifier: scorer og filtrerer (sorterer bedste øverst) ──────────────
   const companyQ = qualifyLeads(companyRaw).slice(0, 60);
@@ -225,14 +247,31 @@ export async function runLeadFinder(): Promise<RunResult> {
     employee: finalEmployees.length,
   };
 
+  // v2: per-faggruppe count fra medarbejder-leads
+  const byFaggruppe: Partial<Record<Faggruppe, number>> = {};
+  for (const c of finalEmployees) {
+    if (c.tradeCategory) {
+      const f = c.tradeCategory as Faggruppe;
+      byFaggruppe[f] = (byFaggruppe[f] || 0) + 1;
+    }
+  }
+
   const duration = Math.round((Date.now() - start) / 1000);
+  const fagSummary = Object.entries(byFaggruppe)
+    .sort(([, a], [, b]) => (b as number) - (a as number))
+    .map(([f, n]) => `${f}:${n}`)
+    .join(" ") || "(ingen tradeCategory)";
+
   console.log([
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
-    `  KRYDSBYG LEADBOT — ${now.toLocaleDateString("da-DK")}`,
+    `  KRYDSBYG LEADBOT v2 — ${now.toLocaleDateString("da-DK")}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    brainPlan ? `  🧠 Brain: ${brainPlan.priorities.join(" → ")} | mangler: ${brainPlan.missingFaggrupper.join(",") || "(ingen)"}` : `  🧠 Brain: (utilgængelig — kørte default)`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
     `  🏢 Virksomheder:  ${companyRaw.length} fundet / ${byType.company} kvalificeret ${byType.company >= 30 ? "✅" : byType.company >= 20 ? "⚠️" : "❌"}`,
     `  🏠 Private:       ${privateRaw.length} fundet / ${byType.private} kvalificeret ${byType.private >= 30 ? "✅" : byType.private >= 20 ? "⚠️" : "❌"}`,
     `  👷 Medarbejdere:  ${employeeRaw.length} fundet / ${byType.employee} kvalificeret ${byType.employee >= 30 ? "✅" : byType.employee >= 20 ? "⚠️" : "❌"}`,
+    `     └ Faggrupper:  ${fagSummary}`,
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
     `  📧 Klar til Sarah: ${allQualified.length} leads`,
     `  🔁 Kasseret (score < ${QUALIFY_THRESHOLD}): ${totalRaw - totalQ}`,
@@ -248,14 +287,28 @@ export async function runLeadFinder(): Promise<RunResult> {
     console.log(`  ${icon} ${name}: ${diag.rawCount} leads${detail}`);
   }
 
+  // ── v2: Persist daily stats så Brain har data til imorgen ────────────────
+  const todayIso = now.toISOString().slice(0, 10);
+  await writeDailyStats({
+    date: todayIso,
+    company: byType.company,
+    private: byType.private,
+    employee: byType.employee,
+    faggrupper: byFaggruppe as Record<string, number>,
+    brainNote: brainPlan?.note,
+    runtimeSeconds: duration,
+  }).catch((err) => console.warn("[runner] Kunne ikke gemme daily-stats:", err));
+
   return {
     candidates: allQualified,
     bySource,
     byType,
+    byFaggruppe,
     qualifiedCount: totalQ,
     discardedCount: totalRaw - totalQ,
     durationMs: Date.now() - start,
     industryWeightsApplied: Object.keys(weights).length,
     sourceDiagnostics,
+    brainPlan,
   };
 }

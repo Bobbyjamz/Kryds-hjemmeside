@@ -221,3 +221,90 @@ export async function readLeadBotConfig(): Promise<LeadBotConfig> {
 export async function writeLeadBotConfig(config: LeadBotConfig): Promise<void> {
   return kvSet("leadbot:config", config);
 }
+
+// ── LeadBot v2: Daglig statistik (Brain Layer + Gap Analyzer) ──────────────
+
+export interface LeadBotDailyStats {
+  date: string;                          // ISO yyyy-mm-dd
+  company: number;
+  private: number;
+  employee: number;
+  faggrupper: Record<string, number>;    // { VVS: 3, El: 2, Tømrer: 8, ... }
+  brainNote?: string;                    // Hvad Brain besluttede
+  runtimeSeconds?: number;
+}
+
+const DAILY_STATS_PREFIX = "leadbot:daily-stats:";
+
+/** Læs én dags statistik (ISO yyyy-mm-dd). Returnerer null hvis intet gemt. */
+export async function readDailyStats(date: string): Promise<LeadBotDailyStats | null> {
+  return kvGet<LeadBotDailyStats | null>(`${DAILY_STATS_PREFIX}${date}`, null);
+}
+
+/** Gem én dags statistik. Overskriver hvis eksisterer. */
+export async function writeDailyStats(stats: LeadBotDailyStats): Promise<void> {
+  await kvSet(`${DAILY_STATS_PREFIX}${stats.date}`, stats);
+}
+
+/** Hent de N seneste dages statistik (nyeste først). Bruges af feedback-loop. */
+export async function readRecentDailyStats(days: number = 7): Promise<LeadBotDailyStats[]> {
+  const today = new Date();
+  const results: LeadBotDailyStats[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const iso = d.toISOString().slice(0, 10);
+    const stats = await readDailyStats(iso);
+    if (stats) results.push(stats);
+  }
+  return results;
+}
+
+// ── LeadBot v2: Feedback insights (ugentlig Claude-analyse) ────────────────
+
+export interface LeadBotFeedbackInsights {
+  /** ISO timestamp for hvornår analysen blev kørt */
+  analyzedAt: string;
+  /** Periode analysen dækker (ISO datoer) */
+  periodFrom: string;
+  periodTo: string;
+  /** Top-line metrics */
+  totalSent: number;
+  totalOpened: number;
+  openRate: number;             // 0-1
+  /** Per-kategori open-rates */
+  byCategory: {
+    company: { sent: number; opened: number; openRate: number };
+    private: { sent: number; opened: number; openRate: number };
+    employee: { sent: number; opened: number; openRate: number };
+  };
+  /** Per-faggruppe open-rates for medarbejdere */
+  byFaggruppe: Record<string, { sent: number; opened: number; openRate: number }>;
+  /** Per-kilde open-rates */
+  bySource: Record<string, { sent: number; opened: number; openRate: number }>;
+  /** Score-bracket performance (50-59, 60-69, 70-79, 80+) */
+  byScoreBracket: Record<string, { sent: number; opened: number; openRate: number }>;
+  /** Claude's tekstuelle indsigt — bruges af brain.ts */
+  insights: string;
+  /** Konkrete justeringer Brain bør lave næste gang */
+  suggestedAdjustments: {
+    /** Sænk eller hæv per-kategori threshold (delta points) */
+    thresholdDelta?: { company?: number; private?: number; employee?: number };
+    /** Faggrupper Brain bør prioritere (god ROI) */
+    boostFaggrupper?: string[];
+    /** Faggrupper Brain bør de-prioritere (lav ROI) */
+    deboostFaggrupper?: string[];
+    /** Kilder Brain bør sætte først */
+    boostSources?: string[];
+  };
+}
+
+const FEEDBACK_KEY = "leadbot:feedback:latest";
+
+export async function readFeedbackInsights(): Promise<LeadBotFeedbackInsights | null> {
+  return kvGet<LeadBotFeedbackInsights | null>(FEEDBACK_KEY, null);
+}
+
+export async function writeFeedbackInsights(insights: LeadBotFeedbackInsights): Promise<void> {
+  await kvSet(FEEDBACK_KEY, insights);
+}

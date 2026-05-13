@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runLeadFinder } from "@/lib/lead-finder/runner";
+import { runLeadFinderWithGapFilling } from "@/lib/lead-finder/runner/gap-runner";
 import { readLeads, writeLeads, generateId } from "@/lib/db";
 import { notifyAdmin } from "@/lib/sms";
 import type { Lead } from "@/lib/types";
@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const result = await runLeadFinder();
+    const result = await runLeadFinderWithGapFilling();
 
     // Hent eksisterende leads for deduplicering + auto-cleanup
     let existingLeads = await readLeads();
@@ -104,6 +104,12 @@ export async function GET(req: Request) {
       found: result.candidates.length,
       imported: newLeads.length,
       bySource: result.bySource,
+      byType: result.byType,
+      // v2 fields
+      byFaggruppe: result.byFaggruppe,
+      brainPlan: result.brainPlan,
+      retries: result.retries,
+      finalShortfall: result.finalShortfall,
       durationMs: result.durationMs,
     });
   } catch (err) {

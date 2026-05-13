@@ -7,9 +7,14 @@
  *   Medarbejdere: email, kilde, fagkategori, erfaring, openToWork
  *
  * Threshold: leads med score < QUALIFY_THRESHOLD kasseres.
+ *
+ * v2-opdatering: scoreEmployee læser også runtime-state fra filter-config
+ * (missing faggrupper, dynamiske tærskler fra Brain).
  */
 
-import type { LeadCandidate } from "./types";
+import type { LeadCandidate, Faggruppe } from "./types";
+import { KRITISKE_FAGGRUPPER } from "./types";
+import { getMissingFaggrupper } from "./filters/filter-config";
 
 /**
  * Minimum score for at et lead medtages.
@@ -134,7 +139,7 @@ function scorePrivate(c: LeadCandidate): number {
 function scoreEmployee(c: LeadCandidate): number {
   let s = 0;
 
-  // Direkte kontakt = kan kontaktes nu (op til 35 point)
+  // Direkte kontakt = kan kontaktes nu (op til 45 point)
   if (c.email) s += 30;
   if (c.phone) s += 15;
 
@@ -142,21 +147,49 @@ function scoreEmployee(c: LeadCandidate): number {
   if (c.openToWork) s += 20;
   if (c.source.includes("Jobindex")) s += 20;
   if (c.source.includes("Workindenmark")) s += 15;
-  if (c.source.includes("Jobnet")) s += 12;         // Aktiv jobsøgning = interesseret kandidat
+  if (c.source.includes("Jobnet")) s += 12;             // Aktiv jobsøgning
+  if (c.source.includes("CVR Enkeltmands")) s += 25;    // ★ v2: selvstændig = konverterbar
 
   // Fagkategori match — KrydsBygs 9 fagområder
-  if (c.tradeCategory || c.industry) {
-    const trade = (c.tradeCategory || c.industry || "").toLowerCase();
-    const relevantTrades = ["maler", "tømrer", "murer", "vvs", "elektriker",
-      "gulv", "gartner", "rengøring", "flytning", "byggeplads", "montør"];
-    if (relevantTrades.some((t) => trade.includes(t))) s += 15;
-    else s += 5; // Generel profil
+  const tradeText = (c.tradeCategory || c.industry || "").toLowerCase();
+  if (tradeText) {
+    const relevantTrades = ["tømrer", "snedker", "murer", "vvs", "elektriker",
+      "el-instal", "maler", "gulv", "stillads", "jord", "anlæg", "råbyg",
+      "beton", "armering", "montør", "rørlægger", "blikkenslager"];
+    if (relevantTrades.some((t) => tradeText.includes(t))) s += 15;
+    else s += 5;
+  }
+
+  // ★ v2: Kritisk-faggruppe boost — Brain bestemmer dynamisk hvilke der mangler
+  if (c.tradeCategory) {
+    const trade = c.tradeCategory as Faggruppe;
+    const missing = getMissingFaggrupper();
+    if (missing.length > 0 && missing.includes(trade)) {
+      s += 20; // Brain har sagt: vi mangler kritisk denne faggruppe i dag
+    } else if (KRITISKE_FAGGRUPPER.includes(trade)) {
+      s += 15; // Branchen mangler generelt VVS/El/Stillads
+    }
   }
 
   // Erfaring
   if (c.experienceYears !== undefined) {
-    if (c.experienceYears >= 3 && c.experienceYears <= 15) s += 10;
-    else if (c.experienceYears >= 1) s += 5;
+    if (c.experienceYears >= 5) s += 15;                  // Erfaren mester
+    else if (c.experienceYears >= 2) s += 10;             // Solid håndværker
+    else if (c.experienceYears >= 1) s += 5;              // Knap nok grøn
+    else if (c.experienceYears < 1) s -= 5;               // For grøn
+  }
+
+  // Geografi — vi sender folk ud på Sjælland, så lokal er bedst
+  if (c.city) {
+    const city = c.city.toLowerCase();
+    if (city.includes("københavn") || city.includes("frederiksberg")) s += 10;
+    else if (city.includes("roskilde") || city.includes("hillerød") || city.includes("helsingør")) s += 5;
+  }
+
+  // Sidst aktiv (JobIndex/LinkedIn CV-feltet)
+  if (c.lastActiveDays !== undefined) {
+    if (c.lastActiveDays <= 30) s += 15;
+    else if (c.lastActiveDays <= 90) s += 8;
   }
 
   // Kontaktnavn = ikke bare et anonymt opslag

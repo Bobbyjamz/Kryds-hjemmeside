@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { runLeadFinder } from "@/lib/lead-finder/runner";
+import { runLeadFinderWithGapFilling } from "@/lib/lead-finder/runner/gap-runner";
 import { readLeads, writeLeads, generateId } from "@/lib/db";
 import { notifyAdmin } from "@/lib/sms";
 import type { Lead } from "@/lib/types";
@@ -17,7 +17,7 @@ export async function POST() {
   const startMs = Date.now();
 
   try {
-    const result = await runLeadFinder();
+    const result = await runLeadFinderWithGapFilling();
 
     // Hent eksisterende leads for deduplicering
     let existingLeads = await readLeads();
@@ -116,6 +116,11 @@ export async function POST() {
       discarded: result.discardedCount,
       bySource: result.bySource,
       byType: result.byType,
+      // v2 fields:
+      byFaggruppe: result.byFaggruppe,
+      brainPlan: result.brainPlan,
+      retries: result.retries,
+      finalShortfall: result.finalShortfall,
       sourceDiagnostics: result.sourceDiagnostics,
       durationMs: Date.now() - startMs,
       smsSent: smsResult.sent,
