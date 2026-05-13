@@ -15,16 +15,32 @@ function XLogo() {
   );
 }
 
+/* Pænere "X" — samme stil som logoet (gul + cream på kryds) */
+function PrettyX({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 90 90" style={{ display: "block" }}>
+      <line x1="18" y1="18" x2="72" y2="72" stroke="#F5C400" strokeWidth="14" strokeLinecap="round" />
+      <line x1="72" y1="18" x2="18" y2="72" stroke="var(--color-cream)" strokeWidth="14" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function MobileHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const { lang, toggle: toggleLang } = useLanguage();
   const { theme, toggle: toggleTheme } = useTheme();
-  const touchStartX = useRef<number | null>(null);
   const isDA = lang === "da";
 
+  /* Tinder-style drag on overlay */
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const isHorizontal = useRef(false);
+  const [dragX, setDragX] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
   /* Auto-close on navigation */
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
+  useEffect(() => { setMenuOpen(false); setDragX(0); setAnimating(false); }, [pathname]);
 
   /* Body scroll lock when menu open */
   useEffect(() => {
@@ -34,12 +50,52 @@ export default function MobileHeader() {
     return () => { document.body.style.overflow = prev; };
   }, [menuOpen]);
 
-  /* Swipe right to close overlay */
-  const onTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    if (e.changedTouches[0].clientX - touchStartX.current > 72) setMenuOpen(false);
+  /* Reset drag when menu reopens */
+  useEffect(() => {
+    if (menuOpen) { setDragX(0); setAnimating(false); }
+  }, [menuOpen]);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    isHorizontal.current = false;
+    setAnimating(false);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+
+    if (!isHorizontal.current) {
+      if (Math.abs(dy) > Math.abs(dx) + 4) return;
+      if (Math.abs(dx) < 10) return;
+      isHorizontal.current = true;
+    }
+    /* Only allow swipe-right (positive dx) to close */
+    setDragX(dx > 0 ? dx : 0);
+  };
+
+  const onTouchEnd = () => {
+    const threshold = window.innerWidth * 0.25;
+    if (dragX > threshold) {
+      /* Slide overlay off to the right and close */
+      setAnimating(true);
+      setDragX(window.innerWidth);
+      setTimeout(() => {
+        setMenuOpen(false);
+        setDragX(0);
+        setAnimating(false);
+      }, 240);
+    } else {
+      /* Snap back */
+      setAnimating(true);
+      setDragX(0);
+      setTimeout(() => setAnimating(false), 200);
+    }
     touchStartX.current = null;
+    touchStartY.current = null;
+    isHorizontal.current = false;
   };
 
   return (
@@ -101,30 +157,37 @@ export default function MobileHeader() {
         </div>
       </header>
 
-      {/* ── Fullscreen overlay menu ── */}
+      {/* ── Fullscreen overlay menu — slides like a Tinder card ── */}
       {menuOpen && (
         <div
           className="fixed inset-0 z-[400] flex flex-col"
           style={{
             background: "color-mix(in srgb, var(--color-black) 97%, transparent)",
             paddingBottom: "calc(40px + env(safe-area-inset-bottom, 0px))",
+            transform: `translateX(${dragX}px)`,
+            transition: animating ? "transform 0.24s ease-out" : "none",
+            willChange: "transform",
+            boxShadow: dragX > 0 ? "0 0 40px rgba(0,0,0,.5)" : undefined,
           }}
           onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          {/* Top bar with X close button */}
+          {/* Top bar — pretty X close button (same XLogo style) */}
           <div
             className="flex items-center justify-end px-[18px] flex-shrink-0"
             style={{ height: 58, borderBottom: "1px solid rgba(242,238,230,.07)" }}
           >
             <button
               onClick={() => setMenuOpen(false)}
-              className="app-menu-btn"
               aria-label={isDA ? "Luk menu" : "Close menu"}
+              className="w-[42px] h-[42px] rounded-[10px] flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+              style={{
+                background: "var(--color-gray)",
+                border: "1px solid rgba(242,238,230,.07)",
+              }}
             >
-              <span style={{ transform: "translateY(6px) rotate(45deg)" }} />
-              <span style={{ opacity: 0 }} />
-              <span style={{ transform: "translateY(-6px) rotate(-45deg)" }} />
+              <PrettyX size={22} />
             </button>
           </div>
 
@@ -138,14 +201,14 @@ export default function MobileHeader() {
               { href: "/tilmeld",               label: isDA ? "Tilmeld dig"      : "Join us" },
               { href: "/medarbejder/login",     label: isDA ? "Medarbejder login": "Employee login" },
             ].map((l) => (
-              <a
+              <Link
                 key={l.href}
                 href={l.href}
                 onClick={() => setMenuOpen(false)}
                 className="font-condensed font-extrabold text-[26px] uppercase text-cream no-underline hover:text-yellow leading-none transition-colors"
               >
                 {l.label}
-              </a>
+              </Link>
             ))}
           </div>
 
