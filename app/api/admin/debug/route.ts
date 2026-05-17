@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-// ── Rate limit: max 1 kørsel per 30 sekunder per admin ─────────────────────
+// Rate limit: max 1 kørsel per 30 sekunder per admin (undgå API-spam)
 const lastRunByUser = new Map<string, number>();
 const RATE_LIMIT_MS = 30_000;
 
@@ -16,19 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { password, sendTestEmail = false } = await req.json().catch(() => ({}));
-
-  // Debug-password skal være sat OG matche
-  const expected = process.env.DEBUG_PASSWORD;
-  if (!expected) {
-    return NextResponse.json(
-      { error: "DEBUG_PASSWORD ikke konfigureret i Vercel — sæt den i Settings → Environment Variables" },
-      { status: 503 },
-    );
-  }
-  if (!password || password !== expected) {
-    return NextResponse.json({ error: "Forkert debug-password" }, { status: 401 });
-  }
+  const { sendTestEmail = false } = await req.json().catch(() => ({}));
 
   // Rate limiting
   const now = Date.now();

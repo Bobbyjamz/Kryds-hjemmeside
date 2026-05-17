@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/admin/kunder",       label: "Kunder",       icon: "🏢" },
   { href: "/admin/tilbud",       label: "Tilbud",       icon: "📄" },
   { href: "/admin/feed",         label: "Feed",         icon: "📡" },
+  { href: "/admin/debug",        label: "Debug",        icon: "🔧" },
 ];
 
 export default function MobileAdminNav({ username }: { username: string }) {

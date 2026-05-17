@@ -77,7 +77,6 @@ function testEnvVariables(): TestResult[] {
     envCheck("RESEND_API_KEY",           { required: true,  description: "API-nøgle fra resend.com" }),
     envCheck("JWT_SECRET",               { required: true,  description: "Min. 32 tegn random string" }),
     envCheck("ADMIN_USERNAME",           { required: true,  description: "Admin-brugernavn" }),
-    envCheck("DEBUG_PASSWORD",           { required: true,  description: "Password til /admin/debug" }),
     envCheck("RESEND_FROM",              { required: false, description: "KrydsByg <kontakt@krydsbyg.com>" }),
     envCheck("RESEND_TO",                { required: false, description: "kontakt@krydsbyg.com" }),
     envCheck("NEXT_PUBLIC_SITE_URL",     { required: false, description: "https://krydsbyg.com" }),
