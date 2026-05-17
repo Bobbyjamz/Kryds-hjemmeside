@@ -391,7 +391,7 @@ export default function HealthDashboard() {
 
       {/* ── Mobile bottom nav (< 701px) ── */}
       <nav
-        className="flex min-[701px]:hidden fixed bottom-0 left-0 right-0 z-50"
+        className="helbred-mobile-nav flex min-[701px]:hidden fixed bottom-0 left-0 right-0 z-50"
         style={{
           background: "var(--surface)", borderTop: "0.5px solid var(--hairline-2)",
           paddingBottom: "env(safe-area-inset-bottom, 0)",
@@ -419,13 +419,13 @@ export default function HealthDashboard() {
       {/* ── Main ── */}
       <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", paddingBottom: 80 }}>
         {/* Header */}
-        <header style={{
+        <header className="helbred-header" style={{
           padding: "18px 28px", display: "flex", alignItems: "center", justifyContent: "space-between",
           borderBottom: "0.5px solid var(--hairline-2)", background: "var(--bg)",
         }}>
           <div>
-            <div style={{ fontSize: 11, color: "var(--text-2)" }}>God dag, Krystian</div>
-            <div style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.02, marginTop: 2, textTransform: "capitalize" }}>{todayDanish()}</div>
+            <div className="helbred-greeting" style={{ fontSize: 11, color: "var(--text-2)" }}>God dag, Krystian</div>
+            <div className="helbred-date" style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.02, marginTop: 2, textTransform: "capitalize" }}>{todayDanish()}</div>
           </div>
           <button onClick={() => setActiveTab("sarah")} style={{
             padding: "8px 14px", borderRadius: 999, border: 0,
@@ -442,7 +442,7 @@ export default function HealthDashboard() {
           </div>
         )}
 
-        <div style={{ flex: 1, overflow: "auto", padding: "20px 28px 28px" }}>
+        <div className="helbred-content" style={{ flex: 1, overflow: "auto", padding: "20px 28px 28px" }}>
           {activeTab === "oversigt" && (
             <TabOversigt log={log} readinessColor={readinessColor} readinessLabel={readinessLabel} onEdit={(t) => setEditor({ type: t })} sarahText={sarahDailyText(log)} onAskSarah={(p) => { setActiveTab("sarah"); setTimeout(() => sendToSarah(p), 200); }} />
           )}
@@ -569,10 +569,10 @@ function TabOversigt({ log, readinessColor, readinessLabel, onEdit, sarahText, o
   const stepsBar = log.stepsGoal > 0 ? Math.min(100, (log.steps / log.stepsGoal) * 100) : 0;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 1280 }}>
+    <div className="helbred-tab-wrap" style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 1280 }}>
       {/* Hero: Readiness */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1fr)", gap: 16 }} className="grid-collapse">
-        <div className="card" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+      <div className="helbred-hero-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1fr)", gap: 16 }}>
+        <div className="card helbred-large-card" style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span className="label-cap">Readiness · i dag</span>
             <button onClick={() => onEdit("vitals")} style={btnGhost}>Rediger</button>
@@ -610,7 +610,7 @@ function TabOversigt({ log, readinessColor, readinessLabel, onEdit, sarahText, o
       {/* Stat grid */}
       <div>
         <div className="label-cap" style={{ marginBottom: 10 }}>I dag</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
+        <div className="helbred-stats-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
           <StatCard label="Skridt" value={log.steps.toLocaleString("da")} sub={`af ${log.stepsGoal.toLocaleString("da")}`} color="var(--steps)" onClick={() => onEdit("vitals")} />
           <StatCard label="Hvilepuls" value={log.restingHr || "—"} unit="bpm" color="var(--heart)" onClick={() => onEdit("vitals")} />
           <StatCard label="Søvn i nat" value={log.sleepHours || log.sleepMinutes ? `${log.sleepHours}t ${log.sleepMinutes}m` : "—"} sub={log.sleepEfficiency ? `${log.sleepEfficiency}% effektiv` : ""} color="var(--deep-sleep)" onClick={() => onEdit("vitals")} />
@@ -633,8 +633,8 @@ function TabKost({ log, meals, onEdit, onAddMeal, onDeleteMeal }: {
   const remaining = log.calorieTarget - log.caloriesEaten;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 980 }}>
-      <div className="card" style={{ padding: 24 }}>
+    <div className="helbred-tab-wrap" style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 980 }}>
+      <div className="card helbred-large-card" style={{ padding: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <span className="label-cap">Dagens energi</span>
           <button onClick={onEdit} style={btnGhost}>Rediger makro</button>
@@ -720,7 +720,7 @@ function TabTraening({ training, log, onAdd, onDelete }: {
   const totalMinutes = training.reduce((sum, t) => sum + t.duration, 0);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 980 }}>
+    <div className="helbred-tab-wrap" style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 980 }}>
       <div className="card" style={{ padding: 20 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <div>
@@ -793,7 +793,7 @@ function TabKalender({ events, connected, onConnect, onRefresh }: {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 720 }}>
+    <div className="helbred-tab-wrap" style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 720 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span className="label-cap">I dag · Google Kalender</span>
         <button onClick={onRefresh} style={btnGhost}>↻ Opdater</button>
@@ -869,8 +869,8 @@ function TabTilskud({ supplements, takenLog, onToggle }: {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 720 }}>
-      <div className="card" style={{ padding: 18, display: "flex", alignItems: "center", gap: 16 }}>
+    <div className="helbred-tab-wrap" style={{ display: "flex", flexDirection: "column", gap: 20, maxWidth: 720 }}>
+      <div className="card helbred-large-card" style={{ padding: 18, display: "flex", alignItems: "center", gap: 16 }}>
         <Ring size={72} stroke={7} value={takenCount} max={total || 1} color="var(--success)">
           <div className="num-big" style={{ fontSize: 18, fontWeight: 500 }}>{takenCount}<span style={{ fontSize: 10, color: "var(--text-2)", fontWeight: 400 }}>/{total}</span></div>
         </Ring>
@@ -973,7 +973,7 @@ function TabSarah({ messages, input, setInput, onSend, loading, onClear }: {
         <div ref={bottomRef} />
       </div>
 
-      <div style={{ display: "flex", gap: 8, marginTop: 12, padding: "12px 4px", borderTop: "0.5px solid var(--hairline-2)" }}>
+      <div className="helbred-chat-input" style={{ display: "flex", gap: 8, marginTop: 12, padding: "12px 4px", borderTop: "0.5px solid var(--hairline-2)" }}>
         <input
           type="text"
           value={input}

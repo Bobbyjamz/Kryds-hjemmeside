@@ -133,3 +133,73 @@
 .sarah-helbred-root textarea:focus {
   border-color: var(--amber);
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   iPhone / mobile layout overrides (≤ 700px)
+   Desktop layout uses inline styles — these !important rules
+   only kick in on mobile to give the helbred-modulet a native
+   iOS-app feel: large title, compact padding, stacked hero,
+   2-column stat grid, tighter cards.
+   ══════════════════════════════════════════════════════════════════ */
+@media (max-width: 700px) {
+  /* Header & main content padding */
+  .sarah-helbred-root .helbred-header {
+    padding: 14px 16px !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 20 !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    background: rgba(10,10,10,0.85) !important;
+  }
+  .sarah-helbred-root .helbred-content {
+    padding: 14px 14px 110px !important;
+  }
+
+  /* iOS-style large title for date */
+  .sarah-helbred-root .helbred-greeting {
+    font-size: 12px !important;
+  }
+  .sarah-helbred-root .helbred-date {
+    font-size: 26px !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.1 !important;
+  }
+
+  /* Hero stacks vertically (Oversigt) */
+  .sarah-helbred-root .helbred-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* Stat grid → 2 columns */
+  .sarah-helbred-root .helbred-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Tighter card padding */
+  .sarah-helbred-root .helbred-large-card {
+    padding: 18px !important;
+  }
+  .sarah-helbred-root .card {
+    border-radius: 14px;
+  }
+
+  /* Tighter tab content spacing */
+  .sarah-helbred-root .helbred-tab-wrap {
+    gap: 14px !important;
+  }
+
+  /* Bottom nav respect safe area + sharper iOS feel */
+  .sarah-helbred-root .helbred-mobile-nav {
+    backdrop-filter: saturate(180%) blur(24px);
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    background: rgba(20,20,22,0.85) !important;
+  }
+
+  /* Sarah chat input area sits above the bottom tab bar */
+  .sarah-helbred-root .helbred-chat-input {
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
