@@ -195,6 +195,63 @@ export default async function AdminDashboardPage() {
           <p className="text-[13px] text-muted">{totalSignups} samlede tilmeldinger</p>
         </div>
       </div>
+
+      {/* ── System & Værktøjer ──────────────────────────────────── */}
+      <div className="mt-10">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.04em] text-cream">
+            System & Værktøjer
+          </h2>
+          <span className="font-condensed text-[11px] tracking-[.12em] uppercase text-muted">Diagnostik</span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 max-[900px]:grid-cols-2 max-[500px]:grid-cols-1">
+          {/* Debug */}
+          <Link
+            href="/admin/debug"
+            className="group bg-gray border border-[rgba(242,238,230,0.07)] hover:border-yellow rounded-[2px] p-5 transition-colors flex flex-col gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[26px] leading-none">🔧</span>
+              <span className="text-[10px] font-condensed uppercase tracking-[.15em] text-muted group-hover:text-yellow transition-colors">Åbn →</span>
+            </div>
+            <div>
+              <p className="font-condensed font-extrabold text-[16px] uppercase tracking-[.04em] text-cream leading-tight">Debug</p>
+              <p className="text-[12px] text-muted mt-1 leading-snug">Live status på miljøvariabler, API-keys og system-helbred.</p>
+            </div>
+          </Link>
+
+          {/* Helbred */}
+          <Link
+            href="/admin/helbred"
+            className="group bg-gray border border-[rgba(242,238,230,0.07)] hover:border-yellow rounded-[2px] p-5 transition-colors flex flex-col gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[26px] leading-none">♥</span>
+              <span className="text-[10px] font-condensed uppercase tracking-[.15em] text-muted group-hover:text-yellow transition-colors">Åbn →</span>
+            </div>
+            <div>
+              <p className="font-condensed font-extrabold text-[16px] uppercase tracking-[.04em] text-cream leading-tight">Helbred</p>
+              <p className="text-[12px] text-muted mt-1 leading-snug">Sarah Helbred — træning, kost, tilskud og Google Kalender.</p>
+            </div>
+          </Link>
+
+          {/* Council */}
+          <Link
+            href="/admin/council"
+            className="group bg-gray border border-[rgba(242,238,230,0.07)] hover:border-yellow rounded-[2px] p-5 transition-colors flex flex-col gap-3"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[26px] leading-none">▲</span>
+              <span className="text-[10px] font-condensed uppercase tracking-[.15em] text-muted group-hover:text-yellow transition-colors">Åbn →</span>
+            </div>
+            <div>
+              <p className="font-condensed font-extrabold text-[16px] uppercase tracking-[.04em] text-cream leading-tight">Council</p>
+              <p className="text-[12px] text-muted mt-1 leading-snug">AI rådgivere — economy, marketing, operations og risk.</p>
+            </div>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
