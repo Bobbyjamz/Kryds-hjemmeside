@@ -249,7 +249,7 @@ export default function Pipeline() {
                   {lead.email ? ` · ${lead.email}` : ""}
                 </p>
                 {lead.personalAngle && (
-                  <p className="text-[11px] text-cream/60 mt-1 italic">"{lead.personalAngle}"</p>
+                  <p className="text-[11px] text-cream/60 mt-1 italic">&quot;{lead.personalAngle}&quot;</p>
                 )}
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -274,7 +274,7 @@ export default function Pipeline() {
         <div className="space-y-1">
           {udkastLeads.length === 0 ? (
             <p className="text-muted text-[13px] p-4 bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px]">
-              Ingen udkast klar. Gå til 'Ny kandidat' og lad Sarah skrive.
+              Ingen udkast klar. Gå til &apos;Ny kandidat&apos; og lad Sarah skrive.
             </p>
           ) : udkastLeads.map((lead) => (
             <div key={lead.id} className="bg-gray border border-[rgba(242,238,230,0.07)] rounded-[2px] p-4">
