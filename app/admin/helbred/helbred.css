@@ -1,0 +1,135 @@
+/* Sarah Helbred — standalone health module design tokens
+   Dark by default, matches KrydsByg aesthetic with health accents */
+
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
+
+.sarah-helbred-root {
+  /* Dark theme tokens */
+  --bg:            #0a0a0a;
+  --bg-deep:       #050505;
+  --surface:       #141416;
+  --surface-2:     #1c1c1e;
+  --surface-3:     #2a2a2d;
+  --overlay:       rgba(20,20,22,0.78);
+
+  --text:          #ffffff;
+  --text-2:        rgba(235,235,245,0.66);
+  --text-3:        rgba(235,235,245,0.35);
+  --text-on-accent:#412402;
+
+  --hairline:      rgba(255,255,255,0.10);
+  --hairline-2:    rgba(255,255,255,0.06);
+
+  --shadow-sm:     0 1px 2px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(255,255,255,0.04);
+  --shadow-md:     0 2px 10px rgba(0,0,0,0.5);
+
+  /* Brand */
+  --amber:         #FAC775;
+  --amber-deep:    #B57E1C;
+  --amber-ink:     #412402;
+  --recovery:      #7F77DD;
+  --deep-sleep:    #534AB7;
+  --light-sleep:   #9FE1CB;
+  --hrv:           #C77BD9;
+  --steps:         #378ADD;
+  --heart:         #E4364A;
+  --cal:           #D85A30;
+  --protein:       #378ADD;
+  --carb:          #FAC775;
+  --fat:           #D85A30;
+  --work:          #2A6FDB;
+  --school:        #7F77DD;
+  --train:         #5DCAA5;
+  --meal:          #FAC775;
+  --sleep-cat:     #534AB7;
+  --success:       #34C759;
+  --warn:          #FF9F0A;
+  --danger:        #FF3B30;
+
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+.sarah-helbred-root * { box-sizing: border-box; font-family: inherit; }
+
+.sarah-helbred-root .card {
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 0.5px solid var(--hairline-2);
+}
+
+.sarah-helbred-root .label-cap {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-2);
+  font-weight: 500;
+}
+
+.sarah-helbred-root .num-big {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.sarah-helbred-root .mono {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+}
+
+.sarah-helbred-root .no-scrollbar { scrollbar-width: none; }
+.sarah-helbred-root .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Sarah orb gradient avatar */
+.sarah-avatar {
+  background: radial-gradient(circle at 30% 30%, #FFE0A8 0%, #FAC775 55%, #B57E1C 100%);
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.9); }
+}
+.sarah-helbred-root .pulse-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+@keyframes typing-bob {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+.sarah-helbred-root .typing-dot { animation: typing-bob 1.2s ease-in-out infinite; display: inline-block; }
+.sarah-helbred-root .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.sarah-helbred-root .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* Hover states */
+.sarah-helbred-root .nav-btn:hover {
+  background: rgba(250,199,117,0.08) !important;
+  color: var(--amber) !important;
+}
+
+/* Form inputs */
+.sarah-helbred-root input[type="text"],
+.sarah-helbred-root input[type="number"],
+.sarah-helbred-root input[type="time"],
+.sarah-helbred-root textarea,
+.sarah-helbred-root select {
+  background: var(--surface-2);
+  border: 0.5px solid var(--hairline);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+}
+.sarah-helbred-root input:focus,
+.sarah-helbred-root textarea:focus {
+  border-color: var(--amber);
+}
