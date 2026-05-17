@@ -9,6 +9,7 @@ import Founder from "@/components/Founder";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import MobileApp from "@/components/MobileApp";
+import MobileSwipeWrapper from "@/components/MobileSwipeWrapper";
 
 export default function Home() {
   return (
@@ -29,7 +30,9 @@ export default function Home() {
 
       {/* ── MOBILE app (hidden on desktop >900px) ── */}
       <div className="hidden max-[900px]:block">
-        <MobileApp />
+        <MobileSwipeWrapper>
+          <MobileApp />
+        </MobileSwipeWrapper>
       </div>
     </>
   );

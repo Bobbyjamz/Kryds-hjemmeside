@@ -4,11 +4,11 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/* Tinder-style horizontal page navigation — polished v3.
-   - Pure horizontal slide (NO rotation)
+/* Tinder-style horizontal page navigation — polished v4.
+   - Card-lift effect: foreground translates + scales down + rounds corners
+   - Background page becomes more visible (less blur, higher opacity)
    - GPU-accelerated translate3d
    - iOS-style cubic-bezier easing
-   - Blurred + scaled background iframe (frosted glass effect)
    Order: / → /ydelser → /priser → /om-os → /tilmeld → /medarbejder/login */
 const PAGE_ORDER = ["/", "/ydelser", "/priser", "/om-os", "/tilmeld", "/medarbejder/login"];
 
@@ -138,17 +138,30 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   const winW = typeof window !== "undefined" ? window.innerWidth : 400;
   const progress = Math.min(Math.abs(dragX) / winW, 1);
 
-  /* Iframe opacity: fade in proportional to drag so background page reveals naturally */
-  const prevOpacity = direction === "prev" ? 0.4 + progress * 0.6 : 0;
-  const nextOpacity = direction === "next" ? 0.4 + progress * 0.6 : 0;
+  /* Background page becomes more visible as you swipe further.
+     Start at 55% opacity so user sees the "next card" peeking through from the start. */
+  const prevOpacity = direction === "prev" ? 0.55 + progress * 0.45 : 0;
+  const nextOpacity = direction === "next" ? 0.55 + progress * 0.45 : 0;
+
+  /* Blur fades from 5px down to 1px as the page becomes prominent — feels like
+     focus pulling onto the destination. */
+  const prevBlur = direction === "prev" ? Math.max(1, 5 - progress * 4) : 5;
+  const nextBlur = direction === "next" ? Math.max(1, 5 - progress * 4) : 5;
 
   /* Subtle parallax on the background page — feels more natural than static */
-  const prevParallax = direction === "prev" ? -winW * 0.08 * (1 - progress) : 0;
-  const nextParallax = direction === "next" ?  winW * 0.08 * (1 - progress) : 0;
+  const prevParallax = direction === "prev" ? -winW * 0.10 * (1 - progress) : 0;
+  const nextParallax = direction === "next" ?  winW * 0.10 * (1 - progress) : 0;
+
+  /* Foreground "card lift" — scale down + round corners as you swipe.
+     - scale: 1.0 → 0.92 (8% shrink at full drag)
+     - borderRadius: 0 → 24px (lifts off into a discrete card)
+     - shadow grows for depth */
+  const fgScale  = 1 - progress * 0.08;
+  const fgRadius = progress * 24;
 
   return (
     <>
-      {/* ── Previous page preview — blurred frosted-glass background ── */}
+      {/* ── Previous page preview — frosted-glass background ── */}
       {previewReady && prevPage && (
         <iframe
           src={prevPage}
@@ -162,16 +175,16 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
             opacity: prevOpacity,
             /* scale(1.04) prevents blur from showing white pixel-edges */
             transform: `scale(1.04) translate3d(${prevParallax}px, 0, 0)`,
-            filter: "blur(8px)",
+            filter: `blur(${prevBlur}px)`,
             transition: animating
-              ? `opacity 0.28s ${IOS_EASE}, transform 0.28s ${IOS_EASE}`
+              ? `opacity 0.3s ${IOS_EASE}, transform 0.3s ${IOS_EASE}, filter 0.3s ${IOS_EASE}`
               : "none",
-            willChange: dragging || animating ? "opacity, transform" : "auto",
+            willChange: dragging || animating ? "opacity, transform, filter" : "auto",
           }}
         />
       )}
 
-      {/* ── Next page preview — blurred frosted-glass background ── */}
+      {/* ── Next page preview — frosted-glass background ── */}
       {previewReady && nextPage && (
         <iframe
           src={nextPage}
@@ -185,11 +198,11 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
             opacity: nextOpacity,
             /* scale(1.04) prevents blur from showing white pixel-edges */
             transform: `scale(1.04) translate3d(${nextParallax}px, 0, 0)`,
-            filter: "blur(8px)",
+            filter: `blur(${nextBlur}px)`,
             transition: animating
-              ? `opacity 0.28s ${IOS_EASE}, transform 0.28s ${IOS_EASE}`
+              ? `opacity 0.3s ${IOS_EASE}, transform 0.3s ${IOS_EASE}, filter 0.3s ${IOS_EASE}`
               : "none",
-            willChange: dragging || animating ? "opacity, transform" : "auto",
+            willChange: dragging || animating ? "opacity, transform, filter" : "auto",
           }}
         />
       )}
@@ -222,7 +235,11 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         </div>
       )}
 
-      {/* ── Sliding content (Tinder card) — pure horizontal translate3d, NO rotation ──
+      {/* ── Sliding content (Tinder card) — translate + scale + corner-radius ──
+          The "card lift" effect: as user swipes, the current page card shrinks
+          slightly (8%), rounds its corners (0 → 24px), and gains a deeper shadow.
+          This creates the perception of pulling the front card away to reveal
+          the next one behind it.
           NOTE: only apply transform while dragging/animating so we don't create
           a stacking context that breaks position:fixed children. */}
       <div
@@ -231,20 +248,23 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         onTouchEnd={onTouchEnd}
         style={{
           transform: dragging || animating
-            ? `translate3d(${dragX}px, 0, 0)`
+            ? `translate3d(${dragX}px, 0, 0) scale(${fgScale})`
             : undefined,
+          transformOrigin: "center center",
+          borderRadius: dragging || animating ? `${fgRadius}px` : 0,
+          overflow: dragging || animating ? "hidden" : "visible",
           transition: animating
-            ? `transform ${NAV_DURATION_MS}ms ${IOS_EASE}`
+            ? `transform ${NAV_DURATION_MS}ms ${IOS_EASE}, border-radius ${NAV_DURATION_MS}ms ${IOS_EASE}, box-shadow ${NAV_DURATION_MS}ms ${IOS_EASE}`
             : "none",
-          willChange: dragging || animating ? "transform" : "auto",
+          willChange: dragging || animating ? "transform, border-radius" : "auto",
           touchAction: "pan-y",          // lade browseren håndtere vertikal scroll
           position: "relative",
           zIndex: 10,
           background: "var(--color-black)",
           minHeight: "100vh",
-          /* Pre-allocér box-shadow så vi ikke skifter property under drag */
+          /* Card shadow grows with drag depth — gives the lifting-off card feel */
           boxShadow: dragging || animating
-            ? `0 0 40px rgba(0,0,0,${0.35 * progress + 0.15})`
+            ? `0 18px 60px rgba(0,0,0,${0.55 * progress + 0.18}), 0 4px 16px rgba(0,0,0,${0.35 * progress + 0.1})`
             : "0 0 0 rgba(0,0,0,0)",
         }}
       >
