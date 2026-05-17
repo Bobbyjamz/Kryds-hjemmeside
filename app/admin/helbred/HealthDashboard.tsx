@@ -339,12 +339,14 @@ export default function HealthDashboard() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--bg)" }}>
-      {/* ── Sidebar (desktop) ── */}
-      <aside style={{
-        width: 240, background: "var(--surface)", borderRight: "0.5px solid var(--hairline-2)",
-        display: "flex", flexDirection: "column", padding: "20px 14px",
-        position: "sticky", top: 0, height: "100vh",
-      }} className="hide-mobile">
+      {/* ── Sidebar (desktop ≥ 701px) ── */}
+      <aside
+        className="hidden min-[701px]:flex flex-col"
+        style={{
+          width: 240, background: "var(--surface)", borderRight: "0.5px solid var(--hairline-2)",
+          padding: "20px 14px", position: "sticky", top: 0, height: "100vh",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 8px 20px" }}>
           <SarahAvatar size={36} />
           <div>
@@ -387,12 +389,14 @@ export default function HealthDashboard() {
         </Link>
       </aside>
 
-      {/* ── Mobile bottom nav ── */}
-      <nav className="show-mobile" style={{
-        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 50,
-        background: "var(--surface)", borderTop: "0.5px solid var(--hairline-2)",
-        display: "flex", paddingBottom: "env(safe-area-inset-bottom, 0)",
-      }}>
+      {/* ── Mobile bottom nav (< 701px) ── */}
+      <nav
+        className="flex min-[701px]:hidden fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          background: "var(--surface)", borderTop: "0.5px solid var(--hairline-2)",
+          paddingBottom: "env(safe-area-inset-bottom, 0)",
+        }}
+      >
         {NAV_ITEMS.map((item) => {
           const active = activeTab === item.id;
           return (
@@ -411,11 +415,6 @@ export default function HealthDashboard() {
           );
         })}
       </nav>
-
-      <style>{`
-        @media (max-width: 700px) { .hide-mobile { display: none !important; } }
-        @media (min-width: 701px) { .show-mobile { display: none !important; } }
-      `}</style>
 
       {/* ── Main ── */}
       <main style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", paddingBottom: 80 }}>
