@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { sendSMS } from "@/lib/sms";
 import { generateId } from "@/lib/db";
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
   // Bekræftelsesmail til kunden
   if (email) {
     await resend.emails.send({
-      from: process.env.RESEND_FROM || "onboarding@resend.dev",
+      from: process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>",
       to: [email],
       subject: "✕ KrydsByg — Vi har modtaget din forespørgsel",
       html: `
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
   ];
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM || "onboarding@resend.dev",
+    from: process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>",
     to: [process.env.RESEND_TO || "kontakt@krydsbyg.com"],
     subject: `${urgent ? "🚨 HASTER — " : ""}Ny forespørgsel: ${trade} — ${name}`,
     html: `

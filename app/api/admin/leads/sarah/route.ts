@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { readLeads, writeLeads, appendEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
@@ -161,7 +161,7 @@ ${briefingBlock}`;
 
   try {
     const msg = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 700,
       system: isEmployee ? SARAH_ONBOARDING_SYSTEM : SARAH_SYSTEM,
       messages: [{ role: "user", content: userContent }],
@@ -215,7 +215,7 @@ export async function PATCH(req: NextRequest) {
     if (!lead.draftSubject || !lead.draftBody) return NextResponse.json({ error: "Ingen email-udkast — generér udkast med Sarah først" }, { status: 400 });
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
+    const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
 
     // Brug branded email-builder med professionel signatur
     const html = buildEmailHtml({

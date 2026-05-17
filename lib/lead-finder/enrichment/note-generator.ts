@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Note-generator — bygger strukturerede Sarah-briefs til hvert lead.
  *
  * v2: Tynd router der delegerer til note-builder/templates/*.ts.
@@ -66,7 +66,7 @@ async function generateAIAnalysis(c: LeadCandidate): Promise<string> {
   const context = buildAIContext(c);
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 600,
     system: QUAL_SYSTEM_PROMPT,
     messages: [{ role: "user", content: context }],

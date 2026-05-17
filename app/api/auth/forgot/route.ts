@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { readResetTokens, writeResetTokens, generateId } from "@/lib/db";
 import { sendSMS } from "@/lib/sms";
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     await sendSMS(value, `[KrydsByg] Din kode er: ${code} — gyldig i 15 minutter.`);
   } else {
     await resend.emails.send({
-      from: process.env.RESEND_FROM || "onboarding@resend.dev",
+      from: process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>",
       to: [value],
       subject: "✕ KrydsByg — Din adgangskode",
       html: `

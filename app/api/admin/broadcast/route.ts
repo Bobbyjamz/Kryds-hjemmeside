@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { readEmployees } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import { Resend } from "resend";
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, sent: 0, warning: "no_api_key" });
   }
 
-  const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const from = process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>";
   const isUrgent = priority === "urgent";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://krydsbyg.com";
 

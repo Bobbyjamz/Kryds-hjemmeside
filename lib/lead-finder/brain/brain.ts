@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Brain Layer — Claude bestemmer dagens prioritet for LeadBot v2.
  *
  * Input:  Gårsdagens statistik + nuværende filter-state
@@ -145,7 +145,7 @@ Beslut dagens plan. Husk:
 - Hvis feedback peger på en faggruppe med høj open-rate, prioritér den selvom kvantiteten er OK.`;
 
   const response = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 800,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: userMessage }],

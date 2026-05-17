@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Sender vagt-tilbud til udvalgte medarbejdere (eller alle ledige der matcher fag).
  *
  * Body: { shiftId, employeeIds?: string[] }
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const startTime = new Date(shift.startAt).toLocaleTimeString("da-DK", { hour: "2-digit", minute: "2-digit" });
   const tradeName = TRADES[shift.trade as keyof typeof TRADES] || shift.trade;
 
-  const from = process.env.RESEND_FROM || "KrydsByg <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://krydsbyg.com";
 
   const emailSent: string[] = [];

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * POST /api/admin/leads/followup
  *
  * Manuel opfølgnings-trigger med Council + Sarah.
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
     // ── Mini-Council ───────────────────────────────────────────────────────
 
     const councilMsg = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 650,
       system: FOLLOWUP_COUNCIL_SYSTEM,
       messages: [
@@ -135,7 +135,7 @@ JSON-FORMAT:
     // ── Sarah ──────────────────────────────────────────────────────────────
 
     const sarahMsg = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 500,
       system: FOLLOWUP_SARAH_SYSTEM,
       messages: [
@@ -179,7 +179,7 @@ ${isFinalAttempt ? "VIGTIGT: Tonen er varm men afsluttende. Lov IKKE at skrive i
     // ── Send via Resend ────────────────────────────────────────────────────
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
+    const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
 
     await resend.emails.send({
       from,

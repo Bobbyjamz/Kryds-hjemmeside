@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+﻿import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 import { notifyAdmin } from "@/lib/sms";
 
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const fromAddress = process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>";
   const toAddress = process.env.RESEND_TO || "kontakt@krydsbyg.com";
 
   // Sanitize all inputs

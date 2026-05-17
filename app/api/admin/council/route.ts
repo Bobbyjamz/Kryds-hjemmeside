@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { readCouncilSessions, writeCouncilSessions, generateId } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
@@ -262,10 +262,36 @@ export async function POST(req: NextRequest) {
       .filter((m) => m.role === "user" || m.role === "assistant")
       .map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
 
+    // Injicér live medarbejder-data i Operations-rådgiverens system prompt
+    let systemPrompt = SYSTEM_PROMPTS[advisorRole];
+    if (advisorRole === "operations") {
+      try {
+        const { readEmployees } = await import("@/lib/db");
+        const employees = await readEmployees();
+        const ledige   = employees.filter((e) => e.status === "LEDIG");
+        const udsendt  = employees.filter((e) => e.status === "UDSENDT");
+        const afventer = employees.filter((e) => e.status === "AFVENTER_BEKRÆFTELSE");
+        const employeeList = employees.length === 0
+          ? "Ingen medarbejdere registreret endnu."
+          : [
+              `Ledige (${ledige.length}):`,
+              ...ledige.map((e) => `- ${e.name} · ${e.trade}${e.skills?.length ? ` (${e.skills.join(", ")})` : ""}`),
+              ledige.length === 0 ? "  (ingen ledige)" : "",
+              `\nUdsendt/på opgave (${udsendt.length}):`,
+              ...udsendt.map((e) => `- ${e.name} · ${e.trade}`),
+              `\nAfventer kontrakt (${afventer.length}):`,
+              ...afventer.map((e) => `- ${e.name} · ${e.trade}`),
+            ].filter(Boolean).join("\n");
+        systemPrompt = `## LIVE MEDARBEJDER-OVERSIGT (opdateret nu)\n${employeeList}\n\n---\n\n${systemPrompt}`;
+      } catch {
+        // Fortsæt uden medarbejder-data ved fejl
+      }
+    }
+
     const response = await client.messages.create({
-      model: "claude-haiku-4-5",
-      max_tokens: 1024,
-      system: SYSTEM_PROMPTS[advisorRole],
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      system: systemPrompt,
       messages: anthropicMessages,
     });
 
@@ -289,7 +315,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ session: councilSession, reply: replyText });
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : "Ukendt fejl";
-    return NextResponse.json({ error: `AI-fejl: ${errMsg}` }, { status: 500 });
+    console.error("[council] AI-fejl:", errMsg);
+
+    // Brugervenlig dansk fejlbesked i stedet for rå API-fejl
+    const userMsg = errMsg.toLowerCase().includes("credit")
+      ? "Rådgivningen er midlertidigt utilgængelig — API-credits er opbrugt. Tilføj credits på console.anthropic.com."
+      : errMsg.toLowerCase().includes("api key") || errMsg.toLowerCase().includes("auth")
+      ? "Rådgivningen er midlertidigt utilgængelig — ugyldig API-nøgle. Tjek ANTHROPIC_API_KEY i Vercel."
+      : "Rådgivningen er midlertidigt utilgængelig. Prøv igen om lidt.";
+
+    const fallbackMsg: CouncilMessage = {
+      role: "assistant",
+      advisorRole,
+      content: userMsg,
+      createdAt: new Date().toISOString(),
+    };
+    councilSession.messages.push(fallbackMsg);
+    councilSession.updatedAt = new Date().toISOString();
+    try { await writeCouncilSessions(allSessions); } catch {}
+    return NextResponse.json({ session: councilSession, reply: fallbackMsg.content });
   }
 }
 

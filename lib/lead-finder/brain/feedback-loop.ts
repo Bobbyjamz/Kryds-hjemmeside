@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Feedback Loop — ugentlig analyse af hvad der konverterer.
  *
  * Strategi:
@@ -221,7 +221,7 @@ ${JSON.stringify(input.byScoreBracket, null, 2)}
 Analysér og foreslå konkrete justeringer.`;
 
   const response = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 600,
     system: systemPrompt,
     messages: [{ role: "user", content: userMessage }],

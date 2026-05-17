@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getAdminSession } from "@/lib/auth";
 import {
@@ -16,13 +16,14 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
-const FROM = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
+const FROM = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
 
 async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
   try {
     await resend.emails.send({
       from: FROM,
       to: [to],
+      replyTo: "kontakt@krydsbyg.com",
       subject,
       html,
       text,

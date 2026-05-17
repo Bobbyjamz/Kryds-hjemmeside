@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Onboarding-mail til medarbejdere — Sarah skriver, du bekræfter.
  *
  * POST   { employeeId, regenerate? } → genererer udkast (status: AFVENTER_BEKRÆFTELSE)
@@ -67,7 +67,7 @@ async function generateOnboardingDraft(employee: Employee): Promise<{ subject: s
   const experienceBlurb = employee.experience ? `Erfaring: ${employee.experience.slice(0, 150)}` : "";
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 500,
     system: ONBOARDING_SYSTEM,
     messages: [{
@@ -195,7 +195,7 @@ export async function PATCH(req: NextRequest) {
       }
 
       const resend = new Resend(process.env.RESEND_API_KEY);
-      const from = process.env.RESEND_FROM ?? "Sarah <onboarding@resend.dev>";
+      const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
       const html = buildEmailHtml({ body: employee.onboardingDraftBody, preheader: employee.onboardingDraftSubject });
       const text = buildEmailText(employee.onboardingDraftBody);
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { TRADES } from "@/lib/constants";
 import type { Employee } from "@/lib/types";
+import Pipeline from "./Pipeline";
 
 const STATUS_LABELS: Record<string, string> = {
   LEDIG: "Ledig",
@@ -18,6 +19,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function MedarbejdereListPage() {
+  const [mainTab, setMainTab] = useState<"oversigt" | "pipeline">("oversigt");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -152,30 +154,58 @@ export default function MedarbejdereListPage() {
 
   return (
     <div>
-      <div className="mb-8 max-[700px]:mb-6 flex items-start justify-between flex-wrap gap-4">
+      <div className="mb-6 max-[700px]:mb-4 flex items-start justify-between flex-wrap gap-4">
         <div>
-          <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">Oversigt</p>
+          <p className="font-condensed font-semibold text-[11px] tracking-[.22em] uppercase text-yellow mb-2">
+            {mainTab === "pipeline" ? "Rekruttering" : "Oversigt"}
+          </p>
           <h1 className="font-condensed font-black text-[44px] max-[700px]:text-[32px] uppercase tracking-[-.01em] text-cream leading-none">Medarbejdere</h1>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Link
-            href="/tilmeld"
-            className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:bg-yellow2 transition-colors inline-flex items-center justify-center"
-            style={{ minHeight: 44 }}
-          >
-            + Ny tilmelding
-          </Link>
-          <button
-            onClick={() => { setUploadOpen(true); setPreview(null); setUploadResult(null); setFile(null); }}
-            className="border border-[rgba(242,238,230,.2)] text-cream font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:border-yellow hover:text-yellow transition-colors inline-flex items-center justify-center"
-            style={{ minHeight: 44 }}
-          >
-            Upload Excel
-          </button>
-        </div>
+        {mainTab === "oversigt" && (
+          <div className="flex gap-2 flex-wrap">
+            <Link
+              href="/tilmeld"
+              className="bg-yellow text-black font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:bg-yellow2 transition-colors inline-flex items-center justify-center"
+              style={{ minHeight: 44 }}
+            >
+              + Ny tilmelding
+            </Link>
+            <button
+              onClick={() => { setUploadOpen(true); setPreview(null); setUploadResult(null); setFile(null); }}
+              className="border border-[rgba(242,238,230,.2)] text-cream font-condensed font-extrabold text-[12px] tracking-[.12em] uppercase px-5 py-3 rounded-[2px] hover:border-yellow hover:text-yellow transition-colors inline-flex items-center justify-center"
+              style={{ minHeight: 44 }}
+            >
+              Upload Excel
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Status-overblik */}
+      {/* Tabs */}
+      <div className="flex border-b border-[rgba(242,238,230,.07)] mb-8 gap-0">
+        {([
+          { id: "oversigt", label: "Medarbejdere" },
+          { id: "pipeline", label: "Rekrutterings-pipeline" },
+        ] as const).map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setMainTab(t.id)}
+            className={`font-condensed font-semibold text-[11px] tracking-[.18em] uppercase px-5 py-3 border-b-2 transition-colors ${
+              mainTab === t.id
+                ? "border-yellow text-cream"
+                : "border-transparent text-muted hover:text-cream"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Pipeline-tab */}
+      {mainTab === "pipeline" && <Pipeline />}
+
+      {/* Oversigt-tab: Status-overblik */}
+      {mainTab === "oversigt" && (<>
       {!loading && employees.length > 0 && (
         <div className="grid grid-cols-4 max-[700px]:grid-cols-2 gap-3 mb-6">
           {[
@@ -381,8 +411,9 @@ export default function MedarbejdereListPage() {
           </tbody>
         </table>
       </div>
+      </>)}
 
-      {/* Upload modal */}
+      {/* Upload modal — tilgængeligt uanset tab */}
       {uploadOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(12,12,10,.85)" }}>
           <div className="bg-gray border border-[rgba(242,238,230,0.1)] rounded-[2px] w-full max-w-[640px] p-8 max-h-[90vh] overflow-y-auto">

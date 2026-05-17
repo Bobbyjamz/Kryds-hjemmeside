@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { readEmailTokens, writeEmailTokens } from "@/lib/db";
 import { Resend } from "resend";
 import crypto from "crypto";
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     if (process.env.RESEND_API_KEY) {
       await resend.emails.send({
-        from: process.env.RESEND_FROM || "onboarding@resend.dev",
+        from: process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>",
         to: [email],
         subject: "✕ KrydsByg — Bekræft din email",
         html: `

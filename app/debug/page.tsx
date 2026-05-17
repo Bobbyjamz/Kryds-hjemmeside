@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Anthropic from "@anthropic-ai/sdk";
 import {
   readEmployees,
   readShifts,
@@ -15,14 +16,40 @@ import { ALL_FAGGRUPPER, KRITISKE_FAGGRUPPER } from "@/lib/lead-finder/types";
 
 export const dynamic = "force-dynamic";
 
+async function testAnthropicApi(): Promise<{ ok: boolean; detail: string }> {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return { ok: false, detail: "ANTHROPIC_API_KEY mangler — sæt den i Vercel dashboard" };
+  }
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const res = await client.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 10,
+      messages: [{ role: "user", content: "ping" }],
+    });
+    const text = res.content[0]?.type === "text" ? res.content[0].text : "ok";
+    return { ok: true, detail: `API svarer korrekt (${res.model}) — svar: "${text.slice(0, 40)}"` };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.toLowerCase().includes("credit")) {
+      return { ok: false, detail: `Credits opbrugt — køb credits på console.anthropic.com` };
+    }
+    if (msg.toLowerCase().includes("api key") || msg.toLowerCase().includes("auth")) {
+      return { ok: false, detail: `Ugyldig API-nøgle — tjek ANTHROPIC_API_KEY i Vercel` };
+    }
+    return { ok: false, detail: `API fejl: ${msg.slice(0, 120)}` };
+  }
+}
+
 export default async function DebugPage() {
-  const [employees, shifts, views, leads, recentStats, feedback] = await Promise.all([
+  const [employees, shifts, views, leads, recentStats, feedback, anthropicTest] = await Promise.all([
     readEmployees(),
     readShifts(),
     readAnalytics(),
     readLeads().catch(() => []),
     readRecentDailyStats(7).catch(() => []),
     readFeedbackInsights().catch(() => null),
+    testAnthropicApi(),
   ]);
 
   const testEmployee = employees.find((e) => e.id === "test0001");
@@ -69,6 +96,11 @@ export default async function DebugPage() {
 
   // ── Eksisterende checks ──────────────────────────────────────────────────
   const checks: Array<{ label: string; ok: boolean; detail?: string }> = [
+    {
+      label: "Anthropic API (Council + Sarah AI)",
+      ok: anthropicTest.ok,
+      detail: anthropicTest.detail,
+    },
     {
       label: "Test-medarbejder eksisterer (test0001)",
       ok: !!testEmployee,

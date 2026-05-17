@@ -47,7 +47,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
   // Send email with confirmation code
   const safeName = escapeHtml(employee.name);
-  const fromAddress = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const fromAddress = process.env.RESEND_FROM || "KrydsByg <kontakt@krydsbyg.com>";
 
   if (process.env.RESEND_API_KEY) {
     try {

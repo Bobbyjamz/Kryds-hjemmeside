@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { readLeads, writeLeads, readEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     const learningContext = buildLearningContext(lead.industry, lead.serviceType || "", memory);
 
     const msg = await client.messages.create({
-      model: "claude-sonnet-4-5",
+      model: "claude-sonnet-4-6",
       max_tokens: 1400,
       system: SYSTEM_PROMPT,
       messages: [{

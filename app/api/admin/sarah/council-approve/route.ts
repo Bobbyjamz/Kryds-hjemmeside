@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { getAdminSession } from "@/lib/auth";
 import { readCustomers, readEmployees } from "@/lib/db";
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
   // Step 1: Council strategy advice
   const councilMsg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 200,
     system: `Du er Council for ${KRYDSBYG_KONTEKST}\nGiv kort strategisk rådgivning om en ${emailTypeLabel} email. Ton, vinkel, hvad resonerer. Max 80 ord. Dansk.`,
     messages: [{ role: "user", content: `Kontakt:\n${contextStr}\n\nHvad er den bedste tilgang?` }],
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
 
   // Step 2: Sarah writes the email
   const emailMsg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 500,
     system: `Du er Sarah — outreach-assistent for Krystian Balasz hos KrydsByg ApS.\n${KRYDSBYG_KONTEKST}\n\nStruktur:\n1. Personlig hilsen med fornavn\n2. Én sætning om DERES situation\n3. Kort hvad KrydsByg kan gøre\n4. Tydelig call-to-action\n5. "/ Sarah for Krystian · KrydsByg ApS · +45 42 77 88 66 · krydsbyg.com"\n\nDansk. Max 6 linjer. Ingen emne-linje.`,
     messages: [{ role: "user", content: `Skriv en ${emailTypeLabel} til:\n${contextStr}\n\nCouncil's råd: ${councilAdvice}` }],
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
 
   // Step 3: Council quality check
   const approvalMsg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 150,
     system: `Du er Council quality control for KrydsByg.\nGodkend emailen med "✓ GODKENDT" eller giv én konkret forbedring med "⚠ FORBEDR: [ændring]". Max 50 ord.`,
     messages: [{ role: "user", content: `Godkend email til ${contactType === "customer" ? "kunde" : "medarbejder"}:\n\n${generatedEmail}` }],

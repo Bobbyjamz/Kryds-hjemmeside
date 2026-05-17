@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Delt Council-hjerne — bruges af Sarah (outreach) og Tilbud-systemet.
  * Kalder Claude direkte med den relevante rådgiver-kontekst.
  */
@@ -21,7 +21,7 @@ export async function getCouncilAdviceForEmail(contact: {
   type: "medarbejder" | "partner";
 }): Promise<string> {
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 250,
     system: `Du er KrydsByg's marketing-rådgiver.${KRYDSBYG_KONTEKST}
 Giv ÉN konkret anbefaling (max 80 ord) om den bedste emailvinkel til denne kontakt.
@@ -50,7 +50,7 @@ export async function generateOutreachEmail(contact: {
     : `Jobmulighed i byggeri — KrydsByg`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 450,
     system: `Du er Sarah Møller, personlig assistent for Krystian Balasz hos KrydsByg ApS.${KRYDSBYG_KONTEKST}
 Skriv korte, direkte og venlige emails på dansk.
@@ -100,7 +100,7 @@ export async function getCouncilAdviceForTilbud(task: {
   location: string;
 }): Promise<{ pricingAdvice: string; emailText: string; hourlyRate: number; materialsCost: number }> {
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-5",
+    model: "claude-sonnet-4-6",
     max_tokens: 600,
     system: `Du er KrydsByg's økonomi- og driftsrådgiver.${KRYDSBYG_KONTEKST}
 Hjælp med at prissætte og formulere et professionelt tilbud.
