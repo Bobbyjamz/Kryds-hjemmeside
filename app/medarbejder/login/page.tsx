@@ -3,6 +3,7 @@
 import { useState, FormEvent, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import MobileSwipeWrapper from "@/components/MobileSwipeWrapper";
 
 type MedView = "login" | "forgot" | "success";
 
@@ -111,7 +112,7 @@ export default function MedarbejderLoginPage() {
   const adminInputClass =
     "w-full bg-[rgba(12,12,10,.6)] border border-[rgba(242,238,230,.1)] text-cream font-sans text-[15px] px-[14px] py-3 rounded-[2px] outline-none transition-colors focus:border-yellow placeholder:text-[rgba(242,238,230,.2)]";
 
-  return (
+  const pageContent = (
     <main className="bg-black2 min-h-screen flex items-center justify-center p-5">
       <div className="w-full max-w-[440px]">
         <div className="flex flex-col items-center mb-8">
@@ -305,5 +306,21 @@ export default function MedarbejderLoginPage() {
         )}
       </div>
     </main>
+  );
+
+  return (
+    <>
+      {/* ── Desktop (>900px) ── */}
+      <div className="max-[900px]:hidden">
+        {pageContent}
+      </div>
+
+      {/* ── Mobile (≤900px) ── */}
+      <div className="hidden max-[900px]:block">
+        <MobileSwipeWrapper>
+          {pageContent}
+        </MobileSwipeWrapper>
+      </div>
+    </>
   );
 }

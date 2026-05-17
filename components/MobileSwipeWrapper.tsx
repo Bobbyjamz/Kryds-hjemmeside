@@ -4,19 +4,21 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-/* Tinder-style horizontal page navigation — polished v2.
+/* Tinder-style horizontal page navigation — polished v3.
    - Pure horizontal slide (NO rotation)
    - GPU-accelerated translate3d
    - iOS-style cubic-bezier easing
-   - Smooth iframe fade so background looks like a real underlying page
-   Order: / → /ydelser → /priser → /om-os */
-const PAGE_ORDER = ["/", "/ydelser", "/priser", "/om-os"];
+   - Blurred + scaled background iframe (frosted glass effect)
+   Order: / → /ydelser → /priser → /om-os → /tilmeld → /medarbejder/login */
+const PAGE_ORDER = ["/", "/ydelser", "/priser", "/om-os", "/tilmeld", "/medarbejder/login"];
 
 const LABELS_DA: Record<string, string> = {
   "/": "Forside",
   "/ydelser": "Ydelser",
   "/priser": "Priser",
   "/om-os": "Om os",
+  "/tilmeld": "Tilmeld",
+  "/medarbejder/login": "Medarbejder",
 };
 
 const LABELS_EN: Record<string, string> = {
@@ -24,6 +26,8 @@ const LABELS_EN: Record<string, string> = {
   "/ydelser": "Services",
   "/priser": "Pricing",
   "/om-os": "About",
+  "/tilmeld": "Join us",
+  "/medarbejder/login": "Employee",
 };
 
 /* iOS-like easing — natural inertia feel */
@@ -144,7 +148,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   return (
     <>
-      {/* ── Previous page preview (real iframe, no rotation, subtle parallax) ── */}
+      {/* ── Previous page preview — blurred frosted-glass background ── */}
       {previewReady && prevPage && (
         <iframe
           src={prevPage}
@@ -156,7 +160,9 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
             zIndex: 1,
             border: "none",
             opacity: prevOpacity,
-            transform: `translate3d(${prevParallax}px, 0, 0)`,
+            /* scale(1.04) prevents blur from showing white pixel-edges */
+            transform: `scale(1.04) translate3d(${prevParallax}px, 0, 0)`,
+            filter: "blur(8px)",
             transition: animating
               ? `opacity 0.28s ${IOS_EASE}, transform 0.28s ${IOS_EASE}`
               : "none",
@@ -165,7 +171,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
         />
       )}
 
-      {/* ── Next page preview (real iframe, no rotation, subtle parallax) ── */}
+      {/* ── Next page preview — blurred frosted-glass background ── */}
       {previewReady && nextPage && (
         <iframe
           src={nextPage}
@@ -177,7 +183,9 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
             zIndex: 1,
             border: "none",
             opacity: nextOpacity,
-            transform: `translate3d(${nextParallax}px, 0, 0)`,
+            /* scale(1.04) prevents blur from showing white pixel-edges */
+            transform: `scale(1.04) translate3d(${nextParallax}px, 0, 0)`,
+            filter: "blur(8px)",
             transition: animating
               ? `opacity 0.28s ${IOS_EASE}, transform 0.28s ${IOS_EASE}`
               : "none",
