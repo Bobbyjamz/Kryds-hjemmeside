@@ -5,20 +5,20 @@ import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 /* ============================================================
-   Tinder-style page swipe — PERFORMANCE-OPTIMERET v5
+   Tinder-style page swipe — PERFORMANCE-OPTIMERET v6
    ------------------------------------------------------------
-   Vigtige optimeringer ift. tidligere version:
-   1. INGEN React state under drag — alle transforms skrives
-      direkte på DOM via requestAnimationFrame. State bruges KUN
-      ved touch-start (reset) og touch-end (commit/snap).
-   2. INGEN iframes — statiske farveplader som peek-baggrund.
-      Iframes loader hele sider, kører React, lytter til events
-      og dræber GPU under animation.
-   3. INGEN filter: blur — én af de dyreste GPU-effekter.
-      Opacity + scale er nok til at give dybde-fornemmelsen.
-   4. INGEN animeret box-shadow — kun statisk shadow ved drag.
-   5. Bail-out hvis touch starter inde i et element med
-      [data-no-page-swipe] (fx BranchCarousel).
+   Ændringer ift. v5:
+   1. Iframe peek genindsat — brugeren ser den rigtige næste
+      side mens de swiper (statiske farveplader var for lidt).
+   2. KRITISK BUG RETTET: `blocked` ref. Tidligere bailed
+      onTouchStart ud ved [data-no-page-swipe], men onTouchMove
+      kørte stadig fordi startX/isHorizontal ikke var reset.
+      Nu sætter vi blocked.current = true og checke det i alle
+      efterfølgende handlers — carouselen er 100% isoleret.
+   3. Alle rAF / direct-DOM optimeringer fra v5 bevaret:
+      - INGEN React state under drag
+      - INGEN filter:blur
+      - INGEN animeret box-shadow
    ============================================================ */
 
 const PAGE_ORDER = ["/", "/ydelser", "/priser", "/om-os", "/tilmeld", "/medarbejder/login"];
@@ -58,8 +58,8 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   /* ── DOM refs — vi skriver direkte på disse, ikke via state ── */
   const cardRef = useRef<HTMLDivElement>(null);
-  const peekLeftRef = useRef<HTMLDivElement>(null);
-  const peekRightRef = useRef<HTMLDivElement>(null);
+  const peekLeftRef = useRef<HTMLIFrameElement>(null);
+  const peekRightRef = useRef<HTMLIFrameElement>(null);
   const hintLeftRef = useRef<HTMLDivElement>(null);
   const hintRightRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +70,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   const isHorizontal = useRef(false);
   const dragging = useRef(false);
   const navigating = useRef(false);
+  const blocked = useRef(false); // ← touch startede i [data-no-page-swipe]
   const rafId = useRef<number | null>(null);
 
   const currentIdx = PAGE_ORDER.indexOf(pathname ?? "/");
@@ -115,7 +116,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   };
 
   const scheduleWrite = () => {
-    if (rafId.current !== null) return; // allerede planlagt — drop dette frame
+    if (rafId.current !== null) return;
     rafId.current = requestAnimationFrame(writeFrame);
   };
 
@@ -126,14 +127,18 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
     };
   }, []);
 
-  /* ── Touch handlers — passive for max scroll performance ── */
+  /* ── Touch handlers ── */
   const onTouchStart = (e: React.TouchEvent) => {
     if (!enabled || navigating.current) return;
 
-    /* BAIL ud hvis touchen starter i et element der ikke vil have page-swipe
-       (fx BranchCarousel) — så browser/komponenten håndterer sin egen scroll. */
+    /* Tjek om touch starter inde i [data-no-page-swipe] (fx BranchCarousel).
+       Sæt blocked = true så onTouchMove og onTouchEnd også ignorerer denne touch. */
     const target = e.target as HTMLElement;
-    if (target.closest?.("[data-no-page-swipe]")) return;
+    if (target.closest?.("[data-no-page-swipe]")) {
+      blocked.current = true;
+      return;
+    }
+    blocked.current = false;
 
     startX.current = e.touches[0].clientX;
     startY.current = e.touches[0].clientY;
@@ -141,7 +146,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
     dragging.current = false;
     dragX.current = 0;
 
-    /* Slå transitions fra under aktiv drag — kun direct transform */
+    /* Slå transitions fra under aktiv drag */
     const card = cardRef.current;
     if (card) card.style.transition = "none";
     if (peekLeftRef.current) peekLeftRef.current.style.transition = "none";
@@ -151,7 +156,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (!enabled || navigating.current) return;
+    if (!enabled || navigating.current || blocked.current) return; // blocked = carousel-touch
     const dx = e.touches[0].clientX - startX.current;
     const dy = e.touches[0].clientY - startY.current;
 
@@ -173,6 +178,13 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   const onTouchEnd = () => {
     if (!enabled || navigating.current) return;
+
+    /* Ryd blocked flag og stop — denne touch tilhørte carouselen */
+    if (blocked.current) {
+      blocked.current = false;
+      return;
+    }
+
     if (!dragging.current) return;
 
     const winW = window.innerWidth;
@@ -195,7 +207,6 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
       setTimeout(() => {
         router.push(prevPage);
         navigating.current = false;
-        /* Reset transform efter router.push — uden transition */
         if (card) card.style.transition = "none";
         dragX.current = 0;
         scheduleWrite();
@@ -223,19 +234,18 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   if (!enabled) return <>{children}</>;
 
-  /* ── Statiske peek-farveplader (ERSTATTER iframes) ──
-     Ingen iframe = ingen render-cost. Brugeren ser en farvet
-     "tease" af næste side med titel — det er nok feedback. */
-  const peekBaseStyle: React.CSSProperties = {
+  /* ── Iframe-stile ──
+     pointerEvents: none → iframes modtager ingen touch-events.
+     opacity: 0 som standard, animeres til ~1 via writeFrame under drag. */
+  const iframeBaseStyle: React.CSSProperties = {
     position: "fixed",
     inset: 0,
+    width: "100%",
+    height: "100%",
+    border: "none",
     zIndex: 1,
     opacity: 0,
     pointerEvents: "none",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
     willChange: "opacity",
   };
 
@@ -251,7 +261,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
     fontWeight: 700,
     fontSize: 11,
     letterSpacing: ".22em",
-    textTransform: "uppercase",
+    textTransform: "uppercase" as const,
     opacity: 0,
     pointerEvents: "none",
     willChange: "opacity",
@@ -259,76 +269,28 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   return (
     <>
-      {/* ── Forrige side peek ── */}
+      {/* ── Forrige side peek (iframe) ── */}
       {prevPage && (
-        <div
+        <iframe
           ref={peekLeftRef}
+          src={prevPage}
           aria-hidden="true"
-          style={{
-            ...peekBaseStyle,
-            background: "linear-gradient(135deg, #1E1E1C 0%, #0C0C0A 100%)",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "var(--font-barlow-condensed), 'Barlow Condensed', sans-serif",
-              fontWeight: 900,
-              fontSize: 36,
-              color: "#F5C400",
-              textTransform: "uppercase",
-              letterSpacing: ".02em",
-            }}
-          >
-            ← {labels[prevPage]}
-          </div>
-          <div
-            style={{
-              color: "#888880",
-              fontSize: 12,
-              letterSpacing: ".22em",
-              textTransform: "uppercase",
-              marginTop: 8,
-            }}
-          >
-            {lang === "da" ? "Slip for at gå" : "Release to go"}
-          </div>
-        </div>
+          tabIndex={-1}
+          style={iframeBaseStyle}
+          title="previous page preview"
+        />
       )}
 
-      {/* ── Næste side peek ── */}
+      {/* ── Næste side peek (iframe) ── */}
       {nextPage && (
-        <div
+        <iframe
           ref={peekRightRef}
+          src={nextPage}
           aria-hidden="true"
-          style={{
-            ...peekBaseStyle,
-            background: "linear-gradient(225deg, #1E1E1C 0%, #0C0C0A 100%)",
-          }}
-        >
-          <div
-            style={{
-              fontFamily: "var(--font-barlow-condensed), 'Barlow Condensed', sans-serif",
-              fontWeight: 900,
-              fontSize: 36,
-              color: "#F5C400",
-              textTransform: "uppercase",
-              letterSpacing: ".02em",
-            }}
-          >
-            {labels[nextPage]} →
-          </div>
-          <div
-            style={{
-              color: "#888880",
-              fontSize: 12,
-              letterSpacing: ".22em",
-              textTransform: "uppercase",
-              marginTop: 8,
-            }}
-          >
-            {lang === "da" ? "Slip for at gå" : "Release to go"}
-          </div>
-        </div>
+          tabIndex={-1}
+          style={iframeBaseStyle}
+          title="next page preview"
+        />
       )}
 
       {/* ── Direction hints ── */}
@@ -357,7 +319,6 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
           transformOrigin: "center center",
           touchAction: "pan-y",
           willChange: "transform, border-radius",
-          /* Statisk shadow — kun aktiv når i drag-tilstand sættes via JS */
           boxShadow: "0 0 0 rgba(0,0,0,0)",
         }}
       >

@@ -272,6 +272,9 @@ export default function BranchCarousel() {
           }}
           onMouseEnter={() => { pausedRef.current = true; }}
           onMouseLeave={() => { pausedRef.current = false; }}
+          onTouchStart={() => { pausedRef.current = true; }}
+          onTouchEnd={() => { pausedRef.current = false; }}
+          onTouchCancel={() => { pausedRef.current = false; }}
         >
           {TILES.map((branch, i) => {
             const isActive = openBranch?.num === branch.num;
