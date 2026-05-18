@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -77,6 +77,19 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
   const prevPage = currentIdx > 0 ? PAGE_ORDER[currentIdx - 1] : null;
   const nextPage = currentIdx >= 0 && currentIdx < PAGE_ORDER.length - 1 ? PAGE_ORDER[currentIdx + 1] : null;
   const enabled = currentIdx !== -1;
+
+  /* ── Forhindrer uendelig iframe-rekursion ──
+     Når denne side er indlæst INDE I en iframe (som peek-baggrund),
+     må vi ikke rendere nye peek-iframes — ellers looper det uendeligt.
+     showPeek sættes til false på SSR og false i iframes, true i normal browsing. */
+  const [showPeek, setShowPeek] = useState(false);
+  useEffect(() => {
+    try {
+      setShowPeek(window.self === window.top);
+    } catch {
+      setShowPeek(false); // cross-origin iframe — vær på den sikre side
+    }
+  }, []);
 
   /* ── Direct DOM-skrivning (kører i rAF, max 1× pr. frame) ── */
   const writeFrame = () => {
@@ -269,8 +282,10 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
 
   return (
     <>
-      {/* ── Forrige side peek (iframe) ── */}
-      {prevPage && (
+      {/* ── Forrige side peek (iframe) ──
+           showPeek er false når DENNE side kører inde i en iframe,
+           så vi undgår uendelig rekursiv iframe-indlejring. */}
+      {prevPage && showPeek && (
         <iframe
           ref={peekLeftRef}
           src={prevPage}
@@ -282,7 +297,7 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
       )}
 
       {/* ── Næste side peek (iframe) ── */}
-      {nextPage && (
+      {nextPage && showPeek && (
         <iframe
           ref={peekRightRef}
           src={nextPage}
