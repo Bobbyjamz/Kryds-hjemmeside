@@ -69,7 +69,7 @@ export default function Testimonials() {
                 aria-hidden
                 className="absolute top-4 right-5 font-condensed font-black text-[60px] leading-none text-yellow opacity-[.18] select-none"
               >
-                "
+                &ldquo;
               </span>
 
               {/* 5-star strip */}

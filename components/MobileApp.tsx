@@ -145,7 +145,7 @@ export default function MobileApp() {
           {isDA ? "Velkommen" : "Welcome"}
         </p>
         <h1 className="font-condensed font-black text-[44px] leading-[.92] uppercase tracking-[-.01em] text-cream">
-          {isDA ? <>Sæt et kryds<br /><span className="text-yellow">i kalenderen</span></> : <>Put a cross<br /><span className="text-yellow">in the calendar</span></>}
+          {isDA ? <>Sæt et kryds<br /><span className="text-yellow">i kalenderen</span></> : <>Put a X<br /><span className="text-yellow">in the calendar</span></>}
         </h1>
         <p className="text-[14px] leading-[1.6] text-muted mt-[10px]">
           {isDA ? "Erfarne byggefolk i København — klar til at tage fat." : "Experienced construction workers in Copenhagen — ready to work."}

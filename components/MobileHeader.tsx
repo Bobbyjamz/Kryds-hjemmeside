@@ -114,7 +114,7 @@ export default function MobileHeader() {
               <span className="text-yellow">K</span>RYDS
             </span>
             <span className="font-condensed italic font-normal text-[12px] tracking-[.08em] text-muted leading-none mt-[4px]">
-              {isDA ? "Sæt et kryds i kalenderen." : "Put a cross in the calendar."}
+              {isDA ? "Sæt et kryds i kalenderen." : "Put a X in the calendar."}
             </span>
           </div>
         </Link>

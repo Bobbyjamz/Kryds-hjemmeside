@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LogoProps {
   size?: number;
 }
 
 export default function Logo({ size = 38 }: LogoProps) {
+  const { lang } = useLanguage();
+
   return (
     <Link href="/" className="flex items-center no-underline">
       <svg
@@ -22,7 +27,7 @@ export default function Logo({ size = 38 }: LogoProps) {
           <span className="text-yellow">K</span>RYDS
         </span>
         <span className="font-condensed italic font-normal text-[12px] tracking-[.08em] text-muted leading-none mt-[4px]">
-          Sæt et kryds i kalenderen.
+          {lang === "da" ? "Sæt et kryds i kalenderen." : "Put a X in the calendar."}
         </span>
       </div>
     </Link>
