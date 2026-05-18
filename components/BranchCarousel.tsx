@@ -260,12 +260,15 @@ export default function BranchCarousel() {
 
         <div
           ref={viewRef}
+          data-no-page-swipe
           className="branch-carousel-viewport flex gap-[18px] overflow-x-auto pb-2"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
             paddingLeft: "52px",
             paddingRight: "52px",
+            touchAction: "pan-x", // Browser tager horisontal pan — page-swipe rør ikke ved den
+            WebkitOverflowScrolling: "touch",
           }}
           onMouseEnter={() => { pausedRef.current = true; }}
           onMouseLeave={() => { pausedRef.current = false; }}
