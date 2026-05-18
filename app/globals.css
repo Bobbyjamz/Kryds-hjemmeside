@@ -553,3 +553,24 @@ input[type="date"]::-webkit-date-and-time-value {
 
 /* Hamburger lines in mobile admin header */
 [data-theme="light"] .bg-cream { background-color: var(--color-cream) !important; }
+
+/* ================================================
+   REDUCED MOTION — respekter OS-indstilling
+   ================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Reveal-elementer skal stadig vises, blot uden animation */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .service-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

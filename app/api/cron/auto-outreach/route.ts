@@ -16,6 +16,7 @@ import { readLeads, writeLeads, appendEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import { notifyAdmin, sendSMS } from "@/lib/sms";
 import { buildEmailHtml, buildEmailText } from "@/lib/email-builder";
+import { verifyCronAuth } from "@/lib/cron-auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import type { Lead, CouncilAnalysis } from "@/lib/types";
@@ -658,12 +659,8 @@ async function runSMSOutreachPipeline() {
 // ── GET — Vercel Cron (kl. 13:00 DK / 11:00 UTC) ────────────────────────
 
 export async function GET(req: Request) {
-  // Sikkerhed: kun Vercel Cron eller CRON_SECRET
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authFail = verifyCronAuth(req);
+  if (authFail) return authFail;
 
   try {
     const [outreachResult, followUpResult, smsResult] = await Promise.allSettled([

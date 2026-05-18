@@ -1,24 +1,31 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { hasAnalyticsConsent, onConsentChange } from "@/lib/consent";
 
 export default function PageTracker() {
   const pathname = usePathname();
   const visitIdRef = useRef<string | null>(null);
   const startRef = useRef<number>(Date.now());
+  const [consented, setConsented] = useState(false);
+
+  // Hold styr på consent-status (initial + ved ændringer)
+  useEffect(() => {
+    setConsented(hasAnalyticsConsent());
+    return onConsentChange((state) => setConsented(state === "accepted"));
+  }, []);
 
   useEffect(() => {
-    // Don't track admin pages
+    // Spring helt over hvis ingen consent eller admin-side
+    if (!consented) return;
     if (pathname.startsWith("/admin")) return;
 
     startRef.current = Date.now();
     visitIdRef.current = null;
 
-    const referrer =
-      typeof document !== "undefined" ? document.referrer : "";
+    const referrer = typeof document !== "undefined" ? document.referrer : "";
 
-    // Record the page view
     fetch("/api/analytics", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -30,7 +37,6 @@ export default function PageTracker() {
       })
       .catch(() => {});
 
-    // Send duration when leaving
     const sendDuration = () => {
       const id = visitIdRef.current;
       if (!id) return;
@@ -47,7 +53,7 @@ export default function PageTracker() {
       sendDuration();
       window.removeEventListener("pagehide", sendDuration);
     };
-  }, [pathname]);
+  }, [pathname, consented]);
 
   return null;
 }

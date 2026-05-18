@@ -2,30 +2,22 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { getConsent, setConsent } from "@/lib/consent";
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      const consent = localStorage.getItem("kryds-cookie-consent");
-      if (!consent) setVisible(true);
-    } catch {
-      // localStorage not available
-    }
+    if (getConsent() === null) setVisible(true);
   }, []);
 
   const accept = () => {
-    try {
-      localStorage.setItem("kryds-cookie-consent", "accepted");
-    } catch {}
+    setConsent("accepted");
     setVisible(false);
   };
 
   const decline = () => {
-    try {
-      localStorage.setItem("kryds-cookie-consent", "declined");
-    } catch {}
+    setConsent("declined");
     setVisible(false);
   };
 
@@ -46,7 +38,7 @@ export default function CookieBanner() {
           </span>
           <p className="text-[13px] text-muted leading-[1.6]">
             Vi bruger nødvendige cookies til at hjemmesiden fungerer, og analytiske cookies til at måle besøgstal anonymt.
-            Ingen data sælges til tredjeparter.{" "}
+            Du kan afvise de analytiske cookies — siden virker stadig fuldt.{" "}
             <Link href="/cookie-politik" className="text-yellow hover:underline">
               Læs cookie-politik
             </Link>

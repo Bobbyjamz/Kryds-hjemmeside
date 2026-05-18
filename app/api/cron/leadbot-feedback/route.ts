@@ -10,18 +10,14 @@
 
 import { NextResponse } from "next/server";
 import { runFeedbackAnalysis } from "@/lib/lead-finder/brain/feedback-loop";
+import { verifyCronAuth } from "@/lib/cron-auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function GET(req: Request) {
-  // Sikkerhed: kun Vercel Cron eller admin med CRON_SECRET må kalde
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authFail = verifyCronAuth(req);
+  if (authFail) return authFail;
 
   try {
     const insights = await runFeedbackAnalysis();

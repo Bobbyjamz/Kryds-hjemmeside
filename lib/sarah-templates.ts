@@ -114,6 +114,9 @@ function esc(str: string): string {
 
 // ── 1. Virksomhed (cold B2B) ─────────────────────────────────────────────
 
+// Kort, direkte, menneskelig.
+// Ingen "Jeg faldt over X" — det signalerer scraping og sænker svarrate.
+// Struktur: hilsen → hook/personal → pitch (1 sætning) → tilbud → CTA
 const virksomhedTemplate: SarahTemplate = {
   label: "Virksomhed (cold)",
   description: "Byggefirmaer, entreprenører, projektledere. De kender os ikke.",
@@ -124,49 +127,53 @@ const virksomhedTemplate: SarahTemplate = {
     tid2: "eller ugen efter hvis det passer bedre",
   },
   buildSubject: (f) => {
-    const v = f.virksomhed ? ` — ${f.virksomhed}` : "";
-    return `Kort kop kaffe?${v} · Kryds`;
+    if (f.virksomhed) return `${f.virksomhed} — håndværkere på 24 timer?`;
+    return `Håndværkere på kort varsel til næste projekt?`;
   },
   buildHTML: (f) => {
     const s = TPL_STYLES;
     const navn = esc(f.modtagerNavn || "[Navn]");
-    const virk = f.virksomhed ? ` hos ${esc(f.virksomhed)}` : "";
+    const virk = f.virksomhed ? esc(f.virksomhed) : "";
     const tid1 = esc(f.tid1 || "I de kommende 2 uger");
     const tid2 = esc(f.tid2 || "eller ugen efter hvis det passer bedre");
-    const personalLine = f.personalNote ? `<p style="margin:0 0 16px 0;">${esc(f.personalNote)}</p>\n` : "";
+    // personalNote er første prioritet — gør mailen menneskelig
+    // Ellers åbner vi med firmanavn eller direkte pitch
+    const hookLine = f.personalNote
+      ? `<p style="margin:0 0 16px 0;">${esc(f.personalNote)}</p>\n`
+      : virk
+      ? `<p style="margin:0 0 16px 0;">Jeg har kigget lidt på <strong style="color:${s.ink};">${virk}</strong> og tror I måske kan bruge det her.</p>\n`
+      : "";
     return wrapTpl(`
 <p style="margin:0 0 16px 0;">Hej ${navn},</p>
-<p style="margin:0 0 16px 0;">Sarah her fra <strong style="color:${s.ink};">Kryds</strong>. Vi er et vikarbureau til byggeprojekter i København og leverer byggepersonale: malere, handymen, gartnere, montering, byggepladshjælp og lignende. Lige nu har vi lidt over 75 aktive folk i netværket, alle screenet og klar til at tage fat.</p>
-${personalLine}<p style="margin:0 0 16px 0;">Vi kender ikke hinanden endnu, og det er derfor jeg skriver. Hvis I${virk} en gang imellem mangler ekstra hænder på et projekt, kunne vi godt tænke os at lave en lille test-opgave sammen. På den måde kan I selv se kvaliteten uden at binde jer til noget.</p>
-<p style="margin:0 0 22px 0;">Har du <strong style="color:${s.ink};">20 minutter til en kop kaffe</strong> et par uger ude i kalenderen? Vi kommer gerne forbi jer.</p>
+${hookLine}<p style="margin:0 0 16px 0;">Sarah fra <strong style="color:${s.ink};">Kryds</strong>. Vi leverer screenede håndværkere og byggepersonale i Storkøbenhavn på 24 timer — malere, handymen, gartnere og byggepladshjælp. Over 75 folk i netværket, I betaler kun for udført arbejde.</p>
 <table cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px 0;background:${s.cream};border-left:3px solid ${s.mustard};">
   <tr>
     <td style="padding:14px 18px;">
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:2px;color:${s.mustardDeep};text-transform:uppercase;font-weight:bold;margin-bottom:6px;">FORSLAG</div>
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${s.ink};"><strong>${tid1}</strong>, ${tid2}. Sig til hvad der fungerer, så finder vi et sted tæt på jer.</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:${s.ink};">Er der et projekt på vej hvor I kunne bruge ekstra hænder? <strong>15 minutter</strong> ${tid1}, ${tid2}?</div>
     </td>
   </tr>
 </table>
-<p style="margin:0 0 24px 0;font-style:italic;color:${s.muted};font-size:14px;">Vi giver gerne kaffen.</p>
+<p style="margin:0 0 24px 0;font-style:italic;color:${s.muted};font-size:14px;">Vi giver kaffen.</p>
 `);
   },
   buildText: (f) => {
     const navn = f.modtagerNavn || "[Navn]";
-    const virk = f.virksomhed ? ` hos ${f.virksomhed}` : "";
+    const virk = f.virksomhed || "";
     const tid1 = f.tid1 || "I de kommende 2 uger";
     const tid2 = f.tid2 || "eller ugen efter hvis det passer bedre";
-    const personalLine = f.personalNote ? `${f.personalNote}\n\n` : "";
+    const hookLine = f.personalNote
+      ? `${f.personalNote}\n\n`
+      : virk
+      ? `Jeg har kigget lidt på ${virk} og tror I måske kan bruge det her.\n\n`
+      : "";
     return `Hej ${navn},
 
-Sarah her fra Kryds. Vi er et vikarbureau til byggeprojekter i København og leverer byggepersonale: malere, handymen, gartnere, montering, byggepladshjælp og lignende. Lige nu har vi lidt over 75 aktive folk i netværket, alle screenet og klar til at tage fat.
+${hookLine}Sarah fra Kryds. Vi leverer screenede håndværkere og byggepersonale i Storkøbenhavn på 24 timer — malere, handymen, gartnere og byggepladshjælp. Over 75 folk i netværket, I betaler kun for udført arbejde.
 
-${personalLine}Vi kender ikke hinanden endnu, og det er derfor jeg skriver. Hvis I${virk} en gang imellem mangler ekstra hænder på et projekt, kunne vi godt tænke os at lave en lille test-opgave sammen. På den måde kan I selv se kvaliteten uden at binde jer til noget.
+Er der et projekt på vej hvor I kunne bruge ekstra hænder? 15 minutter ${tid1}, ${tid2}?
 
-Har du 20 minutter til en kop kaffe et par uger ude i kalenderen? Vi kommer gerne forbi jer.
-
-FORSLAG: ${tid1}, ${tid2}. Sig til hvad der fungerer, så finder vi et sted tæt på jer.
-
-Vi giver gerne kaffen.
+Vi giver kaffen.
 
 De bedste hilsner,
 ${SARAH_NAME}
@@ -320,6 +327,111 @@ export const SARAH_TEMPLATES: Record<SarahTemplateKey, SarahTemplate> = {
   privat: privatTemplate,
   medarbejder: medarbejderTemplate,
 };
+
+// ── Opfølgnings-emails (kortere, forskelligt indhold) ────────────────────
+// Bug-fix: tidligere sendte follow-ups samme indhold som original.
+// Dag 4: kort reminder, lav friktion.
+// Dag 9: "permission to close" — denne email får ofte svar fordi modtager
+//        føler sig tryg ved at sige nej, og nogle siger ja alligevel.
+
+export function buildFollowupEmail(contact: {
+  name: string;
+  company: string;
+  type: "medarbejder" | "partner" | "privat";
+}): { subject: string; html: string; text: string } {
+  const fornavn = contact.name?.split(" ")[0] || contact.name || "";
+  const virk = contact.company || "";
+  const s = TPL_STYLES;
+
+  const isRekruttering = contact.type === "medarbejder";
+  const subject = isRekruttering
+    ? `Re: Kort snak om opgaver i KBH?`
+    : virk
+    ? `Re: ${virk} — håndværkere på 24 timer?`
+    : `Re: Håndværkere på kort varsel?`;
+
+  const bodyHTML = isRekruttering
+    ? `<p style="margin:0 0 16px 0;">Hej ${esc(fornavn)},</p>
+<p style="margin:0 0 16px 0;">Sendte dig en mail forrige uge om opgaver i København.</p>
+<p style="margin:0 0 16px 0;">Bare en hurtig opfølgning — er du åben for lidt ekstra arbejde i perioder? Det er ingen binding, du vælger selv hvornår du er tilgængelig.</p>
+<p style="margin:0 0 24px 0;">Svar gerne med et ja eller nej, så respekterer vi det.</p>`
+    : `<p style="margin:0 0 16px 0;">Hej ${esc(fornavn)},</p>
+<p style="margin:0 0 16px 0;">Sendte dig en mail forrige uge om håndværkere på kort varsel.</p>
+<p style="margin:0 0 16px 0;">Bare en hurtig opfølgning — har I projekter på vej hvor I kunne bruge ekstra folk? Ellers er det helt OK, det var bare et forsøg.</p>
+<p style="margin:0 0 24px 0;">15 minutter er nok hvis det er relevant for jer.</p>`;
+
+  const bodyText = isRekruttering
+    ? `Hej ${fornavn},
+
+Sendte dig en mail forrige uge om opgaver i København.
+
+Bare en hurtig opfølgning — er du åben for lidt ekstra arbejde i perioder? Det er ingen binding, du vælger selv hvornår du er tilgængelig.
+
+Svar gerne med et ja eller nej, så respekterer vi det.`
+    : `Hej ${fornavn},
+
+Sendte dig en mail forrige uge om håndværkere på kort varsel.
+
+Bare en hurtig opfølgning — har I projekter på vej hvor I kunne bruge ekstra folk? Ellers er det helt OK.
+
+15 minutter er nok hvis det er relevant for jer.`;
+
+  return {
+    subject,
+    html: wrapTpl(`${bodyHTML}${tplSignature()}`),
+    text: `${bodyText}\n\nDe bedste hilsner,\n${SARAH_NAME}\nKryds · på vegne af ${KRYSTIAN_NAME}\n\n${KRYDS_PHONE_DISPLAY}\n${KRYDS_EMAIL}\n${KRYDS_WEB}`,
+  };
+}
+
+export function buildFinalEmail(contact: {
+  name: string;
+  company: string;
+  type: "medarbejder" | "partner" | "privat";
+}): { subject: string; html: string; text: string } {
+  const fornavn = contact.name?.split(" ")[0] || contact.name || "";
+  const virk = contact.company || "";
+  const s = TPL_STYLES;
+
+  const isRekruttering = contact.type === "medarbejder";
+  const subject = isRekruttering
+    ? `Sidst fra os — opgaver i KBH`
+    : virk
+    ? `Sidst fra os, ${virk}`
+    : `Sidst fra os`;
+
+  const bodyHTML = isRekruttering
+    ? `<p style="margin:0 0 16px 0;">Hej ${esc(fornavn)},</p>
+<p style="margin:0 0 16px 0;">Sidst fra os — vil ikke spilde din tid.</p>
+<p style="margin:0 0 16px 0;">Hvis du nogensinde er interesseret i opgaver i København: skriv til <a href="mailto:${KRYDS_EMAIL}" style="color:${s.mustardDeep};">${KRYDS_EMAIL}</a> eller tilmeld dig på <a href="https://${KRYDS_WEB}" style="color:${s.mustardDeep};">${KRYDS_WEB}</a>.</p>
+<p style="margin:0 0 24px 0;">Pas godt på dig selv.</p>`
+    : `<p style="margin:0 0 16px 0;">Hej ${esc(fornavn)},</p>
+<p style="margin:0 0 16px 0;">Sidst fra os — vil ikke spilde din tid yderligere.</p>
+<p style="margin:0 0 16px 0;">Hvis I nogensinde mangler folk til et projekt: vi har håndværkere klar på 24 timer. Ring på <a href="tel:${KRYDS_PHONE_TEL}" style="color:${s.mustardDeep};">${KRYDS_PHONE_DISPLAY}</a> eller skriv til <a href="mailto:${KRYDS_EMAIL}" style="color:${s.mustardDeep};">${KRYDS_EMAIL}</a>.</p>
+<p style="margin:0 0 24px 0;font-style:italic;color:${s.muted};font-size:14px;">Held og lykke med projekterne.</p>`;
+
+  const bodyText = isRekruttering
+    ? `Hej ${fornavn},
+
+Sidst fra os — vil ikke spilde din tid.
+
+Hvis du nogensinde er interesseret i opgaver i København: skriv til ${KRYDS_EMAIL} eller tilmeld dig på ${KRYDS_WEB}.
+
+Pas godt på dig selv.`
+    : `Hej ${fornavn},
+
+Sidst fra os — vil ikke spilde din tid yderligere.
+
+Hvis I nogensinde mangler folk til et projekt: vi har håndværkere klar på 24 timer.
+Ring: ${KRYDS_PHONE_DISPLAY} eller skriv: ${KRYDS_EMAIL}
+
+Held og lykke med projekterne.`;
+
+  return {
+    subject,
+    html: wrapTpl(`${bodyHTML}${tplSignature()}`),
+    text: `${bodyText}\n\nDe bedste hilsner,\n${SARAH_NAME}\nKryds · på vegne af ${KRYSTIAN_NAME}\n\n${KRYDS_PHONE_DISPLAY}\n${KRYDS_EMAIL}\n${KRYDS_WEB}`,
+  };
+}
 
 /**
  * Bygger en email fra contact-typen. Bruges af Sarah's run-route.

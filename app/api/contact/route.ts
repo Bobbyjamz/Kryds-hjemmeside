@@ -163,8 +163,10 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("[contact] Resend API error:", JSON.stringify(error));
-      // Return ok:true anyway so user doesn't see error — we log it server-side
-      return NextResponse.json({ ok: true, warning: "email_error" });
+      return NextResponse.json(
+        { error: "Vi kunne ikke sende din forespørgsel lige nu. Ring venligst på +45 42 77 88 66 eller prøv igen om lidt." },
+        { status: 502 }
+      );
     }
 
     console.log("[contact] Email sendt til", toAddress, "— ID:", data?.id);
@@ -175,9 +177,56 @@ export async function POST(req: NextRequest) {
       `KrydsByg: Ny forespørgsel — ${opgavetype} fra ${virksomhed || kontaktperson || "ukendt"}. Kontakt: ${smsContact}`
     );
 
+    // Auto-reply til kunden (best-effort — fejler stille hvis ingen email eller hvis det fejler)
+    if (email) {
+      try {
+        await resend.emails.send({
+          from: fromAddress,
+          to: [email],
+          replyTo: "kontakt@krydsbyg.com",
+          subject: "Tak for din forespørgsel — vi vender tilbage inden for 2 timer",
+          html: `
+<!DOCTYPE html>
+<html lang="da">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#0C0C0A;border-radius:4px;overflow:hidden;max-width:600px;width:100%;">
+        <tr><td style="background:#F5C400;padding:24px 32px;">
+          <p style="margin:0;font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#0C0C0A;">✕ KRYDSBYG</p>
+        </td></tr>
+        <tr><td style="padding:32px;color:#F2EEE6;">
+          <h2 style="margin:0 0 16px;font-size:22px;color:#F5C400;font-weight:700;">Tak — vi har modtaget din forespørgsel</h2>
+          <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#F2EEE6;">Hej ${safeKontakt !== "–" ? safeKontakt : safeVirksomhed},</p>
+          <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#F2EEE6;">Tak fordi du kontaktede KrydsByg. Vi har registreret din forespørgsel vedrørende <strong style="color:#F5C400;">${safeOpgavetype}</strong> og vender tilbage til dig inden for <strong>2 timer</strong> i åbningstiden (man–fre 07–17).</p>
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#F2EEE6;">Haster det? Ring til os direkte på <a href="tel:+4542778866" style="color:#F5C400;text-decoration:none;font-weight:700;">+45 42 77 88 66</a>.</p>
+          <table cellpadding="0" cellspacing="0" style="margin:24px 0;border-top:1px solid rgba(242,238,230,0.1);padding-top:20px;width:100%;">
+            <tr><td style="padding:6px 0;font-size:12px;color:#888880;text-transform:uppercase;letter-spacing:0.12em;">Opgave</td></tr>
+            <tr><td style="padding:0 0 12px;font-size:14px;color:#F2EEE6;">${safeOpgavetype}</td></tr>
+            <tr><td style="padding:6px 0;font-size:12px;color:#888880;text-transform:uppercase;letter-spacing:0.12em;">Beskrivelse</td></tr>
+            <tr><td style="padding:0;font-size:14px;color:#F2EEE6;line-height:1.5;">${safeBeskrivelse}</td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:20px 32px;background:rgba(242,238,230,0.03);border-top:1px solid rgba(242,238,230,0.07);">
+          <p style="margin:0;font-size:13px;color:#F2EEE6;font-weight:700;">KrydsByg</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#888880;">+45 42 77 88 66 · kontakt@krydsbyg.com · CVR 46369947</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+        });
+        console.log("[contact] Auto-reply sendt til", email);
+      } catch (autoErr) {
+        console.warn("[contact] Auto-reply fejlede (ikke kritisk):", autoErr);
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[contact] Uventet fejl:", err);
-    return NextResponse.json({ error: "Afsendelse fejlede" }, { status: 500 });
+    return NextResponse.json({ error: "Afsendelse fejlede — prøv igen eller ring +45 42 77 88 66" }, { status: 500 });
   }
 }

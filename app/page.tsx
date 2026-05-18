@@ -5,6 +5,7 @@ import StatsBar from "@/components/StatsBar";
 import BranchCarousel from "@/components/BranchCarousel";
 import HowItWorks from "@/components/HowItWorks";
 import WhyKryds from "@/components/WhyKryds";
+import Testimonials from "@/components/Testimonials";
 import Founder from "@/components/Founder";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -23,6 +24,7 @@ export default function Home() {
         <BranchCarousel />
         <HowItWorks />
         <WhyKryds />
+        <Testimonials />
         <Founder />
         <Contact />
         <Footer />

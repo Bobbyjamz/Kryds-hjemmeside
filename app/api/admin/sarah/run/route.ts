@@ -7,7 +7,7 @@ import {
   readSarahRuns, writeSarahRuns,
   generateId,
 } from "@/lib/db";
-import { buildEmailFromContact } from "@/lib/sarah-templates";
+import { buildEmailFromContact, buildFollowupEmail, buildFinalEmail } from "@/lib/sarah-templates";
 import { notifyAdmin } from "@/lib/sms";
 import type { SarahLog } from "@/lib/types";
 
@@ -91,18 +91,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Første opfølgning: dag 4 (ikke 7) — cold-email skill: dag 4+9 giver +40% svarprocent
   if (mode === "followup") {
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const cutoff4  = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString();
+    const cutoff9  = new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString();
     const needFollowUp = contacts
-      .filter((c) => c.status === "emailed" && c.emailSentAt && c.emailSentAt < cutoff)
+      .filter((c) => c.status === "emailed" && c.emailSentAt && c.emailSentAt < cutoff4)
       .slice(0, 10);
 
     for (const contact of needFollowUp) {
       try {
-        // Opfølgning: brug samme skabelon, men tilføj kort opfølgnings-præfix i emnet
-        const { subject, html, text, templateKey } = buildEmailFromContact(contact);
-        const followupSubject = `Re: ${subject}`;
-        const sent = await sendEmail(contact.email, followupSubject, html, text);
+        const { subject, html, text } = buildFollowupEmail(contact);
+        const sent = await sendEmail(contact.email, subject, html, text);
         if (sent) {
           const idx = updated.findIndex((c) => c.id === contact.id);
           updated[idx] = { ...contact, status: "followed_up", followUpSentAt: now };
@@ -114,12 +114,41 @@ export async function POST(req: NextRequest) {
             contactId: contact.id,
             contactName: contact.name,
             contactEmail: contact.email,
-            details: `${templateKey} (opfølgning)`,
+            details: `opfølgning dag 4`,
           });
           await new Promise((r) => setTimeout(r, 600));
         }
       } catch (err) {
         console.error(`Sarah opfølgning fejl (${contact.email}):`, err);
+      }
+    }
+
+    // Anden opfølgning: dag 9 — sidste forsøg med konkret tilbud (gratis første dag)
+    const needFollowUp2 = contacts
+      .filter((c) => c.status === "followed_up" && c.followUpSentAt && c.followUpSentAt < cutoff9)
+      .slice(0, 10);
+
+    for (const contact of needFollowUp2) {
+      try {
+        const { subject, html, text } = buildFinalEmail(contact);
+        const sent = await sendEmail(contact.email, subject, html, text);
+        if (sent) {
+          const idx = updated.findIndex((c) => c.id === contact.id);
+          updated[idx] = { ...contact, status: "closed" };
+          followUpsSent++;
+          newLogs.push({
+            id: generateId(),
+            timestamp: now,
+            action: "followup_sent",
+            contactId: contact.id,
+            contactName: contact.name,
+            contactEmail: contact.email,
+            details: `opfølgning dag 9 — sidste`,
+          });
+          await new Promise((r) => setTimeout(r, 600));
+        }
+      } catch (err) {
+        console.error(`Sarah opfølgning2 fejl (${contact.email}):`, err);
       }
     }
   }

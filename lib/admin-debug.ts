@@ -446,12 +446,13 @@ async function testSarah(): Promise<TestResult[]> {
     const pending  = contacts.filter((c) => c.status === "pending").length;
     const emailed  = contacts.filter((c) => c.status === "emailed").length;
     const followed = contacts.filter((c) => c.status === "followed_up").length;
+    const closed   = contacts.filter((c) => c.status === "closed").length;
 
     results.push({
       module: MODULES.sarah,
       test: "Sarah-kontakter (outreach-database)",
       status: "ok",
-      detail: `${contacts.length} kontakter · ${pending} afventer · ${emailed} emailet · ${followed} fulgt op`,
+      detail: `${contacts.length} kontakter · ${pending} afventer · ${emailed} emailet · ${followed} fulgt op · ${closed} lukket`,
     });
 
     if (contacts.length === 0) {

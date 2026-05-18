@@ -51,7 +51,7 @@ export const metadata: Metadata = {
       "Hurtige vikarer til rengøring, flytning, maling, montering, have, håndværk og byggeplads. Leveringstid: 24 timer. Timepris fra 345 kr/t ekskl. moms.",
     url: "https://krydsbyg.com",
     siteName: "KrydsByg",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "KrydsByg" }],
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "KrydsByg — Stærke hænder til håndværk & byggeri i København" }],
     type: "website",
     locale: "da_DK",
   },
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KrydsByg — Stærke hænder til byggeprojekter",
     description: "Kryds leverer erfarne byggefolk til renovering, maling og byggepladsbemanding i København.",
-    images: ["/og-image.svg"],
+    images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
 };

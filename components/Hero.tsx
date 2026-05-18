@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-function scrollToContract() {
-  const el = document.getElementById("contract");
-  if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-  el.classList.remove("contract-pulse");
-  void el.offsetWidth;
-  el.classList.add("contract-pulse");
-  el.addEventListener("animationend", () => el.classList.remove("contract-pulse"), { once: true });
-}
+import { scrollToContract } from "@/lib/scrollToContract";
 
 export default function Hero() {
   const { t } = useLanguage();

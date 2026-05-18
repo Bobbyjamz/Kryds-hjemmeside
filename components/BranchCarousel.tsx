@@ -100,6 +100,7 @@ export default function BranchCarousel() {
   const [beskrivelse, setBeskrivelse] = useState("");
   const [scope, setScope] = useState<Scope>("medium");
   const [accepted, setAccepted] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -151,6 +152,7 @@ export default function BranchCarousel() {
     setBeskrivelse("");
     setScope("medium");
     setAccepted(false);
+    setAcceptedPrivacy(false);
     setCustomerType("company");
     setBilling("hourly");
   }, [openBranch]);
@@ -171,6 +173,10 @@ export default function BranchCarousel() {
     if (!openBranch) return;
     if (!accepted) {
       setErrorMsg(t("contact_error_terms"));
+      return;
+    }
+    if (!acceptedPrivacy) {
+      setErrorMsg("Du skal acceptere handelsbetingelser og privatlivspolitik.");
       return;
     }
     setErrorMsg(null);
@@ -664,6 +670,34 @@ export default function BranchCarousel() {
                       </span>
                     </label>
 
+                    {/* Privatlivspolitik (required) */}
+                    <label
+                      className={`flex items-start gap-3 p-[10px] border rounded-[2px] cursor-pointer transition-colors mb-[10px] ${acceptedPrivacy ? "border-[rgba(242,238,230,.3)]" : "border-[var(--border)] hover:border-[rgba(242,238,230,.2)]"}`}
+                      style={{ background: "rgba(242,238,230,.03)" }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={acceptedPrivacy}
+                        onChange={(e) => { setAcceptedPrivacy(e.target.checked); if (e.target.checked) setErrorMsg(null); }}
+                        className="sr-only"
+                      />
+                      <span
+                        className={`flex-shrink-0 w-[18px] h-[18px] rounded-[3px] border-2 flex items-center justify-center transition-colors mt-[1px] ${acceptedPrivacy ? "bg-[rgba(242,238,230,.15)] border-[rgba(242,238,230,.4)]" : "border-[rgba(242,238,230,.3)]"}`}
+                      >
+                        {acceptedPrivacy && (
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F2EEE6" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="text-[12px] leading-[1.45] text-cream select-none">
+                        Jeg har læst og accepterer{" "}
+                        <a href="/handelsbetingelser" target="_blank" rel="noopener noreferrer" className="text-yellow underline" onClick={(e) => e.stopPropagation()}>handelsbetingelserne</a>
+                        {" "}og{" "}
+                        <a href="/privatpolitik" target="_blank" rel="noopener noreferrer" className="text-yellow underline" onClick={(e) => e.stopPropagation()}>privatlivspolitikken</a>.
+                      </span>
+                    </label>
+
                     {errorMsg && <p className="text-red-400 text-[13px] mb-[8px]">{errorMsg}</p>}
                     {formState === "error" && (
                       <p className="text-red-400 text-[13px] mb-[8px]">{t("contact_error_general")}</p>
@@ -671,7 +705,7 @@ export default function BranchCarousel() {
 
                     <button
                       type="submit"
-                      disabled={formState === "submitting" || !accepted}
+                      disabled={formState === "submitting" || !accepted || !acceptedPrivacy}
                       className="w-full bg-yellow text-black font-condensed font-extrabold text-[14px] tracking-[.08em] uppercase py-[14px] rounded-none hover:bg-yellow2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                       {formState === "submitting"

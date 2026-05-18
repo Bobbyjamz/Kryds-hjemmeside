@@ -30,6 +30,40 @@ export default function Footer() {
     { labelKey: "footer_leg_5", href: "/medarbejder-vilkaar" },
   ];
 
+  const socials = [
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/company/krydsbyg",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+          <rect x="2" y="9" width="4" height="12" />
+          <circle cx="4" cy="4" r="2" />
+        </svg>
+      ),
+    },
+    {
+      label: "Facebook",
+      href: "https://www.facebook.com/krydsbyg",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+        </svg>
+      ),
+    },
+    {
+      label: "Instagram",
+      href: "https://www.instagram.com/krydsbyg",
+      icon: (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <footer className="bg-black px-[52px] pt-16 pb-10 border-t border-[var(--border)] max-[900px]:px-5 max-[900px]:pt-12 max-[900px]:pb-8">
       <div className="flex justify-between items-start pb-12 border-b border-[var(--border)] mb-8 max-[900px]:flex-col max-[900px]:gap-9">
@@ -46,6 +80,20 @@ export default function Footer() {
               kontakt@krydsbyg.com
             </a>
             <p className="text-[12px] text-muted mt-2">CVR: 46369947</p>
+          </div>
+          <div className="flex gap-3 mt-5">
+            {socials.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="w-9 h-9 flex items-center justify-center border border-[var(--border)] text-muted hover:text-yellow hover:border-yellow transition-colors rounded-[2px]"
+              >
+                {s.icon}
+              </a>
+            ))}
           </div>
         </div>
         <div className="flex gap-[72px] max-[900px]:flex-col max-[900px]:gap-9">

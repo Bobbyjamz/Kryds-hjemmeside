@@ -6,17 +6,7 @@ import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-function handleBookNow(e: React.MouseEvent<HTMLAnchorElement>) {
-  const el = document.getElementById("contract");
-  if (!el) return;
-  e.preventDefault();
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
-  el.classList.remove("contract-pulse");
-  void (el as HTMLElement).offsetWidth;
-  el.classList.add("contract-pulse");
-  el.addEventListener("animationend", () => el.classList.remove("contract-pulse"), { once: true });
-}
+import { scrollToContract } from "@/lib/scrollToContract";
 
 /* ── Sun icon ── */
 function SunIcon() {
@@ -179,7 +169,7 @@ export default function Nav() {
           <li className="max-[900px]:hidden">
             <a
               href={isHome ? "#contract" : "/#contract"}
-              onClick={isHome ? handleBookNow : undefined}
+              onClick={isHome ? scrollToContract : undefined}
               className="font-condensed font-extrabold text-[13px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-[10px] rounded-none no-underline transition-colors hover:bg-yellow2"
             >
               {t("nav_kontakt")}
@@ -190,7 +180,7 @@ export default function Nav() {
           <li className="hidden max-[900px]:flex items-center gap-4">
             <a
               href={isHome ? "#contract" : "/#contract"}
-              onClick={isHome ? handleBookNow : undefined}
+              onClick={isHome ? scrollToContract : undefined}
               className="font-condensed font-extrabold text-[13px] tracking-[.08em] uppercase bg-yellow text-black px-5 py-[9px] rounded-none no-underline transition-colors hover:bg-yellow2"
             >
               {t("nav_kontakt")}
@@ -252,7 +242,7 @@ export default function Nav() {
           {/* Kontakt CTA — samme gule knap-stil som desktop */}
           <a
             href={isHome ? "#contract" : "/#contract"}
-            onClick={(e) => { closeMenu(); if (isHome) handleBookNow(e); }}
+            onClick={(e) => { closeMenu(); if (isHome) scrollToContract(e); }}
             className="mt-7 font-condensed font-extrabold text-[15px] tracking-[.08em] uppercase bg-yellow text-black px-6 py-3 rounded-none no-underline transition-colors hover:bg-yellow2 self-start"
           >
             {t("nav_kontakt")}

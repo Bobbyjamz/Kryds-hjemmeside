@@ -14,17 +14,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readLeads, readSarahContacts, readTilbud, readEmployees } from "@/lib/db";
 import { notifyAdmin } from "@/lib/sms";
+import { verifyCronAuth } from "@/lib/cron-auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
 export async function GET(req: NextRequest) {
-  // Kun Vercel Cron eller CRON_SECRET
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authFail = verifyCronAuth(req);
+  if (authFail) return authFail;
 
   try {
     const [leads, contacts, tilbud, employees] = await Promise.all([

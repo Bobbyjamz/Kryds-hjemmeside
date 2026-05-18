@@ -2,19 +2,15 @@ import { NextResponse } from "next/server";
 import { runLeadFinderWithGapFilling } from "@/lib/lead-finder/runner/gap-runner";
 import { readLeads, writeLeads, generateId } from "@/lib/db";
 import { notifyAdmin } from "@/lib/sms";
+import { verifyCronAuth } from "@/lib/cron-auth";
 import type { Lead } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300; // 300s — website scraping + note-generering kræver tid
 
 export async function GET(req: Request) {
-  // Sikkerhed: kun Vercel Cron eller admin med CRON_SECRET må kalde denne
-  const authHeader = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authFail = verifyCronAuth(req);
+  if (authFail) return authFail;
 
   try {
     const result = await runLeadFinderWithGapFilling();

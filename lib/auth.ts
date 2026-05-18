@@ -9,8 +9,8 @@ const EMPLOYEE_COOKIE = "kryds-employee-session";
 
 function getSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET;
-  if (!secret || secret.length < 16) {
-    throw new Error("JWT_SECRET er ikke sat eller for kort (min. 16 tegn)");
+  if (!secret || secret.length < 32) {
+    throw new Error("JWT_SECRET er ikke sat eller for kort (min. 32 tegn for HS256-sikkerhed)");
   }
   return new TextEncoder().encode(secret);
 }
