@@ -129,6 +129,9 @@ export interface SarahContact {
   followUpSentAt?: string;
   repliedAt?: string;
   meetingAt?: string;
+  emailBounced?: boolean;      // Hard bounce fra Resend webhook
+  emailBouncedAt?: string;
+  emailComplainedAt?: string;  // Spam-klage — status sættes samtidig til "unsubscribed"
   notes?: string;
   generatedEmail?: string;
   councilAdvice?: string;
@@ -291,6 +294,10 @@ export interface Lead {
   followUp2SentAt?: string;   // 14-dages sidste forsøg (m. retainer-pitch)
   emailOpened?: boolean;      // Sat af Resend webhook
   emailOpenedAt?: string;
+  emailBounced?: boolean;     // Hard bounce — adressen virker ikke, send aldrig igen
+  emailBouncedAt?: string;
+  emailComplained?: boolean;  // Spam-klage — behandl som hård afmelding
+  emailComplainedAt?: string;
   // SMS-outreach (leads med telefon men ingen email)
   smsSentAt?: string;         // Dag 0 SMS — Sarah's korte besked
   smsBody?: string;           // Teksten der blev sendt

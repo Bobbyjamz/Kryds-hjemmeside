@@ -202,12 +202,14 @@ export default function SarahPage() {
     meeting: contacts.filter((c) => c.status === "meeting").length,
     closed: contacts.filter((c) => c.status === "closed").length,
     unsubscribed: contacts.filter((c) => c.status === "unsubscribed").length,
+    bounced: contacts.filter((c) => c.emailBounced).length,
   };
 
   // Nøgletal — kun metrics vi faktisk måler. Åbnings- og bounce-rate kræver Resend-webhook (ikke sat op endnu).
   const kontaktet = stats.emailed + stats.followed_up + stats.replied + stats.meeting + stats.closed + stats.unsubscribed;
   const svarRate = kontaktet > 0 ? ((stats.replied + stats.meeting) / kontaktet) * 100 : 0;
   const afmeldRate = kontaktet > 0 ? (stats.unsubscribed / kontaktet) * 100 : 0;
+  const bounceRate = kontaktet > 0 ? (stats.bounced / kontaktet) * 100 : 0;
 
   const isActive = (() => {
     const now = new Date();
@@ -348,11 +350,12 @@ export default function SarahPage() {
           </div>
 
           {/* Nøgletal */}
-          <div className="grid grid-cols-4 max-[700px]:grid-cols-2 gap-3">
+          <div className="grid grid-cols-5 max-[700px]:grid-cols-2 gap-3">
             <StatCard label="Kontaktet i alt" value={kontaktet} />
             <RateCard label="Svar-rate" pct={svarRate} tone="green" />
             <StatCard label="Afmeldt" value={stats.unsubscribed} color="bg-red-500/5 border-red-500/20" />
             <RateCard label="Afmeldings-rate" pct={afmeldRate} tone="red" />
+            <RateCard label="Bounce-rate" pct={bounceRate} tone="red" />
           </div>
 
           {/* Upload */}

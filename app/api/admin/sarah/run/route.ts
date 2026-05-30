@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     const cutoff4  = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString();
     const cutoff9  = new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString();
     const needFollowUp = contacts
-      .filter((c) => c.status === "emailed" && c.emailSentAt && c.emailSentAt < cutoff4)
+      .filter((c) => c.status === "emailed" && c.emailSentAt && c.emailSentAt < cutoff4 && !c.emailBounced && !c.emailComplainedAt)
       .slice(0, 10);
 
     for (const contact of needFollowUp) {
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
 
     // Anden opfølgning: dag 9 — sidste forsøg med konkret tilbud (gratis første dag)
     const needFollowUp2 = contacts
-      .filter((c) => c.status === "followed_up" && c.followUpSentAt && c.followUpSentAt < cutoff9)
+      .filter((c) => c.status === "followed_up" && c.followUpSentAt && c.followUpSentAt < cutoff9 && !c.emailBounced && !c.emailComplainedAt)
       .slice(0, 10);
 
     for (const contact of needFollowUp2) {

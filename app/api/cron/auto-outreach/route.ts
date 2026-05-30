@@ -447,7 +447,9 @@ async function runFollowUpPipeline() {
         l.email &&
         l.sentAt &&
         l.sentAt <= fiveDaysAgo &&
-        !l.followUp1SentAt
+        !l.followUp1SentAt &&
+        !l.emailBounced &&
+        !l.emailComplained
     )
     .slice(0, 4); // Max 4 pr. kørsel — Sarah er AI og tager tid
 
@@ -460,7 +462,9 @@ async function runFollowUpPipeline() {
         l.sentAt &&
         l.sentAt <= fourteenDaysAgo &&
         l.followUp1SentAt &&
-        !l.followUp2SentAt
+        !l.followUp2SentAt &&
+        !l.emailBounced &&
+        !l.emailComplained
     )
     .slice(0, 3); // Max 3 pr. kørsel
 
