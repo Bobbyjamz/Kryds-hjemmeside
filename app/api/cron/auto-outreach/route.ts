@@ -1,5 +1,5 @@
-﻿/**
- * Auto-Outreach Cron — kl. 13:00 DK (11:00 UTC) dagligt
+/**
+ * Auto-Outreach Cron — kl. 14:00 DK (12:00 UTC) tirs-tors (optimalt B2B-vindue)
  *
  * Pipeline for hvert "New" lead med email:
  *   1. Council analyse (Sonnet 4.5) → leadScore + Sarah-briefing
@@ -70,7 +70,7 @@ OBLIGATORISK STRUKTUR (følg ALTID):
 2. Tom linje
 3. Body: 3-5 linjer der nævner noget konkret om dem og hvad KrydsByg kan tilbyde
 4. Tom linje
-5. Konkret call-to-action: opkald til Krystian på +45 42 77 98 66 eller besøg krydsbyg.com
+5. Konkret call-to-action: opkald til Krystian på +45 42 77 88 66 eller besøg krydsbyg.com
 6. Tom linje
 7. AFSLUTNING — ALTID præcis: "Med venlig hilsen,"
    (Systemet tilføjer Sarah Møller + kontaktinfo automatisk efter den linje)

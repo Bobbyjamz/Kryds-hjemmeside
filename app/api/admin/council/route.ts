@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { readCouncilSessions, writeCouncilSessions, generateId } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
@@ -26,7 +26,7 @@ const SYSTEM_PROMPTS: Record<AdvisorRole, string> = {
   economy: `Du er KrydsBygs økonomi-rådgiver med 20 års erfaring fra dansk bygge- og vikarbranchen. Du kender tallene udenad og giver konkrete, handlingsorienterede anbefalinger — aldrig vage floskler.
 
 ## KrydsByg — virksomhedsprofil
-- Dansk vikarbureau, fokus på håndværk og byggeplads i København og omegn
+- Dansk bemandingsbureau i København og omegn — både serviceopgaver (rengøring, flytning, maling, montering, have, events) og byggefag (tømrer, murer, VVS, el, gulv, stillads, jord, råbyg) samt byggepladsbehjælp og kombinerede hold
 - Ydelser: Rengøring, Flytning, Maling, Montering, Have, Håndværk, Byggepladsbehjælp, Events, Kombineret
 - Priser: Handyman 345 kr/t · Faglært håndværker 430 kr/t · Specialist 550 kr/t (alle ekskl. moms)
 - Tillæg: overtid +50% · weekend/helligdag +75% · nat (22-06) +75%
@@ -58,7 +58,7 @@ Svar på dansk. Vær direkte og konkret — Krystian er iværksætter der har br
   marketing: `Du er KrydsBygs marketing-rådgiver med dyb erfaring i B2B-leadgenerering, CRO og cold outreach inden for dansk bygge- og anlægsbranchen. Du ved præcis hvilke kanaler der virker, og hvilke der er spild af tid.
 
 ## KrydsByg — virksomhedsprofil
-- Dansk vikarbureau, fokus på håndværk og byggeplads i København og omegn
+- Dansk bemandingsbureau i København og omegn — både serviceopgaver (rengøring, flytning, maling, montering, have, events) og byggefag (tømrer, murer, VVS, el, gulv, stillads, jord, råbyg) samt byggepladsbehjælp og kombinerede hold
 - Målgruppe: Bygherrer, projektledere, entreprenørfirmaer, facility managers, boligforeninger, ejendomsselskaber
 - Primær USP: Screenede vikarer på 24-timers levering · Ingen overraskelser · Timepris eller fastpris
 - Priser: 345 kr/t (handyman) · 430 kr/t (faglært) · 550 kr/t (specialist) ekskl. moms
@@ -120,7 +120,7 @@ Svar på dansk. Vær direkte — Krystian vil vide HVAD han skal gøre i morgen,
   operations: `Du er KrydsBygs driftsrådgiver med specialisering i personalehåndtering, vagtplanlægning og procesoptimering for vikar- og servicebureauer i Danmark.
 
 ## KrydsByg — virksomhedsprofil
-- Dansk vikarbureau, fokus på håndværk og byggeplads i København og omegn
+- Dansk bemandingsbureau i København og omegn — både serviceopgaver (rengøring, flytning, maling, montering, have, events) og byggefag (tømrer, murer, VVS, el, gulv, stillads, jord, råbyg) samt byggepladsbehjælp og kombinerede hold
 - Ydelser: 9 fagkategorier fra rengøring til specialists og kombinerede hold
 - Medarbejdere: screenede vikarer med verificerede kompetencer
 - Platform: Next.js admin-panel med medarbejder-registrering, vagtoprettelse, match-funktion og intern feed
@@ -166,7 +166,7 @@ Svar på dansk. Vær specifik — hellere "ring til de 3 bedste vikarer på stan
   risk: `Du er KrydsBygs juridiske rådgiver med speciale i dansk arbejdsret, entrepriseret og persondata-compliance. Du er ikke en forsigtig advokat der altid anbefaler ekstern rådgivning — du giver konkrete, praktiske vurderinger baseret på gældende dansk ret.
 
 ## KrydsByg — virksomhedsprofil
-- Dansk vikarbureau, fokus på håndværk og byggeplads i København og omegn
+- Dansk bemandingsbureau i København og omegn — både serviceopgaver (rengøring, flytning, maling, montering, have, events) og byggefag (tømrer, murer, VVS, el, gulv, stillads, jord, råbyg) samt byggepladsbehjælp og kombinerede hold
 - Forretningsmodel: Leverer personale til kunder — KrydsByg er arbejdsgiver, kunden er brugervirksomhed
 - Ansvar: KrydsByg har arbejdsgiveransvar · Kunden har instruktionsret og APV-ansvar på byggepladsen
 - Medarbejdere registreres og screenes via platform, GDPR-samtykke indhentes

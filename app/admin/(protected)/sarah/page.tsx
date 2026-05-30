@@ -42,6 +42,16 @@ function StatCard({ label, value, color }: { label: string; value: number; color
   );
 }
 
+function RateCard({ label, pct, tone }: { label: string; pct: number; tone: "green" | "red" }) {
+  const bg = tone === "green" ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20";
+  return (
+    <div className={`rounded-[4px] border border-[rgba(242,238,230,.08)] p-5 ${bg}`}>
+      <p className="text-[36px] font-condensed font-black text-cream leading-none">{pct.toFixed(1)}%</p>
+      <p className="text-[11px] font-condensed font-semibold tracking-[.15em] uppercase text-muted mt-2">{label}</p>
+    </div>
+  );
+}
+
 function Badge({ status }: { status: SarahStatus }) {
   return (
     <span className={`inline-block px-2 py-0.5 rounded-[2px] text-[10px] font-condensed font-bold tracking-[.1em] uppercase ${STATUS_COLORS[status]}`}>
@@ -190,7 +200,14 @@ export default function SarahPage() {
     followed_up: contacts.filter((c) => c.status === "followed_up").length,
     replied: contacts.filter((c) => c.status === "replied").length,
     meeting: contacts.filter((c) => c.status === "meeting").length,
+    closed: contacts.filter((c) => c.status === "closed").length,
+    unsubscribed: contacts.filter((c) => c.status === "unsubscribed").length,
   };
+
+  // Nøgletal — kun metrics vi faktisk måler. Åbnings- og bounce-rate kræver Resend-webhook (ikke sat op endnu).
+  const kontaktet = stats.emailed + stats.followed_up + stats.replied + stats.meeting + stats.closed + stats.unsubscribed;
+  const svarRate = kontaktet > 0 ? ((stats.replied + stats.meeting) / kontaktet) * 100 : 0;
+  const afmeldRate = kontaktet > 0 ? (stats.unsubscribed / kontaktet) * 100 : 0;
 
   const isActive = (() => {
     const now = new Date();
@@ -330,6 +347,14 @@ export default function SarahPage() {
             <StatCard label="Møder" value={stats.meeting} color="bg-purple-500/5 border-purple-500/20" />
           </div>
 
+          {/* Nøgletal */}
+          <div className="grid grid-cols-4 max-[700px]:grid-cols-2 gap-3">
+            <StatCard label="Kontaktet i alt" value={kontaktet} />
+            <RateCard label="Svar-rate" pct={svarRate} tone="green" />
+            <StatCard label="Afmeldt" value={stats.unsubscribed} color="bg-red-500/5 border-red-500/20" />
+            <RateCard label="Afmeldings-rate" pct={afmeldRate} tone="red" />
+          </div>
+
           {/* Upload */}
           <div className="rounded-[4px] border border-[rgba(242,238,230,.08)] bg-black2 p-6">
             <p className="font-condensed font-black text-[13px] tracking-[.15em] uppercase text-cream mb-4">
@@ -394,12 +419,11 @@ export default function SarahPage() {
             <p className="font-condensed font-black text-[13px] tracking-[.15em] uppercase text-cream mb-4">
               Dagsskema (Vercel Cron)
             </p>
-            <div className="grid grid-cols-4 max-[700px]:grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 max-[700px]:grid-cols-1 gap-2">
               {[
-                { tid: "08:00", opgave: "Emails til nye kontakter" },
-                { tid: "10:00", opgave: "Council forbedrer emails" },
-                { tid: "13:00", opgave: "Opfølgninger sendes" },
-                { tid: "16:00", opgave: "Daglig rapport" },
+                { tid: "08:00", opgave: "Morgenrapport (dagligt)" },
+                { tid: "09:00", opgave: "LeadBot finder leads (dagligt)" },
+                { tid: "14:00", opgave: "Sarah sender + opfølger (tirs–tors)" },
               ].map(({ tid, opgave }) => (
                 <div key={tid} className="border border-[rgba(242,238,230,.06)] rounded-[2px] p-3 text-center">
                   <p className="font-condensed font-black text-[18px] text-yellow">{tid}</p>

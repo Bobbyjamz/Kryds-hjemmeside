@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Delt Council-hjerne — bruges af Sarah (outreach) og Tilbud-systemet.
  * Kalder Claude direkte med den relevante rådgiver-kontekst.
  */
@@ -8,8 +8,11 @@ import Anthropic from "@anthropic-ai/sdk";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const KRYDSBYG_KONTEKST = `
-KrydsByg ApS er et dansk vikarbureau i København, specialiseret i byggeri og håndværk.
-Vi matcher faglærte og handymen med byggeprojekter: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg.
+KrydsByg ApS er et dansk bemandingsbureau i København og omegn.
+Vi leverer BÅDE brede serviceopgaver OG specialiserede byggefag — samt kombinerede hold:
+- Service: rengøring & oprydning, flytning & transport, maling & spartling, montering & samling, have & anlæg, events & scener
+- Byggeri/håndværk: tømrer, murer, VVS, el, gulv, stillads, jord/anlæg, råbyg, byggepladsbehjælp
+Vi håndterer løn, forsikring og HR — kunden skal bare bruge folk.
 Grundlægger: Krystian Balasz, uddannet bygningskonstruktør.
 Hjemmeside: krydsbyg.com
 `;
@@ -60,7 +63,7 @@ Derefter tom linje, derefter brødtekst (maks 80 ord).
 
 Reference-skabeloner (brug som inspiration, personaliser altid):
 A — Kold første kontakt (partner/kunde): "Hej [Fornavn], jeg hedder Krystian fra KrydsByg — vi er et københavnsk bemandingsbureau specialiseret i byggeri. Hvis I mangler en [fag] hurtigt, kan vi stille folk klar inden for 24 timer. Timeafregning eller fastpris — ingen binding. Har I et projekt kørende?"
-B — Opfølgning 7 dage: "Hej [Fornavn], bare en hurtig opfølgning — er der et tidspunkt i de næste uger hvor I kunne have glæde af ekstra hænder på pladsen?"
+B — Opfølgning dag 4: "Hej [Fornavn], bare en hurtig opfølgning — er der et tidspunkt i de næste uger hvor I kunne have glæde af ekstra hænder på pladsen?"
 C — Retargeting: "Hej [Fornavn], det var fedt at arbejde med jer. Vi nærmer os [sæson] og vores kalender begynder at fyldes. Har I projekter på vej?"
 D — Medarbejder: "Hej [Fornavn], vi har brug for dygtige [fag] til projekter i København. Fleksibel tilmelding, hurtig udbetaling."`,
     messages: [
