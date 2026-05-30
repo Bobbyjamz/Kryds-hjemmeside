@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getAdminSession } from "@/lib/auth";
 import {
@@ -17,9 +17,11 @@ export const maxDuration = 300;
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 const FROM = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://krydsbyg.com";
 
 async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
   try {
+    const unsubUrl = `${SITE_URL}/afmeld?e=${encodeURIComponent(to)}`;
     await resend.emails.send({
       from: FROM,
       to: [to],
@@ -27,6 +29,10 @@ async function sendEmail(to: string, subject: string, html: string, text: string
       subject,
       html,
       text,
+      headers: {
+        "List-Unsubscribe": `<mailto:kontakt@krydsbyg.com?subject=afmeld>, <${unsubUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
     });
     return true;
   } catch (err) {

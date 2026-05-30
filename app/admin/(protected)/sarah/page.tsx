@@ -20,6 +20,7 @@ const STATUS_LABELS: Record<SarahStatus, string> = {
   replied: "Svar",
   meeting: "Møde",
   closed: "Lukket",
+  unsubscribed: "Afmeldt",
 };
 
 const STATUS_COLORS: Record<SarahStatus, string> = {
@@ -29,6 +30,7 @@ const STATUS_COLORS: Record<SarahStatus, string> = {
   replied: "bg-green-500/20 text-green-300",
   meeting: "bg-purple-500/20 text-purple-300",
   closed: "bg-white/5 text-cream/30",
+  unsubscribed: "bg-red-500/20 text-red-300",
 };
 
 function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {

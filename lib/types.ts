@@ -114,7 +114,8 @@ export type SarahStatus =
   | "followed_up"
   | "replied"
   | "meeting"
-  | "closed";
+  | "closed"
+  | "unsubscribed";
 
 export interface SarahContact {
   id: string;

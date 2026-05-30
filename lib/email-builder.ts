@@ -83,7 +83,7 @@ ${preheaderHtml}
                   <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">Assistent, KrydsByg</p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Telefon:</span>
-                    <a href="tel:+4542779866" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">+45 42 77 98 66</a>
+                    <a href="tel:+4542778866" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">+45 42 77 88 66</a>
                   </p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Email:</span>
@@ -109,7 +109,7 @@ ${preheaderHtml}
         <tr>
           <td style="padding:0 40px 28px 40px">
             <p style="margin:0;font-size:11px;color:#9a9a92;line-height:1.5">
-              Ønsker du ikke at høre mere fra os, så svar blot med &quot;afmeld&quot; og vi skriver dig af med det samme.
+              Ønsker du ikke at høre mere fra os, så svar blot med &quot;afmeld&quot;, eller <a href="mailto:kontakt@krydsbyg.com?subject=Afmeld" style="color:#9a9a92;text-decoration:underline">klik her for at afmelde</a>.
             </p>
           </td>
         </tr>
@@ -130,7 +130,7 @@ export function buildEmailText(body: string): string {
 ---
 Sarah Møller
 Assistent, KrydsByg
-Telefon: +45 42 77 98 66
+Telefon: +45 42 77 88 66
 Email: kontakt@krydsbyg.com
 Web: krydsbyg.com
 

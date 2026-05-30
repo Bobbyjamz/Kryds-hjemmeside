@@ -35,7 +35,8 @@ function tplHeader(): string {
       KØBENHAVN
     </td>
   </tr>
-</table>`;
+</table>
+<p style="margin:14px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:${s.muted};">Vil du ikke modtage flere mails? <a href="mailto:${KRYDS_EMAIL}?subject=Afmeld" style="color:${s.muted};text-decoration:underline;">Afmeld her</a>.</p>`;
 }
 
 // ── Signatur ─────────────────────────────────────────────────────────────
@@ -56,7 +57,8 @@ function tplSignature(): string {
       <a href="https://${KRYDS_WEB}" style="color:${s.mustard};text-decoration:none;font-weight:bold;">${KRYDS_WEB} →</a>
     </td>
   </tr>
-</table>`;
+</table>
+<p style="margin:14px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:${s.muted};">Vil du ikke modtage flere mails? <a href="mailto:${KRYDS_EMAIL}?subject=Afmeld" style="color:${s.muted};text-decoration:underline;">Afmeld her</a>.</p>`;
 }
 
 // ── Wrap brødtekst i fuld mail ───────────────────────────────────────────
