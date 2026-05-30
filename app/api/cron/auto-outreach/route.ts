@@ -342,10 +342,10 @@ async function runOutreachPipeline() {
 
 // ── Auto follow-up (2-trins kadence) ────────────────────────────────────────
 //
-//   Trin 1 (dag 5):  Venlig "Bare en kort opfølgning"-mail
-//   Trin 2 (dag 14): Sidste forsøg m. retainer-pitch til facility/ejendom-typer
+//   Trin 1 (dag 4):  Venlig "Bare en kort opfølgning"-mail
+//   Trin 2 (dag 9):  Sidste forsøg m. retainer-pitch til facility/ejendom-typer
 //
-// Når trin 2 er sendt og der stadig ikke er svar 7 dage senere markeres leadet
+// Når trin 2 er sendt og der stadig ikke er svar 5 dage senere (park dag 14) markeres leadet
 // "Rejected" så Sarah ikke bliver ved at hamre folk.
 
 const FACILITY_TYPES = [
@@ -383,7 +383,7 @@ async function runSarahFollowUp(
   const firstName = lead.contactName?.split(" ")[0] || lead.companyName;
   const daysSinceSent = lead.sentAt
     ? Math.floor((Date.now() - new Date(lead.sentAt).getTime()) / (1000 * 60 * 60 * 24))
-    : 5;
+    : 4;
   const retainerHint = isRetainerCandidate(lead);
   const isFinal = step === 2;
 
@@ -395,7 +395,7 @@ async function runSarahFollowUp(
       messages: [
         {
           role: "user",
-          content: `Skriv opfølgning ${step === 1 ? "#1 (venlig dag-5 reminder)" : "#2 (sidste forsøg dag 14)"}.
+          content: `Skriv opfølgning ${step === 1 ? "#1 (venlig dag-4 reminder)" : "#2 (sidste forsøg dag 9)"}.
 
 LEAD: ${lead.companyName} — kontaktperson: ${firstName}
 Branche: ${lead.industry || "ukendt"} | Service: ${lead.serviceType || "generelt"}
@@ -435,32 +435,32 @@ Emne: ${isFinal ? "Sidste besked fra KrydsByg" : `Re: ${(lead.draftSubject ?? "K
 async function runFollowUpPipeline() {
   const allLeads = await readLeads();
   const now = Date.now();
-  const fiveDaysAgo = new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString();
-  const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000).toISOString();
-  const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const cutoff4 = new Date(now - 4 * 24 * 60 * 60 * 1000).toISOString();
+  const cutoff9 = new Date(now - 9 * 24 * 60 * 60 * 1000).toISOString();
+  const parkCutoff = new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString(); // 5 dage efter dag-9 = park dag 14
 
-  // ── Trin 1: dag 5 efter første mail ──────────────────────────────────────
+  // ── Trin 1: dag 4 efter første mail ──────────────────────────────────────
   const trin1 = allLeads
     .filter(
       (l) =>
         l.status === "Sent" &&
         l.email &&
         l.sentAt &&
-        l.sentAt <= fiveDaysAgo &&
+        l.sentAt <= cutoff4 &&
         !l.followUp1SentAt &&
         !l.emailBounced &&
         !l.emailComplained
     )
     .slice(0, 4); // Max 4 pr. kørsel — Sarah er AI og tager tid
 
-  // ── Trin 2: dag 14 efter første mail ─────────────────────────────────────
+  // ── Trin 2: dag 9 efter første mail ──────────────────────────────────────
   const trin2 = allLeads
     .filter(
       (l) =>
         l.status === "Sent" &&
         l.email &&
         l.sentAt &&
-        l.sentAt <= fourteenDaysAgo &&
+        l.sentAt <= cutoff9 &&
         l.followUp1SentAt &&
         !l.followUp2SentAt &&
         !l.emailBounced &&
@@ -468,12 +468,12 @@ async function runFollowUpPipeline() {
     )
     .slice(0, 3); // Max 3 pr. kørsel
 
-  // ── Auto-close: trin 2 sendt + 7 dage uden svar = lukket ─────────────────
+  // ── Auto-close: trin 2 sendt + 5 dage uden svar (park dag 14) = lukket ────
   const toClose = allLeads.filter(
     (l) =>
       l.status === "Sent" &&
       l.followUp2SentAt &&
-      l.followUp2SentAt <= sevenDaysAgo
+      l.followUp2SentAt <= parkCutoff
   );
 
   if (trin1.length === 0 && trin2.length === 0 && toClose.length === 0) {
@@ -566,7 +566,7 @@ async function runFollowUpPipeline() {
         status: "Rejected",
         notes: [
           updatedLeads[idx].notes,
-          "Auto-lukket: ingen svar efter 3 mails over 21 dage.",
+          "Auto-lukket: ingen svar efter 3 mails (park dag 14).",
         ]
           .filter(Boolean)
           .join("\n\n"),
@@ -690,8 +690,8 @@ export async function GET(req: Request) {
       `Hej chef! 🤖 Auto-outreach kl. 13:`,
       toProcess > 0 ? `✅ ${stats.sent} nye emails sendt` : `📭 Ingen nye email-leads`,
       sms.smsSent > 0 ? `📱 ${sms.smsSent} SMS sendt (tlf-leads)` : null,
-      followUp.followUp1Sent > 0 ? `🔁 ${followUp.followUp1Sent} opfølgning #1 (5d)` : null,
-      followUp.followUp2Sent > 0 ? `🎯 ${followUp.followUp2Sent} sidste mail (14d)` : null,
+      followUp.followUp1Sent > 0 ? `🔁 ${followUp.followUp1Sent} opfølgning #1 (4d)` : null,
+      followUp.followUp2Sent > 0 ? `🎯 ${followUp.followUp2Sent} sidste mail (9d)` : null,
       followUp.autoClosed > 0 ? `🗄 ${followUp.autoClosed} lukket auto` : null,
       stats.lowScore > 0 ? `⏸ ${stats.lowScore} afventer dig (lav score)` : null,
       stats.errors > 0 ? `⚠️ ${stats.errors} fejl — tjek admin` : null,
