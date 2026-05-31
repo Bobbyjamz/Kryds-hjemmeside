@@ -343,7 +343,6 @@ export function buildFollowupEmail(contact: {
 }): { subject: string; html: string; text: string } {
   const fornavn = contact.name?.split(" ")[0] || contact.name || "";
   const virk = contact.company || "";
-  const s = TPL_STYLES;
 
   const isRekruttering = contact.type === "medarbejder";
   const subject = isRekruttering

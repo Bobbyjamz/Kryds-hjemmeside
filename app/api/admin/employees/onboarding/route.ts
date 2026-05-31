@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Onboarding-mail til medarbejdere — Sarah skriver, du bekræfter.
  *
  * POST   { employeeId, regenerate? } → genererer udkast (status: AFVENTER_BEKRÆFTELSE)
@@ -233,7 +233,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 // ── PUT: bulk-generér udkast for alle Afventer-medarbejdere ─────────────
-export async function PUT(req: NextRequest) {
+export async function PUT(_req: NextRequest) {
   const session = await getAdminSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

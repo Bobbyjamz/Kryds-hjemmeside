@@ -32,7 +32,6 @@ export async function GET(req: NextRequest) {
     ]);
 
     const now = new Date();
-    const todayStr = now.toISOString().slice(0, 10);
 
     // Ugens start (mandag)
     const weekStart = new Date(now);

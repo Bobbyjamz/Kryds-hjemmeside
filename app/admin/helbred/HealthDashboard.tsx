@@ -207,6 +207,7 @@ export default function HealthDashboard() {
       window.history.replaceState({}, "", url.toString());
       setTimeout(() => setCalendarStatus(null), 5000);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadAll() {
@@ -234,6 +235,7 @@ export default function HealthDashboard() {
 
   useEffect(() => {
     if (activeTab === "kalender") void loadCalendar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   async function saveLog(patch: Partial<HelbedLog>) {
@@ -313,7 +315,7 @@ export default function HealthDashboard() {
           if (activeTab === "kalender") await loadCalendar();
         }
       }
-    } catch (e) {
+    } catch {
       setChatMessages((prev) => [...prev, { id: `err-${Date.now()}`, role: "assistant", content: "Beklager — jeg kunne ikke svare lige nu.", createdAt: new Date().toISOString() }]);
     } finally {
       setChatLoading(false);

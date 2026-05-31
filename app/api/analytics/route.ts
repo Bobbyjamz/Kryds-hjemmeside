@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 }
 
 // GET /api/analytics — read aggregated data (admin only)
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const session = await getAdminSession();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

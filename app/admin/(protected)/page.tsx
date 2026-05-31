@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { readEmployees, readShifts } from "@/lib/db";
-import { readAnalytics, aggregate, last7Days } from "@/lib/analytics";
+import { readAnalytics, aggregate } from "@/lib/analytics";
 import HealthStatus from "./HealthStatus";
 
 export default async function AdminDashboardPage() {

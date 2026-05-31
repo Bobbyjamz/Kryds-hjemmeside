@@ -1,6 +1,6 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { readResetTokens, writeResetTokens, generateId } from "@/lib/db";
+import { readResetTokens, writeResetTokens } from "@/lib/db";
 import { sendSMS } from "@/lib/sms";
 import type { ResetToken } from "@/lib/types";
 

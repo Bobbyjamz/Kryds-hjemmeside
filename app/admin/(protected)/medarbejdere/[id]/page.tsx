@@ -159,6 +159,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
       <div className="grid grid-cols-[180px_1fr] gap-8 mb-8 max-[700px]:grid-cols-1">
         <div>
           {employee.photoPath ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={employee.photoPath} alt={employee.name} className="w-full aspect-square object-cover rounded-[2px] border border-[rgba(242,238,230,.07)]" />
           ) : (
             <div className="w-full aspect-square bg-[rgba(12,12,10,.5)] border border-[rgba(242,238,230,.07)] rounded-[2px] flex items-center justify-center text-muted text-[11px] uppercase tracking-[.1em] font-condensed">

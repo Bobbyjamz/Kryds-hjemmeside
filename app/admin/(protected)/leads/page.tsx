@@ -90,6 +90,7 @@ export default function LeadsPage() {
         setEditBody(updated.draftBody || "");
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leads]);
 
   async function handleUploadFile(f: File) {

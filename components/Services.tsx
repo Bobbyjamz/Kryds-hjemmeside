@@ -137,6 +137,7 @@ export default function Services() {
                 isOpen ? "ring-2 ring-yellow ring-offset-0" : ""
               }`}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={cat.image}
                 alt={t(cat.titleKey)}

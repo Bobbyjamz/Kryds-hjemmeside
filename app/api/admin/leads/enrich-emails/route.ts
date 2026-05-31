@@ -15,7 +15,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
 import { readLeads, writeLeads } from "@/lib/db";
 import { scrapeWebsite } from "@/lib/lead-finder/enrichment/website-scraper";
-import type { Lead } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;

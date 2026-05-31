@@ -46,12 +46,6 @@ interface BBRBygning {
   registreringFra?: string;        // ISO dato for seneste registrering
 }
 
-interface BBRResponse {
-  features?: Array<{ properties?: BBRBygning }>;
-  // Some endpoints return flat arrays
-  [key: string]: unknown;
-}
-
 export async function fetchOISLeads(dayOfYear: number): Promise<LeadCandidate[]> {
   const user = process.env.DATAFORDELER_USER;
   const pass = process.env.DATAFORDELER_PASSWORD;

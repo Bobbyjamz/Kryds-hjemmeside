@@ -292,6 +292,7 @@ export default function TilmeldWizard() {
               <label className={labelClass}>{t("tw_s1_photo_label")}</label>
               <div className="flex items-center gap-4 flex-wrap">
                 {photoDataUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={photoDataUrl} alt={t("tw_s1_photo_registered")} className="w-16 h-16 object-cover rounded-[2px] border border-[rgba(242,238,230,.1)]" />
                 )}
                 <label className="cursor-pointer inline-block">
