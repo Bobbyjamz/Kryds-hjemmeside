@@ -91,6 +91,16 @@ export default function MobileSwipeWrapper({ children }: { children: React.React
     }
   }, []);
 
+  /* ── Prefetch nabosider ──
+     Uden prefetch venter router.push på at siden bygges efter swipe-animationen
+     er færdig — det er det synlige "hak" mellem faner. Når naboerne er forhånds-
+     hentet, er navigationen øjeblikkelig og iframe-peeken afløses sømløst af den
+     rigtige side. Peek-behind-effekten er uændret. */
+  useEffect(() => {
+    if (prevPage) router.prefetch(prevPage);
+    if (nextPage) router.prefetch(nextPage);
+  }, [prevPage, nextPage, router]);
+
   /* ── Direct DOM-skrivning (kører i rAF, max 1× pr. frame) ── */
   const writeFrame = () => {
     rafId.current = null;

@@ -218,8 +218,13 @@ export default function MobileApp() {
         </div>
         <div
           ref={branchScrollRef}
+          data-no-page-swipe
           className="flex gap-3 overflow-x-auto px-5 pb-1"
-          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+          style={{
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-x", // browseren tager horisontal pan — page-swipe rør den ikke
+          }}
           onTouchStart={() => { branchPausedRef.current = true; }}
           onTouchEnd={() => { setTimeout(() => { branchPausedRef.current = false; }, 1400); }}
           onTouchCancel={() => { setTimeout(() => { branchPausedRef.current = false; }, 1400); }}
