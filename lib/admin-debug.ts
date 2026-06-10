@@ -82,6 +82,8 @@ function testEnvVariables(): TestResult[] {
     envCheck("NEXT_PUBLIC_SITE_URL",     { required: false, description: "https://krydsbyg.com" }),
     envCheck("UPSTASH_REDIS_REST_URL",   { required: false, description: "LeadBot storage" }),
     envCheck("UPSTASH_REDIS_REST_TOKEN", { required: false, description: "LeadBot storage" }),
+    envCheck("KV_REST_API_URL",         { required: false, description: "Redis via Vercel Marketplace (fallback)" }),
+    envCheck("KV_REST_API_TOKEN",       { required: false, description: "Redis via Vercel Marketplace (fallback)" }),
     envCheck("GOOGLE_PLACES_API_KEY",    { required: false, description: "Google Places (LeadBot)" }),
     envCheck("CRON_SECRET",              { required: false, description: "Beskytter cron-routes" }),
     envCheck("OURA_ACCESS_TOKEN",        { required: false, description: "Til fremtidig helbreds-fane" }),
