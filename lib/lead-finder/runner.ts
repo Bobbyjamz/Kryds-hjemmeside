@@ -11,6 +11,7 @@ import { fetchBoligaListings } from "./sources/boliga";
 import { fetchJobnetLeads } from "./sources/jobnet";
 import { fetchStepstoneLeads } from "./sources/stepstone";
 import { fetchDirectoryLeads } from "./sources/directories";
+import { fetchScrapeGraphLeads } from "./sources/scrapegraph";
 import { getIndustryWeights } from "./scoring";
 import { qualifyLeads, QUALIFY_THRESHOLD } from "./qualifier";
 import { generateNotes } from "./enrichment/note-generator";
@@ -77,6 +78,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     jobnetResults,
     stepstoneResults,
     directoryResults,
+    scrapeGraphResults,
   ] = await Promise.allSettled([
     fetchCVRLeads(dayOfYear, weights),
     fetchCVREnkeltmandsLeads(dayOfYear), // ★ v2: selvstændige håndværkere → medarbejder-leads
@@ -91,6 +93,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     fetchJobnetLeads(dayOfYear),
     fetchStepstoneLeads(dayOfYear),
     fetchDirectoryLeads(dayOfYear),
+    fetchScrapeGraphLeads(dayOfYear, brainPlan?.dynamicScrapeTargets),
   ]);
 
   // ── Per-kilde diagnostik så vi kan se hvad der virker ────────────────────
@@ -149,6 +152,12 @@ export async function runLeadFinder(): Promise<RunResult> {
       : { companies: [], employees: [] };
 
   // ── Saml rådata per kategori ──────────────────────────────────────────────
+  // ScrapeGraphAI-leads (AI-scrape) - flad liste med blandet leadType
+  const scrapeGraphLeads =
+    scrapeGraphResults.status === "fulfilled" ? scrapeGraphResults.value : [];
+  const scrapeGraphCompanies = scrapeGraphLeads.filter((c) => c.leadType === "company");
+  const scrapeGraphEmployees = scrapeGraphLeads.filter((c) => c.leadType === "employee");
+
   const companyRaw: LeadCandidate[] = [
     ...(cvrResults.status === "fulfilled" ? cvrResults.value : []),
     ...(osmResults.status === "fulfilled" ? osmResults.value : []),    // ★ OSM m. emails
@@ -162,6 +171,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     ...jobnetData.companies,
     ...stepstoneData.companies,
     ...(directoryResults.status === "fulfilled" ? directoryResults.value : []),
+    ...scrapeGraphCompanies,
   ].slice(0, 200); // Stort buffer — qualifier kaster dårlige fra
 
   const privateRaw: LeadCandidate[] = [
@@ -179,6 +189,7 @@ export async function runLeadFinder(): Promise<RunResult> {
     ...stepstoneData.employees,
     // ★ v2: enkeltmandshåndværkere — vores stærkeste medarbejder-signal
     ...(cvrEnkeltmandsResults.status === "fulfilled" ? cvrEnkeltmandsResults.value : []),
+    ...scrapeGraphEmployees,
   ].slice(0, 300); // Fire kilder: Jobindex + Jobnet + Stepstone + CVR Enkeltmands
 
   // ── Qualifier: scorer og filtrerer (sorterer bedste øverst) ──────────────

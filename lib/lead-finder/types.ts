@@ -45,6 +45,15 @@ export interface DailyPlan {
   missingFaggrupper: Faggruppe[];                    // Hvilke faggrupper mangler
   adjustScores: CategoryStats;                       // Dynamiske score-tærskler
   note: string;                                      // Forklaring fra Claude
+  dynamicScrapeTargets?: ScrapeTarget[];            // Valgfri: AI-scrape vilkaarlige URLs
+}
+
+/** Et enkelt scrape-maal som ScrapeGraphAI-kilden kan koere (kurateret eller Brain-genereret). */
+export interface ScrapeTarget {
+  url: string;
+  prompt: string;
+  leadType: LeadType;
+  source: string;
 }
 
 export interface LeadCandidate {

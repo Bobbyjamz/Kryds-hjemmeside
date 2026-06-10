@@ -28,6 +28,7 @@ import { fetchBoligaListings } from "../sources/boliga";
 import { fetchGooglePlacesLeads } from "../sources/google-places";
 import { fetchOSMLeads } from "../sources/osm";
 import { fetchDirectoryLeads } from "../sources/directories";
+import { fetchScrapeGraphLeads } from "../sources/scrapegraph";
 import { qualifyLeads } from "../qualifier";
 import { enrichEmailsBatch } from "../enrichment/email-finder";
 import { expandFilters } from "../filters/filter-config";
@@ -123,12 +124,13 @@ async function runCategoryTopUp(category: LeadType, dayOfYear: number): Promise<
 }
 
 async function topUpEmployees(dayOfYear: number): Promise<LeadCandidate[]> {
-  const [empRes, jobindexRes, jobnetRes, stepstoneRes, cvrEnkRes] = await Promise.allSettled([
+  const [empRes, jobindexRes, jobnetRes, stepstoneRes, cvrEnkRes, sgRes] = await Promise.allSettled([
     fetchEmployeeLeads(dayOfYear),
     fetchJobindexLeads(dayOfYear),
     fetchJobnetLeads(dayOfYear),
     fetchStepstoneLeads(dayOfYear),
     fetchCVREnkeltmandsLeads(dayOfYear),
+    fetchScrapeGraphLeads(dayOfYear),
   ]);
 
   const raw: LeadCandidate[] = [];
@@ -141,6 +143,7 @@ async function topUpEmployees(dayOfYear: number): Promise<LeadCandidate[]> {
   if (jobnetRes.status === "fulfilled") raw.push(...jobnetRes.value.employees);
   if (stepstoneRes.status === "fulfilled") raw.push(...stepstoneRes.value.employees);
   if (cvrEnkRes.status === "fulfilled") raw.push(...cvrEnkRes.value);
+  if (sgRes.status === "fulfilled") raw.push(...sgRes.value.filter((c) => c.leadType === "employee"));
 
   return raw;
 }
@@ -164,12 +167,13 @@ async function topUpPrivate(dayOfYear: number): Promise<LeadCandidate[]> {
 }
 
 async function topUpCompany(dayOfYear: number): Promise<LeadCandidate[]> {
-  const [googleRes, osmRes, jobnetRes, stepstoneRes, dirRes] = await Promise.allSettled([
+  const [googleRes, osmRes, jobnetRes, stepstoneRes, dirRes, sgRes] = await Promise.allSettled([
     fetchGooglePlacesLeads(dayOfYear),
     fetchOSMLeads(dayOfYear),
     fetchJobnetLeads(dayOfYear),
     fetchStepstoneLeads(dayOfYear),
     fetchDirectoryLeads(dayOfYear),
+    fetchScrapeGraphLeads(dayOfYear),
   ]);
 
   const raw: LeadCandidate[] = [];
@@ -180,6 +184,7 @@ async function topUpCompany(dayOfYear: number): Promise<LeadCandidate[]> {
   if (jobnetRes.status === "fulfilled") raw.push(...jobnetRes.value.companies);
   if (stepstoneRes.status === "fulfilled") raw.push(...stepstoneRes.value.companies);
   if (dirRes.status === "fulfilled") raw.push(...dirRes.value);
+  if (sgRes.status === "fulfilled") raw.push(...sgRes.value.filter((c) => c.leadType === "company"));
   return raw;
 }
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Brain Layer — Claude bestemmer dagens prioritet for LeadBot v2.
  *
  * Input:  Gårsdagens statistik + nuværende filter-state
@@ -14,7 +14,7 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import type { DailyPlan, Faggruppe, LeadType, YesterdayStats } from "../types";
+import type { DailyPlan, Faggruppe, LeadType, ScrapeTarget, YesterdayStats } from "../types";
 import { ALL_FAGGRUPPER, KRITISKE_FAGGRUPPER } from "../types";
 import { getCurrentFilters, setScoreThreshold, setMissingFaggrupper } from "../filters/filter-config";
 import { getYesterdayStats, calculateGaps } from "./gap-analyzer";
@@ -45,8 +45,14 @@ Felter du SKAL returnere:
   },
   "missingFaggrupper": ["VVS", "El"],   // max 5, kun fra de 9 ovenfor
   "adjustScores": { "company": 65, "private": 60, "employee": 55 },
-  "note": "Forklaring i 1-2 sætninger om hvad du har valgt og hvorfor."
-}`;
+  "note": "Forklaring i 1-2 sætninger om hvad du har valgt og hvorfor.",
+  "dynamicScrapeTargets": []
+}
+
+VALGFRI "dynamicScrapeTargets" (0-4 maal): tilfoej KUN hvis du kender en konkret dansk
+job- eller firmaside der rammer en mangel-faggruppe. Format pr. maal:
+{ "url": "https://...", "prompt": "Udtraek jobtitel/firma/by", "leadType": "employee" eller "company", "source": "Sitenavn (ScrapeGraphAI)" }
+Er du i tvivl: returner [] - saa koerer systemet kuraterede default-kilder.`;
 
 interface BrainInputContext {
   yesterday: YesterdayStats;
@@ -237,5 +243,27 @@ function sanitizePlan(plan: DailyPlan, ctx: BrainInputContext): DailyPlan {
       employee: clamp(plan.adjustScores?.employee, ctx.currentThresholds.employee),
     },
     note: typeof plan.note === "string" ? plan.note.slice(0, 500) : "(ingen note)",
+    dynamicScrapeTargets: sanitizeTargets(plan.dynamicScrapeTargets),
   };
+}
+
+
+/** Validér Brain's valgfrie scrape-targets - dropper alt der ikke er en gyldig http(s)-URL. */
+function sanitizeTargets(raw: unknown): ScrapeTarget[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const valid: ScrapeTarget[] = [];
+  for (const t of raw) {
+    if (!t || typeof t !== "object") continue;
+    const o = t as Record<string, unknown>;
+    const url = typeof o.url === "string" ? o.url : "";
+    const prompt = typeof o.prompt === "string" ? o.prompt : "";
+    const leadType =
+      o.leadType === "company" || o.leadType === "employee" ? o.leadType : null;
+    const source =
+      typeof o.source === "string" && o.source ? o.source : "Brain (ScrapeGraphAI)";
+    if (!/^https?:\/\//.test(url) || !prompt || !leadType) continue;
+    valid.push({ url, prompt, leadType, source });
+    if (valid.length >= 4) break;
+  }
+  return valid.length > 0 ? valid : undefined;
 }

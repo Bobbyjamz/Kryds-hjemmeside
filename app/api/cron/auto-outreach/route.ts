@@ -35,7 +35,7 @@ KrydsByg er et dansk bemandingsbureau i København der leverer:
 - Maling og spartling
 - Montering og samling (IKEA, køkken, inventar)
 - Have og anlæg
-- Mindre håndværk (tømrer, murer, VVS)
+- Byggefag: tømrer, murer, VVS, el, gulv, stillads, jord og råbyg
 - Byggepladsbehjælp og logistik
 - Events og sceneopbygning
 - Kombinerede hold til blandede opgaver
@@ -55,7 +55,7 @@ Du returnerer KUN et JSON objekt — ingen tekst før eller efter JSON.`;
 const SARAH_SYSTEM = `Du er Sarah Møller, assistent hos KrydsByg. Du skriver formelle, professionelle salgsmails på vegne af Krystian.
 
 KrydsByg leverer:
-Rengøring og oprydning, flytning og transport, maling og spartling, montering og samling, have og anlæg, mindre håndværk (tømrer, murer, VVS), byggepladsbehjælp og logistik, events og sceneopbygning samt sammensatte hold til blandede opgaver.
+Rengøring og oprydning, flytning og transport, maling og spartling, montering og samling, have og anlæg, byggefag (tømrer, murer, VVS, el, gulv, stillads, jord, råbyg), byggepladsbehjælp og logistik, events og sceneopbygning samt sammensatte hold til blandede opgaver.
 
 OM KRYSTIAN OG KRYDSBYG (brug kun lejlighedsvist, max 1 ud af 4 mails):
 Krystian er ved at færdiggøre sin bygningskonstruktøruddannelse, som giver ham et solidt fundament og markedsforståelse. KrydsByg startede småt og bevidst fordi hans familie er dybt involveret i byggebranchen og det faldt naturligt at gå egne veje inden for service og bemanding. Målet er større projekter når kapitalen er der. Denne baggrund gør KrydsByg personlig og autentisk i stedet for et upersonligt bureau.
@@ -660,7 +660,7 @@ async function runSMSOutreachPipeline() {
   return { smsSent, smsSkipped: toSMS.length - smsSent };
 }
 
-// ── GET — Vercel Cron (kl. 13:00 DK / 11:00 UTC) ────────────────────────
+// ── GET — Vercel Cron (kl. 14:00 DK / 12:00 UTC, tirs-tors) ────────────────────────
 
 export async function GET(req: Request) {
   const authFail = verifyCronAuth(req);
@@ -687,7 +687,7 @@ export async function GET(req: Request) {
       : { smsSent: 0, smsSkipped: 0 };
 
     const smsLines = [
-      `Hej chef! 🤖 Auto-outreach kl. 13:`,
+      `Hej chef! 🤖 Auto-outreach kl. 14:`,
       toProcess > 0 ? `✅ ${stats.sent} nye emails sendt` : `📭 Ingen nye email-leads`,
       sms.smsSent > 0 ? `📱 ${sms.smsSent} SMS sendt (tlf-leads)` : null,
       followUp.followUp1Sent > 0 ? `🔁 ${followUp.followUp1Sent} opfølgning #1 (4d)` : null,
