@@ -52,12 +52,7 @@ ${preheaderHtml}
           <td style="padding:14px 40px 0 40px">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td style="vertical-align:middle;padding-right:8px">
-                  <svg width="20" height="20" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="14" y1="14" x2="76" y2="76" stroke="${KRYDSBYG_YELLOW}" stroke-width="18" stroke-linecap="round" />
-                    <line x1="76" y1="14" x2="14" y2="76" stroke="${KRYDSBYG_BLACK}" stroke-width="18" stroke-linecap="round" />
-                  </svg>
-                </td>
+
                 <td style="vertical-align:middle">
                   <span style="font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:13px;letter-spacing:.12em;color:${KRYDSBYG_BLACK};text-transform:uppercase">
                     KrydsByg
@@ -93,13 +88,7 @@ ${preheaderHtml}
                     <span style="color:${KRYDSBYG_GRAY}">Web:</span>
                     <a href="https://krydsbyg.com" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">krydsbyg.com</a>
                   </p>
-                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px">
-                    <tr>
-                      <td style="background:${KRYDSBYG_YELLOW};padding:8px 16px;border-radius:2px">
-                        <a href="https://krydsbyg.com" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-size:12px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase">Se hvem vi er</a>
-                      </td>
-                    </tr>
-                  </table>
+
                 </td>
               </tr>
             </table>
@@ -124,6 +113,19 @@ ${preheaderHtml}
 /**
  * Bygger plain-text version af emailen — bruges som fallback for klienter der ikke kan vise HTML.
  */
+/**
+ * Bygger RFC 8058-kompatible List-Unsubscribe headers med ÉT-KLIK https-URL.
+ * Gmail/Yahoo (feb 2024-reglerne) kraever en https-URL for one-click — ikke kun mailto.
+ * Peger paa /afmeld-routen der har en POST-handler til one-click.
+ */
+export function buildUnsubHeaders(recipientEmail: string): Record<string, string> {
+  const e = encodeURIComponent(recipientEmail);
+  return {
+    "List-Unsubscribe": `<https://krydsbyg.com/afmeld?e=${e}>, <mailto:kontakt@krydsbyg.com?subject=afmeld>`,
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  };
+}
+
 export function buildEmailText(body: string): string {
   return `${body.trim()}
 

@@ -80,16 +80,41 @@ export async function sendSMS(
  */
 export async function notifyAdmin(message: string): Promise<void> {
   const adminPhone = process.env.ADMIN_PHONE;
-  if (!adminPhone) {
-    console.log(`[Admin SMS stub — ingen ADMIN_PHONE] ${message}`);
+  let smsOk = false;
+
+  if (adminPhone) {
+    try {
+      const result = await sendSMS(adminPhone, message);
+      smsOk = result.ok;
+      if (!result.ok) console.error(`[Admin SMS fejl] ${result.error}`);
+    } catch (err) {
+      console.error(`[Admin SMS exception]`, err);
+    }
+  }
+
+  // Email-fallback: hvis SMS fejler eller mangler (fx GatewayAPI frozen),
+  // saa admin faar stadig sin besked via Resend. Notifikationer maa aldrig forsvinde.
+  if (!smsOk) {
+    await notifyAdminEmail(message).catch((e) =>
+      console.error(`[Admin email-fallback fejl]`, e)
+    );
+  }
+}
+
+async function notifyAdminEmail(message: string): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.log(`[Admin email stub - ingen RESEND_API_KEY] ${message}`);
     return;
   }
-  try {
-    const result = await sendSMS(adminPhone, message);
-    if (!result.ok) {
-      console.error(`[Admin SMS fejl] ${result.error}`);
-    }
-  } catch (err) {
-    console.error(`[Admin SMS exception]`, err);
-  }
+  const to = process.env.RESEND_TO ?? "kontakt@krydsbyg.com";
+  const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+  const { Resend } = await import("resend");
+  const resend = new Resend(apiKey);
+  await resend.emails.send({
+    from,
+    to: [to],
+    subject: "KrydsByg systemnotifikation",
+    text: message,
+  });
 }

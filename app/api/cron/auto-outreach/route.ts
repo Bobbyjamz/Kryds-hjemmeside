@@ -15,7 +15,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readLeads, writeLeads, appendEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import { notifyAdmin, sendSMS } from "@/lib/sms";
-import { buildEmailHtml, buildEmailText } from "@/lib/email-builder";
+import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-builder";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
@@ -287,14 +287,12 @@ async function runOutreachPipeline() {
       await resend.emails.send({
         from,
         to: [lead.email],
-        bcc: ["kontakt@krydsbyg.com"],
         replyTo: "kontakt@krydsbyg.com",
         subject: draft.subject,
         html,
         text: textVersion,
         headers: {
-          "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          ...buildUnsubHeaders(lead.email),
           "X-Mailer": "KrydsByg Outreach",
         },
       });
@@ -500,15 +498,11 @@ async function runFollowUpPipeline() {
       await resend.emails.send({
         from,
         to: [lead.email!],
-        bcc: ["kontakt@krydsbyg.com"],
         replyTo: "kontakt@krydsbyg.com",
         subject: draft.subject,
         html,
         text: buildEmailText(draft.body),
-        headers: {
-          "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        },
+        headers: buildUnsubHeaders(lead.email!),
       });
 
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);
@@ -535,15 +529,11 @@ async function runFollowUpPipeline() {
       await resend.emails.send({
         from,
         to: [lead.email!],
-        bcc: ["kontakt@krydsbyg.com"],
         replyTo: "kontakt@krydsbyg.com",
         subject: draft.subject,
         html,
         text: buildEmailText(draft.body),
-        headers: {
-          "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        },
+        headers: buildUnsubHeaders(lead.email!),
       });
 
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);

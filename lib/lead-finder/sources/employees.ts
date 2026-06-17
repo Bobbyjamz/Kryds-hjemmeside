@@ -31,8 +31,7 @@ interface JobindexResponse {
 }
 
 const CV_SEARCH_URLS = [
-  "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=storkøbenhavn&limit=40",
-  "https://api.jobindex.dk/api/search/v1/jobs?q={query}&area=sjælland&limit=25",
+  "https://www.jobindex.dk/jobsoegning?q={query}&format=rss",
 ];
 
 export async function fetchEmployeeLeads(dayOfYear: number): Promise<LeadCandidate[]> {
@@ -88,7 +87,8 @@ async function fetchJobindexResults(
       }
       if (!res.ok) break;
 
-      const data: JobindexResponse = await res.json();
+      const xmlText = await res.text();
+      const data: JobindexResponse = { jobs: parseJobindexRss(xmlText) };
 
       for (const job of data.jobs || []) {
         const company = job.employer?.name;
@@ -232,4 +232,40 @@ function getServiceType(query: string): string {
   if (q.includes("warehouse") || q.includes("lager")) return "Logistik & Lager";
   if (q.includes("kitchen") || q.includes("køkken")) return "Rengøring & Oprydning";
   return "Kombineret vedligehold";
+}
+
+// -- Jobindex RSS-parser (API doede -> bruger det offentlige RSS-feed) --------
+function parseJobindexRss(xml: string): JobindexJob[] {
+  const jobs: JobindexJob[] = [];
+  const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+  for (const item of items) {
+    const rawTitle = (item.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || "";
+    const title = decodeEntities(stripCdata(rawTitle)).trim();
+    if (!title) continue;
+    // Firmanavn staar typisk efter sidste komma eller tankestreg i RSS-titlen
+    let jobTitle = title;
+    let company: string | undefined;
+    const sep = Math.max(title.lastIndexOf(", "), title.lastIndexOf(" – "), title.lastIndexOf(" - "));
+    if (sep > 0) {
+      const after = title.slice(sep).replace(/^[,\s–-]+/, "").trim();
+      if (after.length >= 2 && after.length <= 60) {
+        company = after;
+        jobTitle = title.slice(0, sep).trim();
+      }
+    }
+    jobs.push({ title: jobTitle, employer: company ? { name: company } : undefined, location: "Storkøbenhavn" });
+  }
+  return jobs;
+}
+
+function stripCdata(s: string): string {
+  const m = s.match(/<!\[CDATA\[([\s\S]*?)\]\]>/);
+  return m ? m[1] : s;
+}
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&aelig;/gi, "æ").replace(/&oslash;/gi, "ø").replace(/&aring;/gi, "å");
 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * POST /api/admin/leads/followup
  *
  * Manuel opfølgnings-trigger med Council + Sarah.
@@ -9,7 +9,7 @@
 import { NextResponse } from "next/server";
 import { readLeads, writeLeads } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
-import { buildEmailHtml, buildEmailText } from "@/lib/email-builder";
+import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-builder";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import type { Lead } from "@/lib/types";
@@ -184,14 +184,12 @@ ${isFinalAttempt ? "VIGTIGT: Tonen er varm men afsluttende. Lov IKKE at skrive i
     await resend.emails.send({
       from,
       to: [lead.email],
-      bcc: ["kontakt@krydsbyg.com"],
       replyTo: "kontakt@krydsbyg.com",
       subject: draft.subject,
       html: buildEmailHtml({ body: draft.body, preheader: draft.subject }),
       text: buildEmailText(draft.body),
       headers: {
-        "List-Unsubscribe": "<mailto:kontakt@krydsbyg.com?subject=afmeld>",
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        ...buildUnsubHeaders(lead.email),
         "X-Mailer": "KrydsByg Outreach",
       },
     });
