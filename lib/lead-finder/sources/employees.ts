@@ -7,6 +7,7 @@
  */
 
 import type { LeadCandidate } from "../types";
+import { titelTilFaggruppe } from "../filters/filter-config";
 
 const EMPLOYEE_QUERIES = [
   "maler erfaring", "gulvlægger", "rengøringsassistent", "servicemedarbejder",
@@ -123,6 +124,7 @@ async function fetchJobindexResults(
             city: location,
             source: "Jobindex (talent pool)",
             leadType: "employee",
+            tradeCategory: titelTilFaggruppe(title) ?? titelTilFaggruppe(query) ?? undefined,
             serviceType: getServiceType(query),
             notes: `Aktivt jobopslag: "${title}"${company ? ` ved ${company}` : ""} i ${location}. Marked har kandidater i bevægelse — KrydsByg kan tilbyde alternativ vej (fleksible timer, varierede opgaver).`,
           });
