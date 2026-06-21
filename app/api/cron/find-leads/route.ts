@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { runLeadFinderWithGapFilling } from "@/lib/lead-finder/runner/gap-runner";
+import { findEmail } from "@/lib/lead-finder/enrichment/email-finder";
+import { isCompleteLead, isValidEmail } from "@/lib/lead-finder/is-complete";
 import { readLeads, writeLeads, generateId } from "@/lib/db";
 import { notifyAdmin } from "@/lib/sms";
 import { verifyCronAuth } from "@/lib/cron-auth";
@@ -35,31 +37,42 @@ export async function GET(req: Request) {
       existingLeads.map((l) => (l.email || "").toLowerCase().trim()).filter(Boolean)
     );
 
-    // Filtrer dubletter
+    // Filtrer dubletter + frasortér ufuldstændige (email kræves for alle typer)
     const newLeads: Lead[] = [];
+    let skippedIncomplete = 0;
     for (const candidate of result.candidates) {
       const nameLower = candidate.companyName.toLowerCase().trim();
-      const emailLower = (candidate.email || "").toLowerCase().trim();
 
       // Skip hvis firma allerede kendes
       if (existingNames.has(nameLower)) continue;
-      if (emailLower && existingEmails.has(emailLower)) continue;
+      const initialEmail = (candidate.email || "").toLowerCase().trim();
+      if (initialEmail && existingEmails.has(initialEmail)) continue;
 
+      // Sidste-chance rescue: mangler email, prøv at finde én før vi opgiver
+      let email = candidate.email;
+      if (!isValidEmail(email)) {
+        email = (await findEmail(candidate)) ?? email;
+      }
+
+      // Hård regel: email + navn kræves — ellers gemmes leadet aldrig
+      if (!isCompleteLead({ ...candidate, email })) {
+        skippedIncomplete++;
+        continue;
+      }
+
+      const emailLower = email!.toLowerCase().trim();
+      if (existingEmails.has(emailLower)) continue; // dedup mod nyfunden email
       existingNames.add(nameLower);
-      if (emailLower) existingEmails.add(emailLower);
+      existingEmails.add(emailLower);
 
       const now = new Date().toISOString();
-      const noteWithWarning = [
-        candidate.notes,
-        !candidate.email ? "⚠️ Ingen email fundet — tilføj manuelt" : "",
-      ].filter(Boolean).join("\n\n");
 
       newLeads.push({
         id: generateId(),
         companyName: candidate.companyName,
         contactName: candidate.contactName,
         contactTitle: candidate.contactTitle,
-        email: candidate.email || "",
+        email: email!,
         phone: candidate.phone,
         website: candidate.website,
         city: candidate.city,
@@ -68,7 +81,7 @@ export async function GET(req: Request) {
         budget: candidate.budget,
         leadType: candidate.leadType,
         qualifierScore: candidate.score,
-        notes: noteWithWarning || undefined,
+        notes: candidate.notes || undefined,
         status: "New",
         sourceFile: `auto-${candidate.source.toLowerCase().replace(/\s+/g, "-")}`,
         createdAt: now,
@@ -99,6 +112,7 @@ export async function GET(req: Request) {
       ok: true,
       found: result.candidates.length,
       imported: newLeads.length,
+      skippedIncomplete,
       bySource: result.bySource,
       byType: result.byType,
       // v2 fields

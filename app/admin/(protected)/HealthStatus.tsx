@@ -50,6 +50,17 @@ interface OutreachResult {
   error?: string;
 }
 
+interface BackfillResult {
+  ok: boolean;
+  total?: number;
+  alreadyComplete?: number;
+  rescued?: number;
+  quarantined?: number;
+  skippedProtected?: number;
+  durationMs?: number;
+  error?: string;
+}
+
 export default function HealthStatus() {
   const [data, setData] = useState<HealthData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +71,8 @@ export default function HealthStatus() {
   const [botResult, setBotResult] = useState<LeadBotResult | null>(null);
   const [outreachRunning, setOutreachRunning] = useState(false);
   const [outreachResult, setOutreachResult] = useState<OutreachResult | null>(null);
+  const [backfillRunning, setBackfillRunning] = useState(false);
+  const [backfillResult, setBackfillResult] = useState<BackfillResult | null>(null);
 
   const runLeadBot = async () => {
     setBotRunning(true);
@@ -85,6 +98,32 @@ export default function HealthStatus() {
       setBotResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
     } finally {
       setBotRunning(false);
+    }
+  };
+
+  const runBackfill = async () => {
+    setBackfillRunning(true);
+    setBackfillResult(null);
+    try {
+      const r = await fetch("/api/admin/backfill-leads", { method: "POST" });
+      const text = await r.text();
+      let d: BackfillResult;
+      try {
+        d = JSON.parse(text) as BackfillResult;
+      } catch {
+        const snippet = text.slice(0, 120).replace(/\s+/g, " ");
+        d = {
+          ok: false,
+          error: r.status === 504 || r.status === 502
+            ? "Timeout — for mange leads i ét hug. Prøv igen senere."
+            : `HTTP ${r.status}: ${snippet}...`,
+        };
+      }
+      setBackfillResult(d);
+    } catch (err) {
+      setBackfillResult({ ok: false, error: err instanceof Error ? err.message : "Netværksfejl" });
+    } finally {
+      setBackfillRunning(false);
     }
   };
 
@@ -234,6 +273,38 @@ export default function HealthStatus() {
             )}
           </div>
         )}
+
+        {/* Backfill resultat */}
+        {backfillResult && (
+          <div className={`text-[11px] font-condensed leading-snug w-full ${backfillResult.ok ? "text-green-400" : "text-red-400"}`}>
+            {backfillResult.ok ? (
+              <>
+                ✓ Backfill færdig ({Math.round((backfillResult.durationMs || 0) / 1000)}s):
+                <span className="text-muted ml-1">
+                  {backfillResult.rescued} reddet · {backfillResult.quarantined} i karantæne · {backfillResult.alreadyComplete} ok · {backfillResult.skippedProtected} sprunget over
+                </span>
+              </>
+            ) : (
+              <>✗ Fejl: {backfillResult.error}</>
+            )}
+          </div>
+        )}
+
+        <button
+          onClick={runBackfill}
+          disabled={backfillRunning}
+          className="flex-shrink-0 flex items-center gap-2 text-yellow border border-yellow/30 font-condensed font-bold text-[11px] tracking-[.12em] uppercase px-4 py-[7px] rounded-[2px] hover:bg-yellow/10 transition-colors disabled:opacity-50"
+          title="Rydder op i eksisterende leads: redder manglende emails, sætter resten i karantæne (Incomplete)"
+        >
+          {backfillRunning ? (
+            <>
+              <span className="inline-block w-3 h-3 border-2 border-yellow border-t-transparent rounded-full animate-spin" />
+              Rydder op...
+            </>
+          ) : (
+            <>⟳ Backfill leads</>
+          )}
+        </button>
 
         <button
           onClick={runLeadBot}
