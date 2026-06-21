@@ -208,7 +208,8 @@ export type LeadStatus =
   | "Approved"
   | "Sent"
   | "Rejected"
-  | "Needs Review";
+  | "Needs Review"
+  | "Incomplete";   // Karantæne: manglede email/navn og kunne ikke reddes — ude af outreach
 
 export interface SarahBriefing {
   openingLine: string;        // Foreslået åbnings-sætning (første linje i body)

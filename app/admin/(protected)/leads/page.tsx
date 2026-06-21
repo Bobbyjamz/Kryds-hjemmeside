@@ -23,11 +23,13 @@ const STATUS_COLORS: Record<LeadStatus, string> = {
   Sent:          "bg-[rgba(34,197,94,.08)] text-green-400 border-[rgba(34,197,94,.2)]",
   Rejected:      "bg-[rgba(248,113,113,.1)] text-red-300 border-[rgba(248,113,113,.3)]",
   "Needs Review":"bg-[rgba(245,196,0,.1)] text-yellow border-[rgba(245,196,0,.3)]",
+  Incomplete:    "bg-[rgba(148,163,184,.1)] text-slate-400 border-[rgba(148,163,184,.3)]",
 };
 
 const STATUS_DA: Record<LeadStatus, string> = {
   New: "Ny", Analyzed: "Analyseret", Drafted: "Udkast", Approved: "Godkendt",
   Sent: "Sendt", Rejected: "Afvist", "Needs Review": "Til review",
+  Incomplete: "Ufuldstændig",
 };
 
 export default function LeadsPage() {
