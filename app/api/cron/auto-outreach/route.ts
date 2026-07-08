@@ -18,6 +18,7 @@ import { notifyAdmin } from "@/lib/sms";
 import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-builder";
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { erBlokeret } from "@/lib/outreach/suppression";
+import { SEKVENSER, vaelgSekvens } from "@/lib/outreach/sekvenser";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import type { Lead, CouncilAnalysis } from "@/lib/types";
@@ -159,6 +160,23 @@ function shouldPitchRetainer(lead: Lead, council: CouncilAnalysis): boolean {
   return triggers.some((t) => blob.includes(t));
 }
 
+/**
+ * Council-godkendt kanon-eksempel for leadets segment (A/B/C) og trin.
+ * Sarah personaliserer INDEN FOR denne ramme — struktur, tone og laengde
+ * skal matche eksemplet; indholdet tilpasses leadet.
+ */
+function kanonAnker(lead: Lead, trinIndex: 0 | 1 | 2): string {
+  const segment = vaelgSekvens(lead.industry ?? "");
+  const trin = SEKVENSER[segment]?.[trinIndex];
+  if (!trin) return "";
+  return `
+
+GODKENDT RAMME (Council-kanon v3.0, sekvens ${segment}, dag ${trin.dag}) — match struktur, tone og laengde; personalisér indholdet:
+Emne-stil: ${trin.emne}
+Body-stil:
+${trin.krop}`;
+}
+
 async function runSarah(lead: Lead, council: CouncilAnalysis): Promise<{ subject: string; body: string }> {
   const briefing = council.sarahBriefing;
   const retainerHint = shouldPitchRetainer(lead, council);
@@ -196,7 +214,7 @@ Kundetype: ${council.customerType}
 Tone: ${council.tone}
 Risici at undgå: ${council.risks.join(", ")}
 retainerHint: ${retainerHint ? "true (nævn retainer-modellen kort i én linje)" : "false (nævn IKKE retainer)"}
-${briefingBlock}`,
+${briefingBlock}${kanonAnker(lead, 0)}`,
     }],
   });
 
@@ -414,7 +432,7 @@ INSTRUKTIONER:
 ${retainerHint && isFinal ? `- Nævn retainer-modellen i én linje: "Vi tilbyder også fast månedlig aftale fra 5 dage/md."` : ""}
 ${isFinal ? "- Lov IKKE at skrive igen. Giv slip med værdighed." : ""}
 
-Emne: ${isFinal ? "Sidste besked fra KrydsByg" : `Re: ${(lead.draftSubject ?? "KrydsByg").replace(/^\[.*?\]\s*/, "")}`}`,
+Emne: ${isFinal ? "Sidste besked fra KrydsByg" : `Re: ${(lead.draftSubject ?? "KrydsByg").replace(/^\[.*?\]\s*/, "")}`}${kanonAnker(lead, step === 1 ? 1 : 2)}`,
         },
       ],
     });
