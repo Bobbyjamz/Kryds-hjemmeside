@@ -1,8 +1,10 @@
 // Email-builder — bygger branded HTML-emails med professionel KrydsByg-signatur
+import { unsubUrl } from "@/lib/outreach/unsubscribe";
 
 interface EmailParts {
   body: string;       // Plain text body fra Sarah (med \n linjeskift)
   preheader?: string; // Skjult preview-tekst i indbakken (under emnefelt)
+  recipientEmail?: string; // Saettes paa cold/opfoelgning: personligt afmeld-link i footer
 }
 
 const KRYDSBYG_YELLOW = "#F5C400";
@@ -13,7 +15,10 @@ const KRYDSBYG_GRAY = "#5A5A55";
  * Bygger en komplet HTML-email med branded signatur.
  * Bruges af /api/admin/leads/sarah send-action.
  */
-export function buildEmailHtml({ body, preheader }: EmailParts): string {
+export function buildEmailHtml({ body, preheader, recipientEmail }: EmailParts): string {
+  const unsubHref = recipientEmail
+    ? unsubUrl(recipientEmail)
+    : "mailto:kontakt@krydsbyg.com?subject=Afmeld";
   // Konvertér plain text body til HTML-paragraffer (bevar afsnit-skift)
   const bodyHtml = body
     .split("\n")
@@ -98,7 +103,7 @@ ${preheaderHtml}
         <tr>
           <td style="padding:0 40px 28px 40px">
             <p style="margin:0;font-size:11px;color:#9a9a92;line-height:1.5">
-              Ønsker du ikke at høre mere fra os, så svar blot med &quot;afmeld&quot;, eller <a href="mailto:kontakt@krydsbyg.com?subject=Afmeld" style="color:#9a9a92;text-decoration:underline">klik her for at afmelde</a>.
+              Ønsker du ikke at høre mere fra os, så <a href="${unsubHref}" style="color:#9a9a92;text-decoration:underline">afmeld med ét klik</a> — eller svar blot med &quot;afmeld&quot;.
             </p>
           </td>
         </tr>
@@ -119,9 +124,8 @@ ${preheaderHtml}
  * Peger paa /afmeld-routen der har en POST-handler til one-click.
  */
 export function buildUnsubHeaders(recipientEmail: string): Record<string, string> {
-  const e = encodeURIComponent(recipientEmail);
   return {
-    "List-Unsubscribe": `<https://krydsbyg.com/afmeld?e=${e}>, <mailto:kontakt@krydsbyg.com?subject=afmeld>`,
+    "List-Unsubscribe": `<${unsubUrl(recipientEmail)}>, <mailto:kontakt@krydsbyg.com?subject=afmeld>`,
     "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
   };
 }
