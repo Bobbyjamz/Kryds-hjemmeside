@@ -1,0 +1,9 @@
+# Railway build-config — bygger Python-proxyen i scrape-proxy/ (ikke Next.js-siden).
+# Vercel laeser IKKE denne fil (kun Railway/Nixpacks goer). Hjemmesiden paavirkes ikke.
+providers = ['python']
+
+[phases.install]
+cmds = ['pip install -r scrape-proxy/requirements.txt']
+
+[start]
+cmd = 'cd scrape-proxy && uvicorn main:app --host 0.0.0.0 --port $PORT'

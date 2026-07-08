@@ -330,7 +330,7 @@ export async function POST(req: NextRequest) {
     // Prompt caching på system-prompten: genbruger cached tokens på tværs af kald
     // til samme rådgiver (5-min TTL). Sparer ~60% på store system-prompts.
     const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 1500,
       system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
       messages: trimmedMessages,

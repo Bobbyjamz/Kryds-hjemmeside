@@ -161,7 +161,7 @@ ${briefingBlock}`;
 
   try {
     const msg = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 700,
       system: isEmployee ? SARAH_ONBOARDING_SYSTEM : SARAH_SYSTEM,
       messages: [{ role: "user", content: userContent }],

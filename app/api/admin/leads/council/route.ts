@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     const learningContext = buildLearningContext(lead.industry, lead.serviceType || "", memory);
 
     const msg = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 1400,
       system: SYSTEM_PROMPT,
       messages: [{

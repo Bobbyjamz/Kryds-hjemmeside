@@ -91,7 +91,7 @@ export async function POST(req: Request) {
     // ── Mini-Council ───────────────────────────────────────────────────────
 
     const councilMsg = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 650,
       system: FOLLOWUP_COUNCIL_SYSTEM,
       messages: [
@@ -135,7 +135,7 @@ JSON-FORMAT:
     // ── Sarah ──────────────────────────────────────────────────────────────
 
     const sarahMsg = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 500,
       system: FOLLOWUP_SARAH_SYSTEM,
       messages: [

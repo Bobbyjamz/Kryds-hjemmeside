@@ -151,7 +151,7 @@ Beslut dagens plan. Husk:
 - Hvis feedback peger på en faggruppe med høj open-rate, prioritér den selvom kvantiteten er OK.`;
 
   const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 800,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: userMessage }],

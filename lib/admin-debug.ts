@@ -383,7 +383,7 @@ async function testCouncil(): Promise<TestResult[]> {
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const start = Date.now();
     const res = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 20,
       system: "Du er en testbot. Svar kun: 'OK'",
       messages: [{ role: "user", content: "ping" }],
@@ -393,7 +393,7 @@ async function testCouncil(): Promise<TestResult[]> {
 
     results.push({
       module: MODULES.council,
-      test: "Anthropic API-kald (claude-sonnet-4-6)",
+      test: "Anthropic API-kald (claude-sonnet-5)",
       status: "ok",
       detail: `Svarede på ${elapsedMs} ms — "${text.slice(0, 50)}"`,
     });
@@ -402,7 +402,7 @@ async function testCouncil(): Promise<TestResult[]> {
       module: MODULES.council,
       test: "Model-version",
       status: "ok",
-      detail: `claude-sonnet-4-6 (returnerede ${res.model})`,
+      detail: `claude-sonnet-5 (returnerede ${res.model})`,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

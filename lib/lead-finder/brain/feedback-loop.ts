@@ -221,7 +221,7 @@ ${JSON.stringify(input.byScoreBracket, null, 2)}
 Analysér og foreslå konkrete justeringer.`;
 
   const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 600,
     system: systemPrompt,
     messages: [{ role: "user", content: userMessage }],

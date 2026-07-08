@@ -67,7 +67,7 @@ async function generateOnboardingDraft(employee: Employee): Promise<{ subject: s
   const experienceBlurb = employee.experience ? `Erfaring: ${employee.experience.slice(0, 150)}` : "";
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 500,
     system: ONBOARDING_SYSTEM,
     messages: [{

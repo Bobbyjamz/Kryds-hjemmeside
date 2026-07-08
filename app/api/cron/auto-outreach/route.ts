@@ -95,7 +95,7 @@ RETURNER KUN JSON uden tekst udenom:
 
 async function runCouncil(lead: Lead): Promise<CouncilAnalysis> {
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 1400,
     system: COUNCIL_SYSTEM,
     messages: [{
@@ -175,7 +175,7 @@ Brug Council's openingLine som første linje (eller en let variation). Slut body
     : `COUNCIL HAR INGEN BRIEFING — brug egen vurdering. Salgsråd: ${council.salesAdvice}`;
 
   const msg = await client.messages.create({
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     max_tokens: 700,
     system: SARAH_SYSTEM,
     messages: [{
@@ -393,7 +393,7 @@ async function runSarahFollowUp(
 
   try {
     const msg = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-sonnet-5",
       max_tokens: 450,
       system: FOLLOWUP_SARAH_SYSTEM,
       messages: [
