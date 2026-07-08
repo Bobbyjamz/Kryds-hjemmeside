@@ -19,6 +19,7 @@ import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-b
 import { verifyCronAuth } from "@/lib/cron-auth";
 import { erBlokeret } from "@/lib/outreach/suppression";
 import { SEKVENSER, vaelgSekvens } from "@/lib/outreach/sekvenser";
+import { reserverAfsendelse } from "@/lib/outreach/warming";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import type { Lead, CouncilAnalysis } from "@/lib/types";
@@ -303,6 +304,11 @@ async function runOutreachPipeline() {
         continue;
       }
 
+      if (!(await reserverAfsendelse())) {
+        console.log("[warming] dagens loft naaet — stopper cold outreach");
+        break;
+      }
+
       const resend = new Resend(process.env.RESEND_API_KEY);
       const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
@@ -523,6 +529,11 @@ async function runFollowUpPipeline() {
         continue;
       }
 
+      if (!(await reserverAfsendelse())) {
+        console.log("[warming] dagens loft naaet — stopper opfoelgning trin 1");
+        break;
+      }
+
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
       await resend.emails.send({
         from,
@@ -557,6 +568,11 @@ async function runFollowUpPipeline() {
       if (await erBlokeret(lead.email!)) {
         console.log(`[suppression] springer over (trin 2): ${lead.email}`);
         continue;
+      }
+
+      if (!(await reserverAfsendelse())) {
+        console.log("[warming] dagens loft naaet — stopper opfoelgning trin 2");
+        break;
       }
 
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
