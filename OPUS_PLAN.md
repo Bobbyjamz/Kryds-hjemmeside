@@ -1,3 +1,9 @@
+> # ⛔ FORÆLDET (2026-07-08)
+> Dette dokument beskriver JSON-fil-persistens og Resend-sandbox — koden bruger
+> **Upstash Redis** (`lib/db.ts`), og Resend er **verificeret i produktion** (testet 2026-07-08).
+> Aktuel arkitektur: `../../docs/superpowers/specs/2026-07-08-krydsbyg-email-og-struktur-design.md`.
+> Beholdt kun til historik. Navigér IKKE efter denne fil.
+
 # Opus Implementation Plan — KrydsByg
 
 **Projekt:** `C:\Users\Bruger\OneDrive\Pulpit\kryds hjemmeside\kryds-website`  
