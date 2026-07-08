@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readSarahContacts, writeSarahContacts } from "@/lib/db";
+import { blokerEmail } from "@/lib/outreach/suppression";
 
 export const runtime = "nodejs";
 
 async function unsubscribe(email: string): Promise<boolean> {
   if (!email) return false;
+  await blokerEmail(email, "afmeld-klik"); // global — daekker OGSAA leads-verdenen
   const contacts = await readSarahContacts();
   let changed = false;
   const updated = contacts.map((c) => {

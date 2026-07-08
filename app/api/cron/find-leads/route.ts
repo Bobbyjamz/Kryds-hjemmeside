@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { runLeadFinderWithGapFilling } from "@/lib/lead-finder/runner/gap-runner";
 import { findEmail } from "@/lib/lead-finder/enrichment/email-finder";
 import { isCompleteLead, isValidEmail } from "@/lib/lead-finder/is-complete";
+import { erBlokeret } from "@/lib/outreach/suppression";
 import { readLeads, writeLeads, generateId } from "@/lib/db";
 import { notifyAdmin } from "@/lib/sms";
 import { verifyCronAuth } from "@/lib/cron-auth";
@@ -62,6 +63,7 @@ export async function GET(req: Request) {
 
       const emailLower = email!.toLowerCase().trim();
       if (existingEmails.has(emailLower)) continue; // dedup mod nyfunden email
+      if (await erBlokeret(emailLower)) continue;   // afmeldt/bounced — importer ALDRIG igen
       existingNames.add(nameLower);
       existingEmails.add(emailLower);
 

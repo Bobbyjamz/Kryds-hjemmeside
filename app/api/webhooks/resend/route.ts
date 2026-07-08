@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { blokerEmail } from "@/lib/outreach/suppression";
 import { Webhook } from "svix";
 import {
   readLeads, writeLeads,
@@ -65,6 +66,11 @@ export async function POST(req: Request) {
       : { ...l, emailBounced: true, emailBouncedAt: ts, updatedAt: ts };
   });
   if (leadsChanged) await writeLeads(nextLeads);
+
+  // Global suppression: klage = permanent blok; bounce = blok (dod adresse).
+  for (const e of emails) {
+    await blokerEmail(e, isComplaint ? "klage" : "bounce");
+  }
 
   // ── Sarah-kontakter ────────────────────────────────────────────────────
   // Spam-klage = hård afmelding (stop al mail). Bounce = flag, så opfølgning skipper.

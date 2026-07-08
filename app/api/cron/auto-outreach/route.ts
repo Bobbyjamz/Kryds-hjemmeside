@@ -17,6 +17,7 @@ import { getAdminSession } from "@/lib/auth";
 import { notifyAdmin } from "@/lib/sms";
 import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-builder";
 import { verifyCronAuth } from "@/lib/cron-auth";
+import { erBlokeret } from "@/lib/outreach/suppression";
 import Anthropic from "@anthropic-ai/sdk";
 import { Resend } from "resend";
 import type { Lead, CouncilAnalysis } from "@/lib/types";
@@ -279,6 +280,11 @@ async function runOutreachPipeline() {
         continue; // For svagt lead — lad admin beslutte manuelt
       }
 
+      if (await erBlokeret(lead.email)) {
+        console.log(`[suppression] springer over (cold): ${lead.email}`);
+        continue;
+      }
+
       const resend = new Resend(process.env.RESEND_API_KEY);
       const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject });
@@ -494,6 +500,11 @@ async function runFollowUpPipeline() {
         continue;
       }
 
+      if (await erBlokeret(lead.email!)) {
+        console.log(`[suppression] springer over (trin 1): ${lead.email}`);
+        continue;
+      }
+
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject });
       await resend.emails.send({
         from,
@@ -522,6 +533,11 @@ async function runFollowUpPipeline() {
       const draft = await runSarahFollowUp(lead, 2);
       if (!draft) {
         console.warn(`[follow-up trin 2] Sarah returnerede intet for ${lead.id}`);
+        continue;
+      }
+
+      if (await erBlokeret(lead.email!)) {
+        console.log(`[suppression] springer over (trin 2): ${lead.email}`);
         continue;
       }
 
