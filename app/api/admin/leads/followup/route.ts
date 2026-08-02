@@ -179,7 +179,7 @@ ${isFinalAttempt ? "VIGTIGT: Tonen er varm men afsluttende. Lov IKKE at skrive i
     // ── Send via Resend ────────────────────────────────────────────────────
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+    const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
 
     await resend.emails.send({
       from,

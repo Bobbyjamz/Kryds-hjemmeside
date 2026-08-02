@@ -310,7 +310,7 @@ async function runOutreachPipeline() {
       }
 
       const resend = new Resend(process.env.RESEND_API_KEY);
-      const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+      const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
       const textVersion = buildEmailText(draft.body);
 
@@ -509,7 +509,7 @@ async function runFollowUpPipeline() {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+  const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
   const updatedLeads = [...allLeads];
 
   let followUp1Sent = 0;

@@ -215,7 +215,7 @@ export async function PATCH(req: NextRequest) {
     if (!lead.draftSubject || !lead.draftBody) return NextResponse.json({ error: "Ingen email-udkast — generér udkast med Sarah først" }, { status: 400 });
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const from = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+    const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
 
     // Brug branded email-builder med professionel signatur
     const html = buildEmailHtml({

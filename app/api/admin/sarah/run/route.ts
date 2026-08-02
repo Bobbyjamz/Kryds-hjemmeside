@@ -16,7 +16,7 @@ export const runtime = "nodejs";
 export const maxDuration = 300;
 
 const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
-const FROM = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
+const FROM = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://krydsbyg.com";
 
 async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {

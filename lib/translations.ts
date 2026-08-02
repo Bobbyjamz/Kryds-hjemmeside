@@ -550,6 +550,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     legal_h_medarb_eyebrow: "Juridisk — Medarbejdere",
     legal_h_medarb: "Privatlivspolitik for medarbejdere",
     legal_version_line: "Version v1-2026-04 · Gældende fra april 2026 · Kryds ApS, CVR 46369947",
+    legal_version_handels: "Version 2.1 · Gældende fra 2. august 2026 · Kryds ApS, CVR 46369947",
     legal_version_privat: "Version v1-2026-04 · Gældende fra april 2026 · Sidst opdateret april 2026",
   },
 
@@ -1105,6 +1106,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     legal_h_medarb_eyebrow: "Legal — Employees",
     legal_h_medarb: "Privacy policy for employees",
     legal_version_line: "Version v1-2026-04 · Effective from April 2026 · Kryds ApS, CVR 46369947",
+    legal_version_handels: "Version 2.1 · Effective from 2 August 2026 · Kryds ApS, CVR 46369947",
     legal_version_privat: "Version v1-2026-04 · Effective from April 2026 · Last updated April 2026",
   },
 };

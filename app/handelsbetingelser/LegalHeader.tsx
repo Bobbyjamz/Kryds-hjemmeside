@@ -20,7 +20,7 @@ export default function LegalHeader() {
           {t("legal_h_handels")}
         </h1>
         <p className="text-[15px] text-muted leading-[1.7]">
-          {t("legal_version_line")}
+          {t("legal_version_handels")}
         </p>
       </div>
     </>

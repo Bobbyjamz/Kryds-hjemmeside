@@ -5,14 +5,14 @@ import LegalHeader from "./LegalHeader";
 
 export const metadata: Metadata = {
   title: "Handelsbetingelser — KrydsByg",
-  description: "Læs KrydsByg ApS' handelsbetingelser version 2.0 for vikarbemanding og entrepriseydelser til byggeprojekter i København.",
+  description: "Læs Kryds ApS' (KrydsByg) handelsbetingelser version 2.1 for vikarbemanding og entrepriseydelser til byggeprojekter i København.",
 };
 
 const sections = [
   {
     num: "1",
     title: "Aftalens parter og omfang",
-    body: "Disse handelsbetingelser regulerer aftaleforholdet mellem KrydsByg ApS (herefter \"KrydsByg\") og enhver virksomhed eller privatperson (herefter \"Kunden\") der bestiller ydelser hos KrydsByg. KrydsByg leverer vikarbemanding, entrepriseydelser og specialiserede faglærte og ufaglærte medarbejdere til byggeprojekter, renoveringer, events og relaterede opgaver inden for ni fagområder: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg samt generel byggepladshjælp.",
+    body: "Disse handelsbetingelser regulerer aftaleforholdet mellem Kryds ApS, CVR-nr. 46369947, der markedsfører sig som \"KrydsByg\" (herefter \"KrydsByg\") og enhver virksomhed eller privatperson (herefter \"Kunden\") der bestiller ydelser hos KrydsByg. KrydsByg leverer vikarbemanding, entrepriseydelser og specialiserede faglærte og ufaglærte medarbejdere til byggeprojekter, renoveringer, events og relaterede opgaver inden for ni fagområder: tømrer, murer, stillads, nedrivning, VVS, el, maler, jord og anlæg samt generel byggepladshjælp.",
   },
   {
     num: "2",
@@ -22,7 +22,7 @@ const sections = [
   {
     num: "3",
     title: "Prismodel og fakturering",
-    body: "KrydsByg tilbyder to prismodeller. Timebaseret model: Timepris fra kr. 295,– ekskl. moms pr. medarbejder pr. time. Minimumsopgave: 4 timer pr. dag pr. medarbejder. Overtid (efter 8 timer): +50% tillæg. Weekend og helligdage: +75% tillæg. Natarbejde (22:00–06:00): +75% tillæg. Projektbaseret (fastpris) model: Fast pris aftales skriftligt inden opgavestart. Eventuelle tillægsydelser udenfor aftalens scope faktureres særskilt. Alle priser er eksklusiv moms (25%), medmindre andet er angivet skriftligt. Fakturaer forfalder til betaling netto 8 dage fra fakturadato, medmindre andet er skriftligt aftalt. Ved forsinket betaling beregnes morarenter på 2% pr. påbegyndt måned fra forfaldsdato, samt et rykkergebyr på kr. 100,– pr. rykker. KrydsByg forbeholder sig ret til at regulere timepriser med op til 5% pr. kalenderår med 30 dages skriftligt varsel.",
+    body: "KrydsByg tilbyder to prismodeller. Timebaseret model: Timepris ekskl. moms pr. medarbejder pr. time — Handyman kr. 345 · Faglært håndværker kr. 430 · Specialist kr. 550. Minimumsopgave: 4 timer pr. dag pr. medarbejder. Overtid (efter 8 timer): +50% tillæg. Weekend og helligdage: +75% tillæg. Natarbejde (22:00–06:00): +75% tillæg. Projektbaseret (fastpris) model: Fast pris aftales skriftligt inden opgavestart. Eventuelle tillægsydelser udenfor aftalens scope faktureres særskilt. Alle priser er eksklusiv moms (25%), medmindre andet er angivet skriftligt. Fakturaer forfalder til betaling netto 8 dage fra fakturadato, medmindre andet er skriftligt aftalt. Ved forsinket betaling beregnes morarenter i henhold til renteloven fra forfaldsdato, samt et rykkergebyr på kr. 100,– pr. rykker. KrydsByg forbeholder sig ret til at regulere timepriser med op til 5% pr. kalenderår med 30 dages skriftligt varsel.",
   },
   {
     num: "4",
@@ -32,7 +32,7 @@ const sections = [
   {
     num: "5",
     title: "Kundens forpligtelser",
-    body: "5.1 Kunden er ansvarlig for at arbejdsmiljølovgivningen overholdes på arbejdspladsen, herunder APV, PSS og nødvendige sikkerhedsforanstaltninger. 5.2 Kunden skal meddele KrydsByg eventuelle særlige risici, krav til sikkerhedsudstyr eller certificeringer senest ved bestillingens afgørelse. 5.3 Kunden er ansvarlig for at KrydsByg's medarbejdere behandles i overensstemmelse med dansk arbejdsret og ikke udsættes for chikane, diskrimination eller usikre arbejdsforhold. 5.4 Kunden må ikke ansætte eller engagere KrydsByg's medarbejdere direkte uden KrydsByg's skriftlige samtykke i en periode på 12 måneder fra sidste udlejning af den pågældende medarbejder. Overtrædelse medfører et konventionalbod svarende til 3 måneders bruttoløn for den pågældende medarbejder.",
+    body: "5.1 Kunden er ansvarlig for at arbejdsmiljølovgivningen overholdes på arbejdspladsen, herunder APV, PSS og nødvendige sikkerhedsforanstaltninger. 5.2 Kunden skal meddele KrydsByg eventuelle særlige risici, krav til sikkerhedsudstyr eller certificeringer senest ved bestillingens afgørelse. 5.3 Kunden er ansvarlig for at KrydsByg's medarbejdere behandles i overensstemmelse med dansk arbejdsret og ikke udsættes for chikane, diskrimination eller usikre arbejdsforhold. 5.4 Kunden må ikke ansætte eller engagere KrydsByg's medarbejdere direkte uden KrydsByg's skriftlige samtykke i en periode på 6 måneder fra sidste udlejning af den pågældende medarbejder. Overtrædelse medfører et konventionalbod på kr. 50.000 pr. overtrædelse, dog mindst svarende til 3 måneders fakturerede ydelser for den pågældende medarbejder.",
   },
   {
     num: "6",
@@ -41,8 +41,8 @@ const sections = [
   },
   {
     num: "7",
-    title: "Ansvar og forsikring",
-    body: "7.1 KrydsByg's ansvar for direkte tab er begrænset til fakturabeløbet for den aktuelle opgave. KrydsByg hæfter ikke for indirekte tab, driftstab eller følgeskader. 7.2 KrydsByg er ansvarsforsikret. Kopi af forsikringsbevis fremsendes på forespørgsel. 7.3 Kunden er ansvarlig for skader forårsaget af Kundens egne fejlspecifikationer, mangelfuld APV eller ukorrekte bygningsoplysninger. 7.4 Force majeure (strejke, lockout, ekstraordinære vejrforhold, pandemi, myndighedspåbud mv.) fritager KrydsByg for ansvar, såfremt opfyldelse af aftalen hindres herved.",
+    title: "Ansvar og reklamation",
+    body: "7.1 KrydsByg's ansvar for direkte tab er begrænset til fakturabeløbet for den aktuelle opgave. KrydsByg hæfter ikke for indirekte tab, driftstab eller følgeskader. 7.2 Reklamation over udført arbejde eller mandskab skal ske skriftligt til kontakt@krydsbyg.com senest 3 hverdage efter opgavens afslutning. Berettigede reklamationer afhjælpes ved omlevering af mandskab eller forholdsmæssigt afslag i prisen efter KrydsBygs valg. 7.3 Kunden er ansvarlig for skader forårsaget af Kundens egne fejlspecifikationer, mangelfuld APV eller ukorrekte bygningsoplysninger. 7.4 Force majeure (strejke, lockout, ekstraordinære vejrforhold, pandemi, myndighedspåbud mv.) fritager KrydsByg for ansvar, såfremt opfyldelse af aftalen hindres herved.",
   },
   {
     num: "8",

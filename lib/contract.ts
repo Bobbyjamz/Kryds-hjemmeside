@@ -70,7 +70,7 @@ export const ACCEPT_LABEL =
    KUNDEKONTRAKT — vilkår for leje af vikar
 ===================================================== */
 
-export const CUSTOMER_CONTRACT_VERSION = "v1-2026-04";
+export const CUSTOMER_CONTRACT_VERSION = "v2-2026-08";
 
 export function getCustomerContractPoints(customerName: string): ContractPoint[] {
   const safeName = customerName.trim() || "[kundens navn/virksomhed]";
@@ -89,7 +89,7 @@ export function getCustomerContractPoints(customerName: string): ContractPoint[]
     },
     {
       title: "4. Bestilling, ændringer og afbestilling",
-      body: "Bestillinger er bindende, når de er skriftligt bekræftet af Kryds. Afbestilling eller reduktion af bestilt mandskab senere end 24 timer før mødetidspunkt faktureres med 50 % af den aftalte pris for den pågældende dag. Afbestilling på selve mødedagen faktureres fuldt ud.",
+      body: "Bestillinger er bindende, når de er skriftligt bekræftet af Kryds. Afbestilling mere end 48 timer før mødetidspunkt: intet gebyr. Afbestilling 24-48 timer før mødetidspunkt: 50 % af den aftalte pris for den pågældende dag. Afbestilling under 24 timer før mødetidspunkt eller på selve mødedagen: 100 % af den aftalte pris for den pågældende dag.",
     },
     {
       title: "5. Arbejdsmiljø og sikkerhed på pladsen",
