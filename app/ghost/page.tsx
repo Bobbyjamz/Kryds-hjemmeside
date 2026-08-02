@@ -40,7 +40,7 @@ export default function GhostPage() {
 
           {/* Intro */}
           <p className="text-[18px] leading-[1.85] text-[rgba(242,238,230,.75)] mb-8 font-light">
-            Vi er ikke et stort firma med et fancy kontor og en HR-afdeling. Vi er to fyre der har prøvet at stå på begge sider af problemet — og besluttede at gøre noget ved det.
+            Vi er ikke et stort firma med et fancy kontor og en HR-afdeling. Vi er folk der har prøvet at stå på begge sider af problemet — og besluttede at gøre noget ved det.
           </p>
 
           <hr className="border-[rgba(242,238,230,0.08)] mb-10" />
@@ -52,18 +52,18 @@ export default function GhostPage() {
             </p>
 
             <p>
-              Karl kom fra en lidt anden vinkel. Han er vant til at koordinere, planlægge og holde styr på tingene, når der er mange bolde i luften. Da Krystian fortalte ham om ideen, tog det ikke lang tid.
+              Så han byggede det, han selv havde manglet: et sted hvor koordinering, planlægning og overblik er sat i system — så folk og opgaver finder hinanden uden stress og tilfældigheder.
             </p>
 
             <blockquote className="border-l-2 border-yellow pl-6 py-1 my-8">
               <p className="text-[17px] leading-[1.8] text-cream italic font-light">
-                &ldquo;Vi tænkte — det her er jo ikke raketvidenskab. Folk mangler arbejde, virksomheder mangler hænder. Nogen skal bare koble dem ordentligt sammen.&rdquo;
+                &ldquo;Jeg tænkte — det her er jo ikke raketvidenskab. Folk mangler arbejde, virksomheder mangler hænder. Nogen skal bare koble dem ordentligt sammen.&rdquo;
               </p>
               <p className="text-[13px] text-muted mt-3 not-italic">— Krystian Seweryn Balasz, stifter</p>
             </blockquote>
 
             <p>
-              Så det er det vi gør. Vi kender folk der kan arbejde. Vi kender virksomheder der har brug for dem. Og vi sørger for at det foregår på ordentlige vilkår — klar aftale, fair løn, og en kontaktperson der rent faktisk svarer sin telefon.
+              Så det er det vi gør. Vi kender folk der kan arbejde. Vi kender virksomheder der har brug for dem. Og vi sørger for at det foregår på ordentlige vilkår — klar aftale, fair løn og en kontaktperson der rent faktisk svarer sin telefon.
             </p>
 
             <p>
@@ -75,12 +75,11 @@ export default function GhostPage() {
 
           {/* Team mini-section */}
           <h2 className="font-condensed font-bold text-[13px] tracking-[.18em] uppercase text-yellow mb-6">
-            Folkene bag
+            Manden bag
           </h2>
-          <div className="grid grid-cols-2 gap-6 mb-12 max-[600px]:grid-cols-1">
+          <div className="mb-12">
             {[
-              { name: "Krystian Seweryn Balasz", role: "Stifter", photo: "/krystian.jpg", pos: "center 22%", quote: "Jeg har selv stået med skovlen. Jeg ved hvad det vil sige at møde til et job og bare ønske at det var organiseret bedre." },
-              { name: "Karl Kristian Ravn", role: "Partner & Driftsansvarlig", photo: "/karl.jpg", pos: "center 50%", quote: "Jeg elsker det når tingene kører. Og det gør de, når folk føler sig hørt og ved hvad der sker." },
+              { name: "Krystian Seweryn Balasz", role: "Stifter & direktør", photo: "/krystian.jpg", pos: "center center", quote: "Jeg har selv stået med skovlen. Jeg ved hvad det vil sige at møde til et job og bare ønske at det var organiseret bedre." },
             ].map((p) => (
               <div key={p.name} className="bg-gray p-6 rounded-[2px] border border-[rgba(242,238,230,0.07)] flex gap-5 items-start">
                 <div className="w-[64px] h-[64px] rounded-full overflow-hidden border border-[rgba(245,196,0,.25)] flex-shrink-0 relative">
@@ -90,7 +89,7 @@ export default function GhostPage() {
                     fill
                     sizes="64px"
                     className="object-cover"
-                    style={{ objectPosition: p.pos, transform: "scale(1.35)", transformOrigin: p.pos }}
+                    style={{ objectPosition: p.pos }}
                   />
                 </div>
                 <div>

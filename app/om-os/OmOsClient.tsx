@@ -14,14 +14,7 @@ const team = [
     roleKey: "omos_team_1_role",
     bioKey: "omos_team_1_bio",
     photo: "/krystian.jpg",
-    facePosition: "center 22%",
-  },
-  {
-    nameKey: "omos_team_2_name",
-    roleKey: "omos_team_2_role",
-    bioKey: "omos_team_2_bio",
-    photo: "/karl.jpg",
-    facePosition: "center 50%",
+    facePosition: "center center",
   },
 ];
 
@@ -98,26 +91,26 @@ export default function OmOsClient() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 max-[900px]:grid-cols-1 max-[900px]:gap-4">
+          <div className="max-w-[520px] mx-auto">
             {team.map((person) => (
               <div
                 key={person.nameKey}
-                className="bg-gray p-10 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center transition-all duration-300 hover:border-[rgba(245,196,0,.2)] max-[900px]:p-6"
+                className="bg-gray p-12 rounded-[2px] border border-[rgba(242,238,230,0.07)] text-center transition-all duration-300 hover:border-[rgba(245,196,0,.2)] max-[900px]:p-6"
               >
-                <div className="w-[140px] h-[140px] rounded-full overflow-hidden border-2 border-[rgba(245,196,0,.3)] mx-auto mb-5 relative">
+                <div className="w-[160px] h-[160px] rounded-full overflow-hidden border-2 border-[rgba(245,196,0,.35)] mx-auto mb-6 relative">
                   <Image
                     src={person.photo}
                     alt={t(person.nameKey)}
                     fill
-                    sizes="140px"
+                    sizes="160px"
                     className="object-cover"
-                    style={{ objectPosition: person.facePosition, transform: "scale(1.35)", transformOrigin: person.facePosition }}
+                    style={{ objectPosition: person.facePosition }}
                   />
                 </div>
-                <h3 className="font-condensed font-extrabold text-[22px] uppercase tracking-[.02em] text-cream mb-1">
+                <h3 className="font-condensed font-extrabold text-[24px] uppercase tracking-[.02em] text-cream mb-1.5">
                   {t(person.nameKey)}
                 </h3>
-                <p className="font-condensed font-bold text-[12px] tracking-[.18em] uppercase text-yellow mb-5">
+                <p className="font-condensed font-bold text-[12px] tracking-[.18em] uppercase text-yellow mb-6">
                   {t(person.roleKey)}
                 </p>
                 <p className="text-[15px] leading-[1.75] text-muted text-left">

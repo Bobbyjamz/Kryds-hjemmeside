@@ -124,7 +124,7 @@ Svar på dansk. Vær direkte — Krystian vil vide HVAD han skal gøre i morgen,
 - Ydelser: 9 fagkategorier fra rengøring til specialists og kombinerede hold
 - Medarbejdere: screenede vikarer med verificerede kompetencer
 - Platform: Next.js admin-panel med medarbejder-registrering, vagtoprettelse, match-funktion og intern feed
-- Leder: Krystian (grundlægger) + Karl
+- Leder: Krystian (grundlægger)
 
 ## Vagtplanlægning — bedste praksis
 - **Matching-prioritering**: 1. Kompetence-match · 2. Geografi (KBH-zone, rejsetid max 45 min) · 3. Tilgængelighed · 4. Tidligere kundeerfaring

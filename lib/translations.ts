@@ -42,7 +42,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_h2: "Alt inden for",
     svc_h2_yellow: "byggeprojekter",
     svc_page_subtitle:
-      "Vi stiller hold klar til hele spektret — fra renovering og byggeplads til events og havearbejde. Én kontakt, syv brancher.",
+      "Vi stiller hold klar til hele spektret — fra renovering og byggeplads til events og havearbejde. Én kontakt, ni brancher.",
     svc_cta: "Book ydelsen",
     svc_1_title: "Rengøring & Oprydning",
     svc_1_desc:
@@ -258,7 +258,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     // FOOTER
     footer_tagline: "Sæt et kryds i kalenderen.",
     footer_services: "Ydelser",
-    footer_svc_1: "Bygge projekter",
+    footer_svc_1: "Byggeprojekter",
     footer_svc_2: "Flytte & montere",
     footer_svc_3: "Events & scener",
     footer_svc_4: "Priser",
@@ -271,7 +271,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     footer_legal: "Juridisk",
     footer_leg_1: "Handelsbetingelser",
     footer_leg_2: "Privatlivspolitik",
-    footer_leg_3: "Medarbejder privatpolitik",
+    footer_leg_3: "Medarbejder privatlivspolitik",
     footer_leg_4: "Cookie-politik",
     footer_leg_5: "Medarbejdervilkår",
     footer_copyright: "© 2026 Kryds ApS — CVR: 46369947",
@@ -370,7 +370,7 @@ export const translations: Record<Lang, Record<string, string>> = {
       "Har du brug for et færdigt resultat i stedet for timebemanding? Vi sender et skræddersyet tilbud baseret på hele opgaven — inkl. materialer, montering og arbejdskraft.",
     priser_proj_how_title: "Sådan fungerer det",
     priser_proj_step_1_title: "Send en forespørgsel",
-    priser_proj_step_1_desc: "Beskriv opgaven — hvad skal laves, hvor, og hvornår.",
+    priser_proj_step_1_desc: "Beskriv opgaven — hvad der skal laves, hvor og hvornår.",
     priser_proj_step_2_title: "Vi vurderer opgaven",
     priser_proj_step_2_desc:
       "Vi besøger evt. lokationen og vurderer omfang, materialer og tidsestimat.",
@@ -386,7 +386,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     priser_proj_inc_3: "Montering & installation",
     priser_proj_inc_4: "Oprydning efter endt arbejde",
     priser_proj_inc_5: "Ansvarsforsikring på hele projektet",
-    priser_proj_inc_6: "Ingen ekstra gebyrer udover tilbuddet",
+    priser_proj_inc_6: "Ingen ekstra gebyrer ud over tilbuddet",
     priser_proj_inc_7: "Gratis besigtigelse ved større opgaver",
     priser_proj_typical_title: "Typiske projektopgaver",
     priser_proj_tag_1: "Renovering",
@@ -429,18 +429,14 @@ export const translations: Record<Lang, Record<string, string>> = {
       "Vi har ventet på det opkald, der aldrig kom. Og vi har stået med en deadline om to dage uden personale til at løse den. Det er ikke sjovt for nogen.",
     omos_why_p3_bold: "Kryds startede ud fra noget meget simpelt:",
     omos_why_p3:
-      "ring til den rigtige person, aftal en fair pris, mødt op til tiden. Vi fjernede det unødvendige bureaukrati og holdt fast i det, der virker — ærlighed, hurtighed og folk, der tager stolthed i det, de laver.",
+      "ring til den rigtige person, aftal en fair pris, mød op til tiden. Vi fjernede det unødvendige bureaukrati og holdt fast i det, der virker — ærlighed, hurtighed og folk, der tager stolthed i det, de laver.",
     omos_why_p4: "Det er stadig det, vi tror på.",
-    omos_team_h2_1: "Folkene bag",
+    omos_team_h2_1: "Manden bag",
     omos_team_h2_yellow: "Kryds",
     omos_team_1_name: "Krystian Seweryn Balasz",
-    omos_team_1_role: "Stifter",
+    omos_team_1_role: "Stifter & direktør",
     omos_team_1_bio:
       "Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds med en simpel tanke: de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati. Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige, hårdtarbejdende folk, som er klar til at rykke ud med kort varsel.",
-    omos_team_2_name: "Karl Kristian Ravn",
-    omos_team_2_role: "Partner & Driftsansvarlig",
-    omos_team_2_bio:
-      "Karl holder styr på det hele bag kulisserne. Som driftsansvarlig har han ansvaret for koordinering, kvalitetssikring og den daglige kundekontakt. Han sørger for, at hvert projekt får de rette folk, at tidsplaner holdes, og at kommunikationen altid er klar — både over for kunden og personalet. Karl er overbevist om, at struktur og menneskelig omsorg sagtens kan gå hånd i hånd.",
     omos_values_h2_1: "Hvad vi",
     omos_values_h2_yellow: "står for",
     omos_val_1_title: "Gennemsigtighed",
@@ -533,7 +529,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     tw_s3_notes_ph: "Særlige bemærkninger, tilgængelighed, kørekort, egen bil osv.",
     tw_s4_h2: "Accepter kontrakten",
     tw_s4_intro:
-      "Læs kontrakten omhyggeligt. Ved at sætte flueben accepterer du vilkårene for dit ansættelsesforhold med Kryds ApS. Du er ikke bundet til Kryds udover de vagter, du selv accepterer.",
+      "Læs kontrakten omhyggeligt. Ved at sætte flueben accepterer du vilkårene for dit ansættelsesforhold med Kryds ApS. Du er ikke bundet til Kryds ud over de vagter, du selv accepterer.",
     tw_btn_back: "← Tilbage",
     tw_btn_next: "Næste →",
     tw_btn_submit: "Send tilmelding",
@@ -568,7 +564,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     hero_h1_1: "Strong",
     hero_h1_2: "hands",
     hero_h1_3: "for construction",
-    hero_catch: "— Put a X in the calendar.",
+    hero_catch: "— Put an X in the calendar.",
     hero_desc:
       "We provide experienced and hardworking people for all types of construction projects in Copenhagen — renovation, painting, garden work, mounting and site staffing. Ready to get started.",
     hero_btn_book: "Book staff now",
@@ -582,7 +578,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     ticker_5: "Site assistance",
     ticker_6: "Moving & relocation",
     ticker_7: "Tile work",
-    ticker_8: "Kryds — Put a X in the calendar",
+    ticker_8: "Kryds — Put an X in the calendar",
 
     // STATS
     stats_1: "Active construction workers",
@@ -595,7 +591,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     svc_h2: "Everything within",
     svc_h2_yellow: "construction",
     svc_page_subtitle:
-      "We assemble teams for the full spectrum — from renovation and construction to events and gardening. One contact, seven branches.",
+      "We assemble teams for the full spectrum — from renovation and construction to events and gardening. One contact, nine branches.",
     svc_cta: "Book this service",
     svc_1_title: "Cleaning & Tidying",
     svc_1_desc:
@@ -710,7 +706,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // CONTACT
     contact_eyebrow: "Get started",
-    contact_h2_1: "Put a",
+    contact_h2_1: "Put an",
     contact_h2_yellow: "X",
     contact_h2_2: "in the calendar",
     contact_included_title: "What is included",
@@ -753,7 +749,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     contact_placeholder_desc:
       "Tell us about the task — location, scope, duration and any requirements for experience or equipment...",
     contact_terms_title: "Customer terms — staff hire",
-    contact_btn: "Put a X in the calendar →",
+    contact_btn: "Put an X in the calendar →",
     contact_btn_sending: "Sending...",
     contact_success_title: "Thank you for your request",
     contact_success_desc: "We will get back to you within 2 hours.",
@@ -766,7 +762,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     mob_tile_3_label: "Painting",        mob_tile_3_sub: "Plastering & facade",
     mob_tile_4_label: "Mounting",        mob_tile_4_sub: "Kitchen & fixtures",
     mob_tile_5_label: "Garden",          mob_tile_5_sub: "Landscaping & pruning",
-    mob_tile_6_label: "Handcraft",       mob_tile_6_sub: "Carpenter · mason · plumber",
+    mob_tile_6_label: "Trades",          mob_tile_6_sub: "Carpenter · mason · plumber",
     mob_tile_7_label: "Site work",       mob_tile_7_sub: "Logistics & cleanup",
     mob_tile_8_label: "Events & Stages", mob_tile_8_sub: "Setup & takedown",
     mob_tile_9_label: "Combined",        mob_tile_9_sub: "Mixed team",
@@ -808,7 +804,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     mob_svc_error_general: "Something went wrong. Call us directly: +45 42 77 88 66",
 
     // FOOTER
-    footer_tagline: "Put a X in the calendar.",
+    footer_tagline: "Put an X in the calendar.",
     footer_services: "Services",
     footer_svc_1: "Construction projects",
     footer_svc_2: "Moving & mounting",
@@ -983,16 +979,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     omos_why_p3:
       "call the right person, agree a fair price, show up on time. We removed the unnecessary bureaucracy and kept what works — honesty, speed and people who take pride in what they do.",
     omos_why_p4: "That's still what we believe in.",
-    omos_team_h2_1: "The people behind",
+    omos_team_h2_1: "The man behind",
     omos_team_h2_yellow: "Kryds",
     omos_team_1_name: "Krystian Seweryn Balasz",
-    omos_team_1_role: "Founder",
+    omos_team_1_role: "Founder & director",
     omos_team_1_bio:
       "Krystian has been in the construction industry for over 7 years and knows the challenges from the inside. He started Kryds with a simple idea: the right people should meet the right projects — quickly, reliably and without unnecessary bureaucracy. With experience from renovation to large construction sites, he has built a network of skilled, hard-working people ready to mobilise on short notice.",
-    omos_team_2_name: "Karl Kristian Ravn",
-    omos_team_2_role: "Partner & Operations lead",
-    omos_team_2_bio:
-      "Karl keeps everything running behind the scenes. As operations lead, he handles coordination, quality assurance and day-to-day client contact. He makes sure every project gets the right people, schedules are kept, and communication is always clear — both towards the client and the staff. Karl is convinced that structure and human care go hand in hand.",
     omos_values_h2_1: "What we",
     omos_values_h2_yellow: "stand for",
     omos_val_1_title: "Transparency",
@@ -1004,7 +996,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     omos_val_3_title: "Reliability",
     omos_val_3_desc:
       "When we say we're ready, we're ready. We've built our reputation on keeping our word — every time.",
-    omos_cta_h3: "Ready to put a X in the calendar?",
+    omos_cta_h3: "Ready to put an X in the calendar?",
     omos_cta_desc:
       "Whether you need one extra pair of hands or a full team — we're ready.",
     omos_cta_btn: "Send a request",

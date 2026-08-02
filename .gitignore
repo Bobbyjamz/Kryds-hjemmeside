@@ -47,3 +47,4 @@ next-env.d.ts
 .vercel
 .env*.local
 graphify-out/
+public/krystian-original.jpg
