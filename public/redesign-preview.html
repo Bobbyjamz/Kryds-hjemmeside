@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="da" data-theme="dark">
+<head>
+<!--
+  KrydsByg — Redesign-preview (FASE 0 i FABLE_PLAN.md)
+  Formål: Godkendelses-mockup af det polerede look — forside, om os, ydelser, priser.
+  Åbn filen direkte i browseren. Ingen server krævet.
+  Dato: 2026-08-02 · Slettes efter godkendt implementering (FASE 5).
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KrydsByg — Redesign Preview</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* ===== CSS-variabler — kopieret fra app/globals.css ===== */
+  :root {
+    --color-black:   #0C0C0A;
+    --color-black2:  #111110;
+    --color-gray:    #1E1E1C;
+    --color-gray2:   #2A2A28;
+    --color-yellow:  #F5C400;
+    --color-yellow2: #D4A800;
+    --color-cream:   #F2EEE6;
+    --color-muted:   #888880;
+    --border: rgba(242,238,230,0.07);
+  }
+  [data-theme="light"] {
+    --color-black:   #F4F0E8;
+    --color-black2:  #EBE7DF;
+    --color-gray:    #E0DBD3;
+    --color-gray2:   #D4CFC7;
+    --color-yellow:  #C49800;
+    --color-yellow2: #A68000;
+    --color-cream:   #1A1918;
+    --color-muted:   #6B6760;
+    --border: rgba(26,25,24,0.10);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background: var(--color-black);
+    color: var(--color-cream);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    transition: background .3s ease, color .3s ease;
+  }
+  .cond { font-family: 'Barlow Condensed', sans-serif; }
+
+  /* ===== Det polerede designsprog ===== */
+
+  /* Sektionsrytme: én fast vertikal skala */
+  .section { padding: 120px 52px; }
+  @media (max-width:900px){ .section { padding: 72px 20px; } }
+
+  /* Eyebrow — altid samme */
+  .eyebrow {
+    font-family:'Barlow Condensed',sans-serif; font-weight:600;
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--color-yellow); display:flex; align-items:center; gap:12px;
+  }
+  .eyebrow::before { content:''; display:block; width:36px; height:1px; background:var(--color-yellow); }
+  .eyebrow.centered { justify-content:center; }
+  .eyebrow.centered::after { content:''; display:block; width:36px; height:1px; background:var(--color-yellow); }
+
+  /* Overskrifter — ét hierarki */
+  .h-display { font-family:'Barlow Condensed',sans-serif; font-weight:900; text-transform:uppercase; line-height:.92; letter-spacing:-.01em; }
+  .h1 { font-size:clamp(64px,9vw,132px); }
+  .h2 { font-size:clamp(36px,4.5vw,56px); }
+
+  /* Præcis to knap-varianter */
+  .btn-primary {
+    display:inline-block; font-family:'Barlow Condensed',sans-serif; font-weight:800;
+    font-size:14px; letter-spacing:.12em; text-transform:uppercase;
+    background:var(--color-yellow); color:#0C0C0A; padding:16px 40px;
+    border-radius:2px; text-decoration:none; border:1px solid var(--color-yellow);
+    transition:background .2s ease, transform .2s ease;
+  }
+  .btn-primary:hover { background:var(--color-yellow2); border-color:var(--color-yellow2); transform:translateY(-1px); }
+  .btn-secondary {
+    display:inline-block; font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    font-size:13px; letter-spacing:.14em; text-transform:uppercase;
+    background:transparent; color:var(--color-yellow); padding:15px 36px;
+    border:1px solid var(--color-yellow); border-radius:2px; text-decoration:none;
+    transition:background .2s ease;
+  }
+  .btn-secondary:hover { background:rgba(245,196,0,.08); }
+
+  /* Ét kort-design: border, ingen skygge; hover = gul underlinje der glider ind */
+  .card {
+    background:var(--color-gray); border:1px solid var(--border);
+    border-radius:2px; padding:36px 32px; position:relative; overflow:hidden;
+    transition:border-color .25s ease;
+  }
+  .card::after {
+    content:''; position:absolute; left:0; bottom:0; height:2px; width:100%;
+    background:var(--color-yellow); transform:scaleX(0); transform-origin:left;
+    transition:transform .3s ease;
+  }
+  .card:hover { border-color:rgba(245,196,0,.25); }
+  .card:hover::after { transform:scaleX(1); }
+
+  .muted { color:var(--color-muted); }
+  .yellow { color:var(--color-yellow); }
+  .bg-gray-v  { background:var(--color-gray); }
+  .bg-black2-v{ background:var(--color-black2); }
+  .divider-line { border-color:var(--border); }
+
+  /* Hero: rolige diagonale linjer — STATISK (ingen konstant animation) */
+  .hero-lines {
+    position:absolute; inset:0; z-index:0;
+    background:repeating-linear-gradient(-55deg, transparent, transparent 60px, rgba(245,196,0,.022) 60px, rgba(245,196,0,.022) 61px);
+  }
+  /* Statisk X — kun subtil puls, intet spin */
+  .hero-x line { stroke:rgba(245,196,0,.09); stroke-width:3; }
+
+  /* Ticker — beholdt, langsommere (40s) */
+  .ticker-wrap { background:var(--color-yellow); overflow:hidden; height:48px; display:flex; align-items:center; }
+  .ticker { display:flex; gap:0; white-space:nowrap; animation:ticker 40s linear infinite; }
+  .ticker span { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:14px; letter-spacing:.14em; text-transform:uppercase; color:#0C0C0A; padding:0 28px; }
+  @keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* Kontrolbar øverst */
+  .controlbar {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:color-mix(in srgb, var(--color-black) 88%, transparent);
+    backdrop-filter:blur(12px); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:6px; padding:10px 20px; overflow-x:auto;
+  }
+  .controlbar a {
+    font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:12px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--color-muted);
+    text-decoration:none; padding:6px 12px; border-radius:2px; white-space:nowrap;
+  }
+  .controlbar a:hover { color:var(--color-yellow); }
+
+  /* Side-skillelinjer (kun preview-navigation) */
+  .page-divider {
+    background:var(--color-yellow); color:#0C0C0A; padding:14px 52px;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:13px;
+    letter-spacing:.22em; text-transform:uppercase;
+  }
+  @media (max-width:900px){ .page-divider{ padding:12px 20px; } }
+
+  /* Cirkel-tal i processen */
+  .step-num {
+    width:64px; height:64px; border-radius:50%; border:1px solid var(--color-yellow);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+    font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:22px; color:var(--color-yellow);
+    transition:background .25s ease, color .25s ease;
+  }
+  .step:hover .step-num { background:var(--color-yellow); color:#0C0C0A; }
+
+  /* X-ikon til "Hvorfor Kryds" */
+  .x-icon {
+    width:44px; height:44px; border:1px solid var(--border); border-radius:2px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:background .25s ease, border-color .25s ease;
+  }
+  .x-icon svg line { stroke:var(--color-yellow); stroke-width:2.5; transition:stroke .25s ease; }
+  .why-item:hover .x-icon { background:var(--color-yellow); border-color:var(--color-yellow); }
+  .why-item:hover .x-icon svg line { stroke:#0C0C0A; }
+
+  input, select, textarea {
+    width:100%; background:var(--color-gray2); border:1px solid var(--border);
+    border-radius:2px; padding:13px 15px; color:var(--color-cream);
+    font-family:'Barlow',sans-serif; font-size:15px; font-weight:300;
+  }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:rgba(245,196,0,.4); }
+  label { font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--color-muted); display:block; margin-bottom:7px; }
+</style>
+<script>
+  tailwind.config = { corePlugins: { preflight: false } };
+</script>
+</head>
+<body>
+
+<!-- ===== KONTROLBAR ===== -->
+<div class="controlbar">
+  <button onclick="toggleTheme()" id="themeBtn"
+    style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;background:var(--color-yellow);color:#0C0C0A;border:none;border-radius:2px;padding:7px 14px;cursor:pointer;white-space:nowrap;">
+    ☀ Lys tema
+  </button>
+  <span style="width:1px;height:20px;background:var(--border);margin:0 6px;flex-shrink:0;"></span>
+  <a href="#forside">Forside</a>
+  <a href="#omos">Om os</a>
+  <a href="#ydelser">Ydelser</a>
+  <a href="#priser">Priser</a>
+</div>
+
+<!-- ============================================================
+     SIDE 1 — FORSIDE
+============================================================ -->
+<div id="forside" class="page-divider" style="margin-top:52px;">Side 1 — Forside</div>
+
+<!-- HERO -->
+<section style="position:relative; min-height:92vh; display:flex; flex-direction:column; justify-content:flex-end; padding:140px 52px 90px; overflow:hidden;">
+  <div class="hero-lines"></div>
+  <svg class="hero-x" style="position:absolute; top:50%; right:6%; transform:translateY(-50%); z-index:0;" width="420" height="420" viewBox="0 0 420 420">
+    <line x1="40" y1="40" x2="380" y2="380"/>
+    <line x1="380" y1="40" x2="40" y2="380"/>
+  </svg>
+  <div style="position:relative; z-index:1; max-width:1100px;">
+    <p class="eyebrow" style="margin-bottom:28px;">Renovering · Maling · Havearbejde · Montering · Byggeplads · København</p>
+    <h1 class="h-display h1" style="margin-bottom:8px;">Stærke</h1>
+    <h1 class="h-display h1" style="-webkit-text-stroke:1.5px var(--color-cream); color:transparent; margin-bottom:8px;">Hænder</h1>
+    <h1 class="h-display h1 yellow" style="margin-bottom:36px;">Til byggeriet</h1>
+    <p style="font-style:italic; font-size:19px; color:var(--color-muted); margin-bottom:20px;">— Sæt et kryds i kalenderen.</p>
+    <p style="font-size:17px; line-height:1.8; color:var(--color-muted); max-width:520px; margin-bottom:44px;">
+      Vi stiller erfarne og hårdtarbejdende folk til alle former for byggeprojekter i København — klar til at tage fat fra dag ét.
+    </p>
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="#kontakt" class="btn-primary">Book personale nu</a>
+      <a href="#ydelser" class="btn-secondary">Se ydelser</a>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span>Rengøring & Oprydning</span><span>✕</span><span>Flytning & Transport</span><span>✕</span><span>Maling & Spartling</span><span>✕</span><span>Montering & Samling</span><span>✕</span><span>Have & Anlæg</span><span>✕</span><span>Mindre Håndværk</span><span>✕</span><span>Byggepladsbehjælp</span><span>✕</span><span>Events & Scener</span><span>✕</span><span>Kryds — Sæt et kryds i kalenderen</span><span>✕</span>
+    <span>Rengøring & Oprydning</span><span>✕</span><span>Flytning & Transport</span><span>✕</span><span>Maling & Spartling</span><span>✕</span><span>Montering & Samling</span><span>✕</span><span>Have & Anlæg</span><span>✕</span><span>Mindre Håndværk</span><span>✕</span><span>Byggepladsbehjælp</span><span>✕</span><span>Events & Scener</span><span>✕</span><span>Kryds — Sæt et kryds i kalenderen</span><span>✕</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="bg-gray-v" style="border-bottom:1px solid var(--border);">
+  <div style="max-width:1100px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); padding:40px 52px;" class="max-[900px]:!grid-cols-2 max-[900px]:!px-5 max-[900px]:gap-y-8">
+    <div style="text-align:center;">
+      <div class="cond yellow" style="font-weight:800; font-size:42px;">50+</div>
+      <div class="muted" style="font-size:13px; letter-spacing:.06em; text-transform:uppercase;">Aktive byggefolk</div>
+    </div>
+    <div style="text-align:center; border-left:1px solid var(--border);">
+      <div class="cond yellow" style="font-weight:800; font-size:42px;">2t</div>
+      <div class="muted" style="font-size:13px; letter-spacing:.06em; text-transform:uppercase;">Svartid</div>
+    </div>
+    <div style="text-align:center; border-left:1px solid var(--border);">
+      <div class="cond yellow" style="font-weight:800; font-size:42px;">100%</div>
+      <div class="muted" style="font-size:13px; letter-spacing:.06em; text-transform:uppercase;">Screenet personale</div>
+    </div>
+    <div style="text-align:center; border-left:1px solid var(--border);">
+      <div class="cond yellow" style="font-weight:800; font-size:42px;">3 år</div>
+      <div class="muted" style="font-size:13px; letter-spacing:.06em; text-transform:uppercase;">I branchen</div>
+    </div>
+  </div>
+</div>
+
+<!-- BRANCHER -->
+<section class="section bg-black2-v">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div style="text-align:center; max-width:640px; margin:0 auto 72px;">
+      <p class="eyebrow centered" style="margin-bottom:20px;">Vores brancher</p>
+      <h2 class="h-display h2">Find din <span class="yellow">branche</span></h2>
+      <p class="muted" style="font-size:16px; line-height:1.8; margin-top:20px;">Vi dækker hele spektret — fra renovering og byggeplads til events og flytning. Én kontakt, alle brancher.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;" class="max-[900px]:!grid-cols-1">
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Rengøring & Oprydning</h3><p class="muted" style="font-size:14px; line-height:1.7;">Rengøring, oprydning & istandsættelse</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Flytning & Transport</h3><p class="muted" style="font-size:14px; line-height:1.7;">Tunge løft, lastning & intern transport</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Maling & Spartling</h3><p class="muted" style="font-size:14px; line-height:1.7;">Indendørs, facade & spartling</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Montering & Samling</h3><p class="muted" style="font-size:14px; line-height:1.7;">Møbler, køkken, badeværelse & inventar</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Have & Anlæg</h3><p class="muted" style="font-size:14px; line-height:1.7;">Havearbejde, beskæring & anlægsgartneri</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Mindre Håndværk</h3><p class="muted" style="font-size:14px; line-height:1.7;">Tømrer, murer, VVS & reparationer</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Byggepladsbehjælp</h3><p class="muted" style="font-size:14px; line-height:1.7;">Logistik, materialer & oprydning</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Events & Scener</h3><p class="muted" style="font-size:14px; line-height:1.7;">Sceneopbygning, event & nedtagning</p></div>
+      <div class="card"><h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:8px;">Kombineret / Andet</h3><p class="muted" style="font-size:14px; line-height:1.7;">Sammensat hold til blandede opgaver</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESSEN -->
+<section class="section">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div style="text-align:center; margin-bottom:72px;">
+      <p class="eyebrow centered" style="margin-bottom:20px;">Processen</p>
+      <h2 class="h-display h2">Klar på <span class="yellow">4 trin</span></h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:32px;" class="max-[900px]:!grid-cols-1 max-[900px]:!gap-10">
+      <div class="step" style="text-align:center;">
+        <div class="step-num">1</div>
+        <h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">Send en forespørgsel</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Beskriv projektet — opgave, lokation, antal folk og startdato. Vi svarer inden for 2 timer.</p>
+      </div>
+      <div class="step" style="text-align:center;">
+        <div class="step-num">2</div>
+        <h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">Vi matcher dit behov</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Vi finder de rette folk fra vores netværk — matchet på faglighed, erfaring og tilgængelighed.</p>
+      </div>
+      <div class="step" style="text-align:center;">
+        <div class="step-num">3</div>
+        <h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">Kontrakt & aftale</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Klar aftale med timepriser, vilkår og ansvar — ingen overraskelser på fakturaen.</p>
+      </div>
+      <div class="step" style="text-align:center;">
+        <div class="step-num">4</div>
+        <h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">Vi møder op & leverer</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Personalet møder til aftalt tid, klar til at arbejde. Du betaler kun for udført arbejde.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HVORFOR KRYDS -->
+<section class="section bg-black2-v">
+  <div style="max-width:1000px; margin:0 auto;">
+    <div style="text-align:center; margin-bottom:72px;">
+      <p class="eyebrow centered" style="margin-bottom:20px;">Hvorfor Kryds</p>
+      <h2 class="h-display h2">Vi er <span class="yellow">anderledes</span></h2>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px 56px;" class="max-[900px]:!grid-cols-1">
+      <div class="why-item" style="display:flex; gap:20px;">
+        <div class="x-icon"><svg width="18" height="18" viewBox="0 0 18 18"><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg></div>
+        <div><h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">Klar til at tage fat</h3><p class="muted" style="font-size:14px; line-height:1.7;">Vores folk er vant til fysisk arbejde og møder forberedte — produktive fra dag ét.</p></div>
+      </div>
+      <div class="why-item" style="display:flex; gap:20px;">
+        <div class="x-icon"><svg width="18" height="18" viewBox="0 0 18 18"><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg></div>
+        <div><h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">Screenet & verificeret</h3><p class="muted" style="font-size:14px; line-height:1.7;">Alt personale er verificeret med ren straffeattest og grundigt onboardet inden første arbejdsdag.</p></div>
+      </div>
+      <div class="why-item" style="display:flex; gap:20px;">
+        <div class="x-icon"><svg width="18" height="18" viewBox="0 0 18 18"><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg></div>
+        <div><h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">Klare kontrakter</h3><p class="muted" style="font-size:14px; line-height:1.7;">Tydelige kontrakter med faste timepriser, definerede opgaver og klare vilkår fra start.</p></div>
+      </div>
+      <div class="why-item" style="display:flex; gap:20px;">
+        <div class="x-icon"><svg width="18" height="18" viewBox="0 0 18 18"><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg></div>
+        <div><h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">Skalér efter behov</h3><p class="muted" style="font-size:14px; line-height:1.7;">Enkeltpersoner eller hele hold — enkeltdage eller hele projekter. Vi tilpasser os dit projekt.</p></div>
+      </div>
+      <div class="why-item" style="display:flex; gap:20px;">
+        <div class="x-icon"><svg width="18" height="18" viewBox="0 0 18 18"><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg></div>
+        <div><h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">Hurtig mobilisering</h3><p class="muted" style="font-size:14px; line-height:1.7;">Projektet rykkede frem? Vi mobiliserer hurtigt — også ved akut behov med kort varsel.</p></div>
+      </div>
+      <div class="why-item" style="display:flex; gap:20px;">
+        <div class="x-icon"><svg width="18" height="18" viewBox="0 0 18 18"><line x1="2" y1="2" x2="16" y2="16"/><line x1="16" y1="2" x2="2" y2="16"/></svg></div>
+        <div><h3 class="cond" style="font-weight:700; font-size:17px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;">Lokalt kendskab</h3><p class="muted" style="font-size:14px; line-height:1.7;">Vi er baseret i København og kender byggebranchen lokalt — husregler, adgang og arbejdsmiljøkrav.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM-TEASER (kun Krystian) -->
+<section class="section bg-gray-v" style="border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div style="max-width:680px; margin:0 auto; text-align:center;">
+    <p class="eyebrow centered" style="margin-bottom:20px;">Om os</p>
+    <h2 class="h-display h2" style="margin-bottom:28px;">Manden bag <span class="yellow">Kryds</span></h2>
+    <p class="muted" style="font-size:16px; line-height:1.85; margin-bottom:36px;">
+      Hos Kryds fokuserer vi på kvalitet og aflastning af de tunge opgaver, der kræver ekstra hænder.
+      Vi stiller med pålidelige, erfarne folk — klar til at tage fat fra dag ét.
+    </p>
+    <a href="#omos" class="btn-secondary">Læs mere →</a>
+  </div>
+</section>
+
+<!-- KONTAKT (mock) -->
+<section id="kontakt" class="section">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div style="text-align:center; margin-bottom:72px;">
+      <p class="eyebrow centered" style="margin-bottom:20px;">Kom i gang</p>
+      <h2 class="h-display h2">Sæt et <span class="yellow">kryds</span> i kalenderen</h2>
+    </div>
+    <div style="display:grid; grid-template-columns:5fr 7fr; gap:48px;" class="max-[900px]:!grid-cols-1">
+      <div>
+        <h3 class="cond" style="font-weight:700; font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:20px;">Hvad er inkluderet</h3>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:14px; margin-bottom:44px;">
+          <li class="muted" style="font-size:15px; display:flex; gap:12px;"><span class="yellow">✕</span> Personlig kontaktperson fra dag ét</li>
+          <li class="muted" style="font-size:15px; display:flex; gap:12px;"><span class="yellow">✕</span> Skræddersyet bemandingsplan til projektet</li>
+          <li class="muted" style="font-size:15px; display:flex; gap:12px;"><span class="yellow">✕</span> Kontrakt med klare vilkår og timepriser</li>
+          <li class="muted" style="font-size:15px; display:flex; gap:12px;"><span class="yellow">✕</span> Verificeret og screenet personale</li>
+          <li class="muted" style="font-size:15px; display:flex; gap:12px;"><span class="yellow">✕</span> Fleksibel op- og nedskalering undervejs</li>
+        </ul>
+        <h3 class="cond" style="font-weight:700; font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:20px;">Kontakt os direkte</h3>
+        <p class="muted" style="font-size:15px; line-height:2;">kontakt@krydsbyg.com<br>+45 42 77 88 66<br>København, Danmark</p>
+      </div>
+      <div class="card" style="border-top:2px solid var(--color-yellow); padding:44px 40px;">
+        <h3 class="cond" style="font-weight:800; font-size:22px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:28px;">Send en forespørgsel</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;" class="max-[900px]:!grid-cols-1">
+          <div><label>Virksomhed / navn</label><input placeholder="Firma ApS eller dit navn"></div>
+          <div><label>Kontaktperson</label><input placeholder="Fulde navn"></div>
+          <div><label>Email</label><input placeholder="dig@firma.dk"></div>
+          <div><label>Telefon</label><input placeholder="+45"></div>
+        </div>
+        <div style="margin-bottom:18px;"><label>Type af opgave</label><select><option>Vælg opgavetype...</option></select></div>
+        <div style="margin-bottom:28px;"><label>Beskriv projektet</label><textarea rows="4" placeholder="Fortæl om opgaven — sted, omfang, varighed..."></textarea></div>
+        <a href="#" class="btn-primary" style="width:100%; text-align:center;">Sæt et kryds i kalenderen →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER (mock) -->
+<footer class="bg-black2-v" style="border-top:1px solid var(--border); padding:64px 52px 32px;">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:56px;" class="max-[900px]:!grid-cols-1">
+      <div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+          <svg width="26" height="26" viewBox="0 0 26 26"><line x1="4" y1="4" x2="22" y2="22" stroke="#F5C400" stroke-width="4" stroke-linecap="square"/><line x1="22" y1="4" x2="4" y2="22" stroke="var(--color-cream)" stroke-width="4" stroke-linecap="square"/></svg>
+          <span class="cond" style="font-weight:900; font-size:22px; letter-spacing:.04em;"><span class="yellow">K</span>RYDS</span>
+        </div>
+        <p class="muted" style="font-size:14px; font-style:italic;">Sæt et kryds i kalenderen.</p>
+      </div>
+      <div>
+        <h4 class="cond" style="font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:16px;">Ydelser</h4>
+        <p class="muted" style="font-size:14px; line-height:2.2;">Byggeprojekter<br>Flytning & montering<br>Events & scener<br>Priser</p>
+      </div>
+      <div>
+        <h4 class="cond" style="font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:16px;">Virksomhed</h4>
+        <p class="muted" style="font-size:14px; line-height:2.2;">Om Kryds<br>Bliv medarbejder<br>Kontakt</p>
+      </div>
+      <div>
+        <h4 class="cond" style="font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:16px;">Juridisk</h4>
+        <p class="muted" style="font-size:14px; line-height:2.2;">Handelsbetingelser<br>Privatlivspolitik<br>Cookie-politik</p>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border); padding-top:24px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+      <p class="muted" style="font-size:13px;">© 2026 Kryds ApS — København, Danmark</p>
+      <p class="muted" style="font-size:13px;">kontakt@krydsbyg.com · +45 42 77 88 66</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     SIDE 2 — OM OS
+============================================================ -->
+<div id="omos" class="page-divider">Side 2 — Om os (nyt ét-persons layout)</div>
+
+<section class="section">
+  <div style="max-width:750px; margin:0 auto; text-align:center; margin-bottom:96px;">
+    <p class="eyebrow centered" style="margin-bottom:20px;">Om Kryds</p>
+    <h2 class="h-display" style="font-size:clamp(38px,5vw,64px); margin-bottom:24px;">Vi tror på at <span class="yellow">hjælpe hinanden</span></h2>
+    <p class="muted" style="font-size:17px; line-height:1.8; max-width:560px; margin:0 auto;">
+      Kryds blev skabt, fordi vi så et behov: dygtige folk der manglede arbejde, og virksomheder der manglede hænder.
+      Vores mission er at forbinde dem — enkelt, hurtigt og med respekt for begge sider.
+    </p>
+  </div>
+
+  <!-- Hvorfor vi startede -->
+  <div style="max-width:800px; margin:0 auto 96px;">
+    <div class="card" style="padding:52px 48px;">
+      <h3 class="cond" style="font-weight:700; font-size:14px; letter-spacing:.18em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:24px;">Hvorfor vi startede Kryds</h3>
+      <div style="display:flex; flex-direction:column; gap:20px; font-size:16px; line-height:1.8; color:var(--color-muted);">
+        <p>Der er masser af dygtige folk i byggebranchen, der kæmper for at finde stabilt arbejde. Og der er masser af virksomheder, der ikke kan finde de rigtige hænder hurtigt nok. Det er et problem, vi selv har mærket på kroppen.</p>
+        <p><span style="color:var(--color-cream); font-weight:500;">Kryds startede ud fra noget meget simpelt:</span> ring til den rigtige person, aftal en fair pris, mød op til tiden. Vi fjernede det unødvendige bureaukrati og holdt fast i det, der virker — ærlighed, hurtighed og folk, der tager stolthed i deres arbejde.</p>
+        <p>Det er stadig det, vi tror på.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉT-PERSONS TEAM-KORT -->
+  <div style="max-width:520px; margin:0 auto 96px;">
+    <div style="text-align:center; margin-bottom:56px;">
+      <h2 class="h-display h2">Manden bag <span class="yellow">Kryds</span></h2>
+    </div>
+    <div class="card" style="text-align:center; padding:52px 44px;">
+      <div style="width:160px; height:160px; border-radius:50%; overflow:hidden; border:2px solid rgba(245,196,0,.35); margin:0 auto 26px;">
+        <img src="krystian.jpg" alt="Krystian Seweryn Balasz, stifter af Kryds" style="width:100%; height:100%; object-fit:cover; object-position:center 22%; transform:scale(1.35); transform-origin:center 22%;">
+      </div>
+      <h3 class="cond" style="font-weight:800; font-size:24px; text-transform:uppercase; letter-spacing:.02em; margin-bottom:6px;">Krystian Seweryn Balasz</h3>
+      <p class="cond" style="font-weight:700; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--color-yellow); margin-bottom:24px;">Stifter & direktør</p>
+      <p class="muted" style="font-size:15px; line-height:1.8; text-align:left;">
+        Krystian har været i byggebranchen i over 7 år og kender udfordringerne indefra. Han startede Kryds med en simpel
+        tanke: de rigtige folk skal møde de rigtige projekter — hurtigt, pålideligt og uden unødvendigt bureaukrati.
+        Med erfaring fra renovering til store byggepladser har han bygget et netværk af dygtige, hårdtarbejdende folk,
+        som er klar til at rykke ud med kort varsel.
+      </p>
+    </div>
+  </div>
+
+  <!-- Værdier -->
+  <div style="max-width:960px; margin:0 auto;">
+    <div style="text-align:center; margin-bottom:56px;">
+      <h2 class="h-display h2">Hvad vi <span class="yellow">står for</span></h2>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;" class="max-[900px]:!grid-cols-1">
+      <div class="card" style="text-align:center;">
+        <h4 class="cond" style="font-weight:700; font-size:15px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px;">Gennemsigtighed</h4>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Ingen skjulte gebyrer. Ingen overraskelser. Du ved, hvad du betaler, og hvad medarbejderen får.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h4 class="cond" style="font-weight:700; font-size:15px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px;">Respekt for mennesker</h4>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Vores folk er ikke numre. Fair løn, ordentlige vilkår og ærlig kommunikation — hver gang.</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h4 class="cond" style="font-weight:700; font-size:15px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:12px;">Vi leverer</h4>
+        <p class="muted" style="font-size:14px; line-height:1.7;">Når vi siger, vi kommer, så kommer vi. Til tiden, forberedt og klar til at arbejde.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SIDE 3 — YDELSER
+============================================================ -->
+<div id="ydelser" class="page-divider">Side 3 — Ydelser</div>
+
+<section class="section bg-black2-v">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div style="text-align:center; max-width:640px; margin:0 auto 72px;">
+      <p class="eyebrow centered" style="margin-bottom:20px;">Vores ydelser</p>
+      <h2 class="h-display h2">Alt inden for <span class="yellow">byggeprojekter</span></h2>
+      <p class="muted" style="font-size:16px; line-height:1.8; margin-top:20px;">Vi stiller hold klar til hele spektret — fra renovering og byggeplads til events og havearbejde. Én kontakt, ni brancher.</p>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px;" class="max-[900px]:!grid-cols-1">
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Rengøring & Oprydning</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Grundig rengøring, oprydning og istandsættelse til hjem, kontor og byggeplads.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Rengøring · Oprydning · Istandsættelse</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Flytning & Transport</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Hjælp til flytning, møbeltransport og tunge løft. Vi pakker, bærer og sætter op.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Flytning · Transport · Tunge løft</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Maling & Spartling</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Malere og hjælpere til alle typer malerarbejde — vægge, lofter, facader og trapper.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Indendørs · Facade · Spartling</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Montering & Samling</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Erfarne folk til montering af køkkener, badeværelser, møbler og inventar.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Køkken · Møbler · Inventar</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Have & Anlæg</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Havefolk til rydning, beskæring, ukrudtsbekæmpelse, anlæg og vedligehold.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Rydning · Beskæring · Anlæg</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Mindre Håndværk</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Faglærte til mindre håndværksopgaver — reparationer, istandsættelse og vedligehold.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Tømrer · Murer · VVS</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Byggepladsbehjælp</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Stærke hænder til byggepladsen — logistik, materialer, oprydning og support.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Byggeplads · Logistik · Support</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Events & Scener</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Hold til sceneopbygning, teltopsætning, eventhjælp og nedtagning.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Scener · Events · Nedtagning</p>
+      </div>
+      <div class="card">
+        <h3 class="cond" style="font-weight:800; font-size:20px; text-transform:uppercase; margin-bottom:10px;">Kombineret / Andet</h3>
+        <p class="muted" style="font-size:14px; line-height:1.7; margin-bottom:16px;">Sammensat hold til blandede opgaver — vi kombinerer fag og erfaring i ét hold.</p>
+        <p class="cond yellow" style="font-weight:600; font-size:12px; letter-spacing:.1em; text-transform:uppercase;">Kombineret · Fleksibelt · Skræddersyet</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SIDE 4 — PRISER
+============================================================ -->
+<div id="priser" class="page-divider">Side 4 — Priser</div>
+
+<section class="section">
+  <div style="max-width:1100px; margin:0 auto;">
+    <div style="text-align:center; max-width:640px; margin:0 auto 48px;">
+      <p class="eyebrow centered" style="margin-bottom:20px;">Priser</p>
+      <h2 class="h-display h2">Enkelt og <span class="yellow">gennemsigtigt</span></h2>
+    </div>
+
+    <!-- Prisformel -->
+    <div style="max-width:640px; margin:0 auto 72px;">
+      <div class="card" style="text-align:center; padding:32px;">
+        <p class="cond" style="font-weight:700; font-size:18px; text-transform:uppercase; letter-spacing:.04em;">
+          Medarbejderens løn + <span class="yellow">Kryds-gebyr</span> = din timepris
+        </p>
+        <p class="muted" style="font-size:14px; margin-top:10px;">Eksempel: 175 kr løn + 145 kr gebyr = <span style="color:var(--color-cream); font-weight:500;">320 kr/t total</span></p>
+      </div>
+    </div>
+
+    <!-- 3 tiers -->
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:20px; align-items:start;" class="max-[900px]:!grid-cols-1">
+      <div class="card" style="padding:40px 32px;">
+        <h3 class="cond" style="font-weight:800; font-size:22px; text-transform:uppercase; margin-bottom:4px;">Handyman</h3>
+        <p class="cond muted" style="font-weight:600; font-size:12px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:24px;">Standardpersonale</p>
+        <div class="cond yellow" style="font-weight:900; font-size:38px; margin-bottom:4px;">310–330 <span style="font-size:16px; font-weight:600;">kr/t</span></div>
+        <p class="muted" style="font-size:13px; margin-bottom:28px;">Medarbejderens løn: ca. 165–180 kr/t</p>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:32px;">
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Byggehjælpere & handymen</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Maling, oprydning, havearbejde</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Verificeret og screenet personale</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Ingen minimumsbooking</li>
+        </ul>
+        <a href="#kontakt" class="btn-secondary" style="width:100%; text-align:center;">Book handyman</a>
+      </div>
+
+      <div class="card" style="padding:40px 32px; border-color:rgba(245,196,0,.4);">
+        <div class="cond" style="position:absolute; top:0; right:0; background:var(--color-yellow); color:#0C0C0A; font-weight:800; font-size:11px; letter-spacing:.14em; text-transform:uppercase; padding:6px 14px;">Anbefalet</div>
+        <h3 class="cond" style="font-weight:800; font-size:22px; text-transform:uppercase; margin-bottom:4px;">Koordinator</h3>
+        <p class="cond muted" style="font-weight:600; font-size:12px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:24px;">Kvalificeret personale</p>
+        <div class="cond yellow" style="font-weight:900; font-size:38px; margin-bottom:4px;">395–420 <span style="font-size:16px; font-weight:600;">kr/t</span></div>
+        <p class="muted" style="font-size:13px; margin-bottom:28px;">Medarbejderens løn: ca. 220–245 kr/t</p>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:32px;">
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Min. 5 års erfaring eller faglig uddannelse</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Kan lede og fordele arbejdet på pladsen</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Projektledelse, tidsplan & kvalitetssikring</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Prioriteret mobilisering</li>
+        </ul>
+        <a href="#kontakt" class="btn-primary" style="width:100%; text-align:center;">Book koordinator</a>
+      </div>
+
+      <div class="card" style="padding:40px 32px;">
+        <h3 class="cond" style="font-weight:800; font-size:22px; text-transform:uppercase; margin-bottom:4px;">Mængde 3+</h3>
+        <p class="cond muted" style="font-weight:600; font-size:12px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:24px;">Volumenpris — handyman</p>
+        <div class="cond yellow" style="font-weight:900; font-size:38px; margin-bottom:4px;">290–310 <span style="font-size:16px; font-weight:600;">kr/t</span></div>
+        <p class="muted" style="font-size:13px; margin-bottom:28px;">Medarbejderens løn: ca. 165–180 kr/t</p>
+        <ul style="list-style:none; display:flex; flex-direction:column; gap:12px; margin-bottom:32px;">
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> 3+ handymen pr. booking</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Samme kvalitet — lavere gebyr</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Fleksibel op-/nedskalering</li>
+          <li class="muted" style="font-size:14px; display:flex; gap:10px;"><span class="yellow">✕</span> Samlet faktura pr. periode</li>
+        </ul>
+        <a href="#kontakt" class="btn-secondary" style="width:100%; text-align:center;">Kontakt os</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div style="padding:48px 20px; text-align:center; border-top:1px solid var(--border);">
+  <p class="muted" style="font-size:13px;">KrydsByg redesign-preview · FASE 0 af FABLE_PLAN.md · Godkend eller kommentér — derefter implementeres designet i Next.js</p>
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const btn = document.getElementById('themeBtn');
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    btn.textContent = next === 'dark' ? '☀ Lys tema' : '☾ Mørkt tema';
+  }
+</script>
+</body>
+</html>
