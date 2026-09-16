@@ -266,6 +266,15 @@ export interface ExcelColumnMapping {
 
 export type LeadType = "company" | "private" | "employee";
 
+export type SalgStatus = "ny" | "mail_sendt" | "ringet" | "samtale" | "tilbud" | "vundet" | "tabt";
+
+export interface SalgInfo {
+  status: SalgStatus;
+  historik: { status: SalgStatus; at: string }[];
+  beloeb?: number; // kr. ekskl. moms, sættes ved "vundet"
+  note?: string;
+}
+
 export interface Lead {
   id: string;
   companyName: string;
@@ -303,6 +312,7 @@ export interface Lead {
   smsSentAt?: string;         // Dag 0 SMS — Sarah's korte besked
   smsBody?: string;           // Teksten der blev sendt
   sourceFile?: string;
+  salg?: SalgInfo;            // Salgssiden (/admin/salg) — adskilt fra status, som LeadBot bruger
   createdAt: string;
   updatedAt: string;
 }
