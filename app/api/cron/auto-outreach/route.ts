@@ -22,6 +22,7 @@ import { SEKVENSER, vaelgSekvens } from "@/lib/outreach/sekvenser";
 import { reserverAfsendelse } from "@/lib/outreach/warming";
 import Anthropic from "@anthropic-ai/sdk";
 import { sendKundeMail } from "@/lib/email/send-kunde-mail";
+import { tilladtForAutomatik } from "@/lib/outreach/automatik";
 import type { Lead, CouncilAnalysis } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -241,8 +242,8 @@ async function runOutreachPipeline() {
 
   const allLeads = await readLeads();
 
-  // Kun "New" leads — max 12 per kørsel (var 25 — timeout ved tunge AI-kald)
-  const toProcess = allLeads.filter((l) => l.status === "New").slice(0, 12);
+  // Kun "New" leads uden for salgslisten — max 12 per kørsel (var 25 — timeout ved tunge AI-kald)
+  const toProcess = allLeads.filter((l) => l.status === "New" && tilladtForAutomatik(l)).slice(0, 12);
 
   if (toProcess.length === 0) {
     return { stats, toProcess: 0, message: "Ingen New leads" };
@@ -471,6 +472,7 @@ async function runFollowUpPipeline() {
     .filter(
       (l) =>
         l.status === "Sent" &&
+        tilladtForAutomatik(l) &&
         l.email &&
         l.sentAt &&
         l.sentAt <= cutoff4 &&
@@ -485,6 +487,7 @@ async function runFollowUpPipeline() {
     .filter(
       (l) =>
         l.status === "Sent" &&
+        tilladtForAutomatik(l) &&
         l.email &&
         l.sentAt &&
         l.sentAt <= cutoff9 &&
@@ -499,6 +502,7 @@ async function runFollowUpPipeline() {
   const toClose = allLeads.filter(
     (l) =>
       l.status === "Sent" &&
+      tilladtForAutomatik(l) &&
       l.followUp2SentAt &&
       l.followUp2SentAt <= parkCutoff
   );
