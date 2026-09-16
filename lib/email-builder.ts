@@ -1,10 +1,18 @@
 // Email-builder — bygger branded HTML-emails med professionel KrydsByg-signatur
 import { unsubUrl } from "@/lib/outreach/unsubscribe";
 
+export interface Signatur {
+  navn: string;
+  titel: string;
+}
+
+const SARAH: Signatur = { navn: "Sarah Møller", titel: "Assistent, KrydsByg" };
+
 interface EmailParts {
   body: string;       // Plain text body fra Sarah (med \n linjeskift)
   preheader?: string; // Skjult preview-tekst i indbakken (under emnefelt)
   recipientEmail?: string; // Saettes paa cold/opfoelgning: personligt afmeld-link i footer
+  signatur?: Signatur; // Standard: Sarah Møller
 }
 
 const KRYDSBYG_YELLOW = "#F5C400";
@@ -15,7 +23,7 @@ const KRYDSBYG_GRAY = "#5A5A55";
  * Bygger en komplet HTML-email med branded signatur.
  * Bruges af /api/admin/leads/sarah send-action.
  */
-export function buildEmailHtml({ body, preheader, recipientEmail }: EmailParts): string {
+export function buildEmailHtml({ body, preheader, recipientEmail, signatur = SARAH }: EmailParts): string {
   const unsubHref = recipientEmail
     ? unsubUrl(recipientEmail)
     : "mailto:kontakt@krydsbyg.com?subject=Afmeld";
@@ -79,8 +87,8 @@ ${preheaderHtml}
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td style="padding:0">
-                  <p style="margin:0 0 2px 0;font-size:15px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">Sarah Møller</p>
-                  <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">Assistent, KrydsByg</p>
+                  <p style="margin:0 0 2px 0;font-size:15px;font-weight:bold;color:${KRYDSBYG_BLACK};letter-spacing:.02em">${escapeHtml(signatur.navn)}</p>
+                  <p style="margin:0 0 12px 0;font-size:13px;color:${KRYDSBYG_GRAY}">${escapeHtml(signatur.titel)}</p>
                   <p style="margin:0 0 3px 0;font-size:13px;color:${KRYDSBYG_BLACK}">
                     <span style="color:${KRYDSBYG_GRAY}">Telefon:</span>
                     <a href="tel:+4542778866" style="color:${KRYDSBYG_BLACK};text-decoration:none;font-weight:600">+45 42 77 88 66</a>
@@ -130,12 +138,12 @@ export function buildUnsubHeaders(recipientEmail: string): Record<string, string
   };
 }
 
-export function buildEmailText(body: string): string {
+export function buildEmailText(body: string, signatur: Signatur = SARAH): string {
   return `${body.trim()}
 
 ---
-Sarah Møller
-Assistent, KrydsByg
+${signatur.navn}
+${signatur.titel}
 Telefon: +45 42 77 88 66
 Email: kontakt@krydsbyg.com
 Web: krydsbyg.com
