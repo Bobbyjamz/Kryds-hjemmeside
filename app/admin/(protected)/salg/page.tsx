@@ -49,15 +49,25 @@ export default function SalgPage() {
   const [indsat, setIndsat] = useState("");
 
   const kald = useCallback(async (url: string, init?: RequestInit) => {
-    const res = await fetch(url, init);
+    let res: Response;
+    try {
+      res = await fetch(url, init);
+    } catch {
+      setFejl("Ingen forbindelse til serveren. Tjek nettet og prøv igen.");
+      return null;
+    }
     if (res.status === 401) {
       setFejl("Din session er udløbet. Du sendes til login.");
       setTimeout(() => { window.location.href = "/admin/login"; }, 2000);
       return null;
     }
-    const data = await res.json();
-    if (!res.ok) {
-      setFejl(data.error ?? "Ukendt fejl");
+    // Timeout-sider fra Vercel er HTML, ikke JSON — må ikke få siden til at hænge
+    const data = await res.json().catch(() => null);
+    if (!res.ok || data === null) {
+      setFejl(
+        data?.error ??
+          `Serveren svarede ikke som forventet (${res.status}). Genindlæs siden og tjek kontaktens status, før du prøver igen.`,
+      );
       return null;
     }
     return data;
@@ -74,9 +84,12 @@ export default function SalgPage() {
   const erstat = (opdateret: Lead) =>
     setLeads((alle) => alle.map((l) => (l.id === opdateret.id ? opdateret : l)));
 
+  // Hele lead-listen gemmes samlet — ét kald ad gangen, så to ændringer ikke overskriver hinanden
   const patch = async (payload: Record<string, unknown>) => {
     setFejl(null);
+    setArbejder(true);
     const data = await kald("/api/admin/salg", { method: "PATCH", headers: JSON_HEADERS, body: JSON.stringify(payload) });
+    setArbejder(false);
     if (data) erstat(data.lead);
   };
 
@@ -185,9 +198,9 @@ export default function SalgPage() {
                 ) : (
                   <span className="text-[12px] text-muted">Intet telefonnummer</span>
                 )}
-                <button className={stilleKnap} onClick={() => vaelgStatus(lead, "ringet")}>Ingen svar</button>
-                <button className={stilleKnap} onClick={() => vaelgStatus(lead, "samtale")}>Samtale</button>
-                <button className={stilleKnap} onClick={() => vaelgStatus(lead, "tabt")}>Tabt</button>
+                <button className={stilleKnap} disabled={arbejder} onClick={() => vaelgStatus(lead, "ringet")}>Ingen svar</button>
+                <button className={stilleKnap} disabled={arbejder} onClick={() => vaelgStatus(lead, "samtale")}>Samtale</button>
+                <button className={stilleKnap} disabled={arbejder} onClick={() => vaelgStatus(lead, "tabt")}>Tabt</button>
               </li>
             ))}
           </ul>
@@ -254,9 +267,10 @@ export default function SalgPage() {
                       {lead.salg.status === "vundet" && lead.salg.beloeb ? ` · ${lead.salg.beloeb.toLocaleString("da-DK")} kr` : ""}
                     </span>
                   )}
-                  <button className={gulKnap} disabled={!lead.email} onClick={() => aabnPreview(lead)}>Send mail</button>
+                  <button className={gulKnap} disabled={arbejder || !lead.email} onClick={() => aabnPreview(lead)}>Send mail</button>
                   <select
                     className={`${felt} w-auto`}
+                    disabled={arbejder}
                     value={lead.salg?.status}
                     onChange={(e) => vaelgStatus(lead, e.target.value as SalgStatus)}
                   >
