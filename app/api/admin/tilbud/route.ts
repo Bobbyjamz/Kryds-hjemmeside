@@ -1,5 +1,5 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendKundeMail } from "@/lib/email/send-kunde-mail";
 import { getAdminSession } from "@/lib/auth";
 import { readTilbud, writeTilbud, generateId } from "@/lib/db";
 import { getCouncilAdviceForTilbud } from "@/lib/council";
@@ -7,7 +7,6 @@ import type { Tilbud } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 const FROM = process.env.RESEND_FROM ?? "KrydsByg <kontakt@krydsbyg.com>";
 const VAT = 0.25;
 
@@ -84,9 +83,9 @@ export async function PATCH(req: NextRequest) {
     const subject = `Tilbud fra KrydsByg — ${t.taskDescription.slice(0, 50)}`;
     const body = t.generatedText ?? `Hermed vores tilbud.\n\nTotal inkl. moms: ${t.totalIncVat.toLocaleString("da-DK")} kr.\n\nGyldig i ${t.validDays} dage.\n\nKrystian Balasz · KrydsByg ApS · krydsbyg.com`;
 
-    await resend.emails.send({
+    const sendt = await sendKundeMail({
       from: FROM,
-      to: [t.clientEmail],
+      to: t.clientEmail,
       subject,
       html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px;">
         <div style="background:#F5C400;padding:10px 18px;margin-bottom:24px;">
@@ -107,6 +106,9 @@ export async function PATCH(req: NextRequest) {
       </div>`,
       text: body,
     });
+    if (!sendt.ok) {
+      return NextResponse.json({ error: `Tilbuddet blev ikke sendt: ${sendt.error}` }, { status: 502 });
+    }
 
     all[idx] = { ...t, status: "sent", sentAt: new Date().toISOString() };
   } else {

@@ -11,7 +11,7 @@ import { readLeads, writeLeads } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-builder";
 import Anthropic from "@anthropic-ai/sdk";
-import { Resend } from "resend";
+import { sendKundeMail } from "@/lib/email/send-kunde-mail";
 import type { Lead } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -178,13 +178,11 @@ ${isFinalAttempt ? "VIGTIGT: Tonen er varm men afsluttende. Lov IKKE at skrive i
 
     // ── Send via Resend ────────────────────────────────────────────────────
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
     const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
 
-    await resend.emails.send({
+    const sendt = await sendKundeMail({
       from,
-      to: [lead.email],
-      replyTo: "kontakt@krydsbyg.com",
+      to: lead.email,
       subject: draft.subject,
       html: buildEmailHtml({ body: draft.body, preheader: draft.subject }),
       text: buildEmailText(draft.body),
@@ -193,6 +191,12 @@ ${isFinalAttempt ? "VIGTIGT: Tonen er varm men afsluttende. Lov IKKE at skrive i
         "X-Mailer": "KrydsByg Outreach",
       },
     });
+    if (!sendt.ok) {
+      return NextResponse.json(
+        { ok: false, error: `Email-afsendelse fejlede: ${sendt.error}` },
+        { status: 502 }
+      );
+    }
 
     // ── Opdater lead ───────────────────────────────────────────────────────
 

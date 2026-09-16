@@ -21,7 +21,7 @@ import { erBlokeret } from "@/lib/outreach/suppression";
 import { SEKVENSER, vaelgSekvens } from "@/lib/outreach/sekvenser";
 import { reserverAfsendelse } from "@/lib/outreach/warming";
 import Anthropic from "@anthropic-ai/sdk";
-import { Resend } from "resend";
+import { sendKundeMail } from "@/lib/email/send-kunde-mail";
 import type { Lead, CouncilAnalysis } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -309,15 +309,13 @@ async function runOutreachPipeline() {
         break;
       }
 
-      const resend = new Resend(process.env.RESEND_API_KEY);
       const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
       const textVersion = buildEmailText(draft.body);
 
-      await resend.emails.send({
+      const sendt = await sendKundeMail({
         from,
-        to: [lead.email],
-        replyTo: "kontakt@krydsbyg.com",
+        to: lead.email,
         subject: draft.subject,
         html,
         text: textVersion,
@@ -326,6 +324,7 @@ async function runOutreachPipeline() {
           "X-Mailer": "KrydsByg Outreach",
         },
       });
+      if (!sendt.ok) throw new Error(`Resend: ${sendt.error}`);
 
       stats.sent++;
       const sentNow = new Date().toISOString();
@@ -508,7 +507,6 @@ async function runFollowUpPipeline() {
     return { followUp1Sent: 0, followUp2Sent: 0, autoClosed: 0 };
   }
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
   const updatedLeads = [...allLeads];
 
@@ -535,15 +533,15 @@ async function runFollowUpPipeline() {
       }
 
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
-      await resend.emails.send({
+      const sendt = await sendKundeMail({
         from,
-        to: [lead.email!],
-        replyTo: "kontakt@krydsbyg.com",
+        to: lead.email!,
         subject: draft.subject,
         html,
         text: buildEmailText(draft.body),
         headers: buildUnsubHeaders(lead.email!),
       });
+      if (!sendt.ok) throw new Error(`Resend: ${sendt.error}`);
 
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);
       const ts = new Date().toISOString();
@@ -576,15 +574,15 @@ async function runFollowUpPipeline() {
       }
 
       const html = buildEmailHtml({ body: draft.body, preheader: draft.subject, recipientEmail: lead.email! });
-      await resend.emails.send({
+      const sendt = await sendKundeMail({
         from,
-        to: [lead.email!],
-        replyTo: "kontakt@krydsbyg.com",
+        to: lead.email!,
         subject: draft.subject,
         html,
         text: buildEmailText(draft.body),
         headers: buildUnsubHeaders(lead.email!),
       });
+      if (!sendt.ok) throw new Error(`Resend: ${sendt.error}`);
 
       const idx = updatedLeads.findIndex((l) => l.id === lead.id);
       const ts = new Date().toISOString();

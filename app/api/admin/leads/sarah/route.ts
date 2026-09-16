@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readLeads, writeLeads, appendEmailMemory } from "@/lib/db";
 import { getAdminSession } from "@/lib/auth";
 import Anthropic from "@anthropic-ai/sdk";
-import { Resend } from "resend";
+import { sendKundeMail } from "@/lib/email/send-kunde-mail";
 import { buildEmailHtml, buildEmailText, buildUnsubHeaders } from "@/lib/email-builder";
 
 export const runtime = "nodejs";
@@ -214,7 +214,6 @@ export async function PATCH(req: NextRequest) {
     if (!lead.email) return NextResponse.json({ error: "Lead mangler email-adresse" }, { status: 400 });
     if (!lead.draftSubject || !lead.draftBody) return NextResponse.json({ error: "Ingen email-udkast — generér udkast med Sarah først" }, { status: 400 });
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
     const from = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
 
     // Brug branded email-builder med professionel signatur
@@ -224,24 +223,21 @@ export async function PATCH(req: NextRequest) {
     });
     const textVersion = buildEmailText(lead.draftBody);
 
-    try {
-      await resend.emails.send({
-        from,
-        to: [lead.email],
-        replyTo: "kontakt@krydsbyg.com",
-        subject: lead.draftSubject,
-        html,
-        text: textVersion,
-        headers: {
-          // List-Unsubscribe: Gmail og Outlook stoler mere på afsendere der har dette
-          ...buildUnsubHeaders(lead.email),
-          // X-Mailer signatur (undgå generiske "sent via" headers der trigger spam)
-          "X-Mailer": "KrydsByg Outreach",
-        },
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      return NextResponse.json({ error: `Email-afsendelse fejlede: ${msg}` }, { status: 500 });
+    const sendt = await sendKundeMail({
+      from,
+      to: lead.email,
+      subject: lead.draftSubject,
+      html,
+      text: textVersion,
+      headers: {
+        // List-Unsubscribe: Gmail og Outlook stoler mere på afsendere der har dette
+        ...buildUnsubHeaders(lead.email),
+        // X-Mailer signatur (undgå generiske "sent via" headers der trigger spam)
+        "X-Mailer": "KrydsByg Outreach",
+      },
+    });
+    if (!sendt.ok) {
+      return NextResponse.json({ error: `Email-afsendelse fejlede: ${sendt.error}` }, { status: 500 });
     }
 
     await writeLeads(leads.map((l) =>

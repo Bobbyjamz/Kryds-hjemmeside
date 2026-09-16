@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Resend } from "resend";
+import { sendKundeMail } from "@/lib/email/send-kunde-mail";
 import { getAdminSession } from "@/lib/auth";
 import {
   readSarahContacts, writeSarahContacts,
@@ -15,30 +15,24 @@ export const runtime = "nodejs";
 // Outreach-kald tager tid — øg timeout til 5 min (Vercel Pro) eller brug Edge kø
 export const maxDuration = 300;
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? "not-configured");
 const FROM = process.env.RESEND_FROM_COLD ?? "KrydsByg <kontakt@krydsbyg.com>";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://krydsbyg.com";
 
 async function sendEmail(to: string, subject: string, html: string, text: string): Promise<boolean> {
-  try {
-    const unsubUrl = `${SITE_URL}/afmeld?e=${encodeURIComponent(to)}`;
-    await resend.emails.send({
-      from: FROM,
-      to: [to],
-      replyTo: "kontakt@krydsbyg.com",
-      subject,
-      html,
-      text,
-      headers: {
-        "List-Unsubscribe": `<mailto:kontakt@krydsbyg.com?subject=afmeld>, <${unsubUrl}>`,
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-      },
-    });
-    return true;
-  } catch (err) {
-    console.error("Resend fejl:", err);
-    return false;
-  }
+  const unsubUrl = `${SITE_URL}/afmeld?e=${encodeURIComponent(to)}`;
+  const sendt = await sendKundeMail({
+    from: FROM,
+    to,
+    subject,
+    html,
+    text,
+    headers: {
+      "List-Unsubscribe": `<mailto:kontakt@krydsbyg.com?subject=afmeld>, <${unsubUrl}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  });
+  if (!sendt.ok) console.error("Resend fejl:", sendt.error);
+  return sendt.ok;
 }
 
 export async function POST(req: NextRequest) {
