@@ -7,18 +7,6 @@
     {
       "path": "/api/cron/morning-report",
       "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/leadbot-feedback",
-      "schedule": "0 5 * * 1"
-    },
-    {
-      "path": "/api/cron/find-leads",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/cron/auto-outreach",
-      "schedule": "0 12 * * 2-4"
     }
   ]
 }
